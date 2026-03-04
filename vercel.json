@@ -1,0 +1,8 @@
+{
+  "buildCommand": "npm run build -w packages/web",
+  "outputDirectory": "packages/web/dist",
+  "installCommand": "npm install",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
