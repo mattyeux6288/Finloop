@@ -2,7 +2,14 @@
   "buildCommand": "npm run build -w packages/web",
   "outputDirectory": "packages/web/dist",
   "installCommand": "npm install",
+  "functions": {
+    "api/[[...route]].ts": {
+      "memory": 512,
+      "maxDuration": 30
+    }
+  },
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/api/(.*)", "destination": "/api/[[...route]]" },
+    { "source": "/(.*)",     "destination": "/index.html" }
   ]
 }

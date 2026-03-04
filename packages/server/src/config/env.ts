@@ -23,7 +23,7 @@ export const config = {
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '1h',
   jwtRefreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
 
-  // Upload
-  uploadDir: process.env.UPLOAD_DIR || path.join(rootDir, 'uploads'),
+  // Upload — /tmp en serverless (Vercel), dossier local sinon
+  uploadDir: process.env.UPLOAD_DIR || (process.env.VERCEL ? '/tmp' : path.join(rootDir, 'uploads')),
   maxUploadSize: 50 * 1024 * 1024, // 50 MB
 };

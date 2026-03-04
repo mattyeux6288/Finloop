@@ -1,37 +1,26 @@
 import knex, { Knex } from 'knex';
 import { config } from './env';
+import { migrationSource } from '../db/migrationSource';
 
 function createKnexConfig(): Knex.Config {
   if (config.databaseType === 'sqlite') {
     return {
       client: 'better-sqlite3',
-      connection: {
-        filename: config.sqlitePath,
-      },
+      connection: { filename: config.sqlitePath },
       useNullAsDefault: true,
-      migrations: {
-        directory: __dirname + '/../db/migrations',
-        extension: 'ts',
-      },
-      seeds: {
-        directory: __dirname + '/../db/seeds',
-        extension: 'ts',
-      },
+      migrations: { migrationSource },
     };
   }
 
+  // PostgreSQL — utilisé en production (Neon, Supabase, Vercel Postgres…)
   return {
     client: 'pg',
-    connection: config.databaseUrl,
-    pool: { min: 2, max: 10 },
-    migrations: {
-      directory: __dirname + '/../db/migrations',
-      extension: 'ts',
+    connection: {
+      connectionString: config.databaseUrl,
+      ssl: { rejectUnauthorized: false }, // requis pour Neon
     },
-    seeds: {
-      directory: __dirname + '/../db/seeds',
-      extension: 'ts',
-    },
+    pool: { min: 0, max: 2 }, // min:0 important pour le serverless
+    migrations: { migrationSource },
   };
 }
 
