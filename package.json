@@ -1,0 +1,25 @@
+{
+  "name": "finthesis-lite",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Application simplifiée d'analyse financière",
+  "workspaces": [
+    "packages/shared",
+    "packages/engine",
+    "packages/server",
+    "packages/web"
+  ],
+  "scripts": {
+    "dev": "concurrently -n server,web -c blue,green \"npm run dev -w packages/server\" \"npm run dev -w packages/web\"",
+    "dev:server": "npm run dev -w packages/server",
+    "dev:web": "npm run dev -w packages/web",
+    "build": "npm run build -w packages/shared && npm run build -w packages/engine && npm run build -w packages/server && npm run build -w packages/web",
+    "generate:fec": "npx tsx tools/scripts/generate-sample-fec.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "concurrently": "^9.1.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  }
+}

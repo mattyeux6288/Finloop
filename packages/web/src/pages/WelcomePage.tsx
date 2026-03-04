@@ -1,0 +1,290 @@
+import { useState, FormEvent, useEffect, useRef } from 'react';
+import type { Company } from '@finthesis/shared';
+import { useCompanyStore } from '@/store/companyStore';
+import { createCompany } from '@/api/company.api';
+import { lookupSiren, type SirenResult } from '@/api/siren.api';
+import { Plus, Search, Loader2, CheckCircle, Building2, ArrowRight, ChevronLeft, User } from 'lucide-react';
+import { FinloopLogo } from '@/components/FinloopLogo';
+
+interface Props {
+  onGreet: (firstName: string, lastName: string, company: Company) => void;
+}
+
+export function WelcomePage({ onGreet }: Props) {
+  const { companies, setCompanies } = useCompanyStore();
+  const [selected, setSelected] = useState('');
+  const [showCreate, setShowCreate] = useState(false);
+
+  // Champs identité
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName]   = useState('');
+
+  // Formulaire création
+  const [newName, setNewName]   = useState('');
+  const [newSiren, setNewSiren] = useState('');
+  const [creating, setCreating] = useState(false);
+
+  // SIREN lookup
+  const [sirenInfo, setSirenInfo]     = useState<SirenResult | null>(null);
+  const [sirenLoading, setSirenLoading] = useState(false);
+  const [sirenError, setSirenError]   = useState('');
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    setSirenInfo(null);
+    setSirenError('');
+    if (newSiren.length !== 9) return;
+    debounceRef.current = setTimeout(async () => {
+      setSirenLoading(true);
+      try {
+        const result = await lookupSiren(newSiren);
+        if (result) {
+          setSirenInfo(result);
+          if (!newName) setNewName(result.nom);
+        } else {
+          setSirenError('SIREN introuvable');
+        }
+      } catch {
+        setSirenError('Erreur réseau');
+      } finally {
+        setSirenLoading(false);
+      }
+    }, 400);
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [newSiren]);
+
+  const canContinue = selected && firstName.trim() && lastName.trim();
+
+  const handleContinue = () => {
+    const company = companies.find(c => c.id === selected);
+    if (company && firstName.trim() && lastName.trim()) {
+      onGreet(firstName.trim(), lastName.trim(), company);
+    }
+  };
+
+  const handleCreate = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!newName.trim() || !firstName.trim() || !lastName.trim()) return;
+    setCreating(true);
+    try {
+      const company = await createCompany({
+        name: newName.trim(),
+        siren: newSiren || undefined,
+        siret: sirenInfo?.siret,
+        nafCode: sirenInfo?.nafCode,
+        address: sirenInfo?.adresse,
+      });
+      setCompanies([...companies, company]);
+      onGreet(firstName.trim(), lastName.trim(), company);
+    } catch { /* silencieux */ } finally {
+      setCreating(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col" style={{ background: '#f8f7f5' }}>
+
+      {/* Header branded */}
+      <div
+        className="py-16 px-6 flex flex-col items-center"
+        style={{ background: 'linear-gradient(135deg, #f94f1c 0%, #ff6d2d 55%, #ffa647 100%)' }}
+      >
+        <FinloopLogo size={64} variant="white" className="mb-4 drop-shadow" />
+        <h1 className="text-5xl font-bold text-white" style={{ letterSpacing: '-1.5px' }}>Finloop</h1>
+        <p className="text-white/70 mt-2 tracking-[0.3em] text-sm uppercase font-light">Analyse financière</p>
+      </div>
+
+      {/* Carte centrale */}
+      <div className="flex-1 flex items-start justify-center pt-10 px-4 pb-10">
+        <div className="bg-white rounded-2xl shadow-lg w-full max-w-md overflow-hidden">
+
+          {!showCreate ? (
+            <div className="p-8">
+              {/* Titre section entreprise */}
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: '#fff4ee' }}>
+                  <Building2 className="w-5 h-5" style={{ color: '#ff6d2d' }} />
+                </div>
+                <div>
+                  <h2 className="text-base font-semibold text-gray-900">Sélectionner une entreprise</h2>
+                  <p className="text-xs text-gray-400 mt-0.5">Choisissez une société pour commencer</p>
+                </div>
+              </div>
+
+              {companies.length > 0 ? (
+                <>
+                  <select
+                    value={selected}
+                    onChange={e => setSelected(e.target.value)}
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-400 mb-4 bg-gray-50"
+                  >
+                    <option value="">— Choisir une entreprise —</option>
+                    {companies.map(c => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
+                  </select>
+
+                  <div className="relative flex items-center gap-3 mb-4">
+                    <div className="flex-1 h-px bg-gray-100" />
+                    <span className="text-xs text-gray-400">ou</span>
+                    <div className="flex-1 h-px bg-gray-100" />
+                  </div>
+                </>
+              ) : (
+                <div className="text-center py-6 text-gray-400 text-sm mb-4">
+                  Aucune entreprise enregistrée
+                </div>
+              )}
+
+              <button
+                onClick={() => setShowCreate(true)}
+                className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-gray-200 rounded-xl py-3 text-sm font-medium text-gray-500 hover:border-orange-300 hover:text-orange-500 transition-colors mb-6"
+              >
+                <Plus className="w-4 h-4" /> Créer une nouvelle entreprise
+              </button>
+
+              {/* Champs identité */}
+              {companies.length > 0 && (
+                <>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: '#fff4ee' }}>
+                      <User className="w-5 h-5" style={{ color: '#ff6d2d' }} />
+                    </div>
+                    <div>
+                      <h2 className="text-base font-semibold text-gray-900">Vos informations</h2>
+                      <p className="text-xs text-gray-400 mt-0.5">Pour personnaliser votre expérience</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 mb-4">
+                    <input
+                      type="text"
+                      value={firstName}
+                      onChange={e => setFirstName(e.target.value)}
+                      placeholder="Prénom *"
+                      className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-gray-50"
+                    />
+                    <input
+                      type="text"
+                      value={lastName}
+                      onChange={e => setLastName(e.target.value)}
+                      placeholder="Nom *"
+                      className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-gray-50"
+                    />
+                  </div>
+
+                  <button
+                    onClick={handleContinue}
+                    disabled={!canContinue}
+                    className="w-full flex items-center justify-center gap-2 text-white py-3 rounded-xl text-sm font-semibold disabled:opacity-40 transition-all hover:opacity-90 active:scale-95"
+                    style={{ background: 'linear-gradient(135deg, #f94f1c, #ff6d2d)' }}
+                  >
+                    Accéder au tableau de bord <ArrowRight className="w-4 h-4" />
+                  </button>
+                </>
+              )}
+            </div>
+          ) : (
+            <div className="p-8">
+              <button
+                onClick={() => setShowCreate(false)}
+                className="flex items-center gap-1 text-sm text-gray-400 hover:text-gray-600 mb-5 transition-colors"
+              >
+                <ChevronLeft className="w-4 h-4" /> Retour
+              </button>
+
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: '#fff4ee' }}>
+                  <Plus className="w-5 h-5" style={{ color: '#ff6d2d' }} />
+                </div>
+                <div>
+                  <h2 className="text-base font-semibold text-gray-900">Nouvelle entreprise</h2>
+                  <p className="text-xs text-gray-400 mt-0.5">Entrez le SIREN pour auto-remplir</p>
+                </div>
+              </div>
+
+              <form onSubmit={handleCreate} className="space-y-3">
+                {/* SIREN */}
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={newSiren}
+                    onChange={e => setNewSiren(e.target.value.replace(/\D/g, '').slice(0, 9))}
+                    placeholder="SIREN (9 chiffres — recherche auto)"
+                    maxLength={9}
+                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm pr-10 focus:outline-none focus:ring-2 focus:ring-orange-400 bg-gray-50"
+                  />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                    {sirenLoading
+                      ? <Loader2 className="w-4 h-4 animate-spin" style={{ color: '#ff6d2d' }} />
+                      : newSiren.length === 9 && sirenInfo
+                      ? <CheckCircle className="w-4 h-4 text-green-500" />
+                      : <Search className="w-4 h-4" />}
+                  </div>
+                </div>
+                {sirenError && <p className="text-xs text-red-500">{sirenError}</p>}
+
+                {sirenInfo && (
+                  <div className="rounded-xl px-3 py-2 text-xs space-y-0.5" style={{ background: '#fff4ee', border: '1px solid #ffc9a0' }}>
+                    {sirenInfo.formeJuridique && <div><span style={{ color: '#ff6d2d' }}>Forme :</span> <span className="text-gray-700">{sirenInfo.formeJuridique}</span></div>}
+                    {sirenInfo.nafLibelle && <div><span style={{ color: '#ff6d2d' }}>Activité :</span> <span className="text-gray-700">{sirenInfo.nafCode} — {sirenInfo.nafLibelle}</span></div>}
+                    {sirenInfo.effectifLabel && <div><span style={{ color: '#ff6d2d' }}>Effectif :</span> <span className="text-gray-700">{sirenInfo.effectifLabel}</span></div>}
+                    {sirenInfo.dirigeants[0] && <div><span style={{ color: '#ff6d2d' }}>Dirigeant :</span> <span className="text-gray-700">{sirenInfo.dirigeants[0].prenom} {sirenInfo.dirigeants[0].nom}</span></div>}
+                  </div>
+                )}
+
+                <input
+                  type="text"
+                  value={newName}
+                  onChange={e => setNewName(e.target.value)}
+                  placeholder="Nom de l'entreprise *"
+                  required
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-gray-50"
+                />
+
+                {/* Séparateur identité */}
+                <div className="flex items-center gap-3 pt-1">
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: '#fff4ee' }}>
+                    <User className="w-4 h-4" style={{ color: '#ff6d2d' }} />
+                  </div>
+                  <span className="text-xs text-gray-400 font-medium">Vos informations</span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <input
+                    type="text"
+                    value={firstName}
+                    onChange={e => setFirstName(e.target.value)}
+                    placeholder="Prénom *"
+                    required
+                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-gray-50"
+                  />
+                  <input
+                    type="text"
+                    value={lastName}
+                    onChange={e => setLastName(e.target.value)}
+                    placeholder="Nom *"
+                    required
+                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-gray-50"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={creating || !newName.trim() || !firstName.trim() || !lastName.trim()}
+                  className="w-full flex items-center justify-center gap-2 text-white py-3 rounded-xl text-sm font-semibold disabled:opacity-40 transition-all hover:opacity-90 active:scale-95"
+                  style={{ background: 'linear-gradient(135deg, #f94f1c, #ff6d2d)' }}
+                >
+                  <Plus className="w-4 h-4" />
+                  {creating ? 'Création...' : 'Créer et continuer'}
+                </button>
+              </form>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
