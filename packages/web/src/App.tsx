@@ -1,5 +1,6 @@
 import { RouterProvider } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { router } from './router';
 import { useEffect, useState } from 'react';
 import type { Company } from '@finthesis/shared';
@@ -118,6 +119,8 @@ export default function App() {
 
       {/* Application principale */}
       {showApp && <RouterProvider router={router} />}
+
+      <SpeedInsights />
     </QueryClientProvider>
   );
 }
