@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* Force Tailwind v4 à scanner les fichiers source (nécessaire sur Vercel) */
+@source "../**/*.{tsx,ts}";
+@source "../../pages/**/*.{tsx,ts}";
+@source "../../components/**/*.{tsx,ts}";
+
 @theme {
   /* Finloop — palette orange */
   --color-primary-50:  #fff4ee;
