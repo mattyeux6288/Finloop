@@ -8,5 +8,6 @@ Thumbs.db
 coverage/
 *.sqlite
 *.sqlite3
+*.tsbuildinfo
 uploads/
 dist-electron/
