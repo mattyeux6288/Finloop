@@ -1,6 +1,6 @@
 {
   "installCommand": "npm install",
-  "buildCommand": "cd packages/web && npx vite build",
+  "buildCommand": "npx vite build --config packages/web/vite.config.ts --root packages/web",
   "outputDirectory": "packages/web/dist",
   "functions": {
     "api/[[...route]].ts": {
