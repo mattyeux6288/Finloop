@@ -5,7 +5,8 @@
   "functions": {
     "api/[[...route]].ts": {
       "memory": 512,
-      "maxDuration": 30
+      "maxDuration": 30,
+      "includeFiles": "node_modules/csv-parse/**"
     }
   },
   "rewrites": [
