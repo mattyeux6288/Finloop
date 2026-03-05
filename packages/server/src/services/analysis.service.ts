@@ -1,5 +1,6 @@
 import { v4 as uuid } from 'uuid';
 import { db } from '../config/database';
+import { config } from '../config/env';
 import type { CompteAggregate } from '@finthesis/shared';
 import {
   computeBilan,
@@ -7,6 +8,11 @@ import {
   computeSig,
   computeKpis,
 } from '@finthesis/engine';
+
+/** Expression SQL pour extraire YYYY-MM d'une date (compatible SQLite et PostgreSQL) */
+const monthExpr = config.databaseType === 'postgresql'
+  ? "to_char(ecriture_date, 'YYYY-MM')"
+  : "substr(ecriture_date, 1, 7)";
 
 /**
  * Récupère les agrégations par compte pour un exercice fiscal
@@ -73,13 +79,13 @@ export async function getDashboard(fiscalYearId: string) {
     const aggregates = await getCompteAggregates(fiscalYearId);
     const kpis = computeKpis(aggregates);
 
-    // Revenue mensuel - compatible SQLite avec substr()
+    // Revenue mensuel - compatible SQLite (substr) et PostgreSQL (to_char)
     const monthlyRevenue = await db('ecritures')
       .where({ fiscal_year_id: fiscalYearId })
       .whereRaw("compte_num LIKE '70%'")
-      .groupByRaw("substr(ecriture_date, 1, 7)")
+      .groupByRaw(monthExpr)
       .select(
-        db.raw("substr(ecriture_date, 1, 7) as month"),
+        db.raw(`${monthExpr} as month`),
       )
       .sum('credit as creditTotal')
       .sum('debit as debitTotal')
