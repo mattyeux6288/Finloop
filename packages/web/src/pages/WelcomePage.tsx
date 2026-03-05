@@ -84,16 +84,13 @@ export function WelcomePage({ onGreet }: Props) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#f8f7f5' }}>
+    <div className="min-h-screen flex flex-col bg-[#f8f7f5]">
 
       {/* Header branded */}
-      <div
-        className="py-16 px-6 flex flex-col items-center"
-        style={{ background: 'linear-gradient(135deg, #f94f1c 0%, #ff6d2d 55%, #ffa647 100%)' }}
-      >
+      <div className="py-16 px-6 flex flex-col items-center bg-brand-gradient">
         <FinloopLogo size={64} variant="white" className="mb-4 drop-shadow" />
-        <h1 className="text-5xl font-bold text-white" style={{ letterSpacing: '-1.5px' }}>Finloop</h1>
-        <p className="text-white/70 mt-2 tracking-[0.3em] text-sm uppercase font-light">Analyse financière</p>
+        <h1 className="text-5xl font-bold text-white tracking-brand-h2">Finloop</h1>
+        <p className="text-white/70 mt-2 tracking-brand-wide text-sm uppercase font-light">Analyse financière</p>
       </div>
 
       {/* Carte centrale */}
@@ -104,8 +101,8 @@ export function WelcomePage({ onGreet }: Props) {
             <div className="p-8">
               {/* Titre section entreprise */}
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: '#fff4ee' }}>
-                  <Building2 className="w-5 h-5" style={{ color: '#ff6d2d' }} />
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-primary-50">
+                  <Building2 className="w-5 h-5 text-primary-500" />
                 </div>
                 <div>
                   <h2 className="text-base font-semibold text-gray-900">Sélectionner une entreprise</h2>
@@ -149,8 +146,8 @@ export function WelcomePage({ onGreet }: Props) {
               {companies.length > 0 && (
                 <>
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: '#fff4ee' }}>
-                      <User className="w-5 h-5" style={{ color: '#ff6d2d' }} />
+                    <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-primary-50">
+                      <User className="w-5 h-5 text-primary-500" />
                     </div>
                     <div>
                       <h2 className="text-base font-semibold text-gray-900">Vos informations</h2>
@@ -178,8 +175,7 @@ export function WelcomePage({ onGreet }: Props) {
                   <button
                     onClick={handleContinue}
                     disabled={!canContinue}
-                    className="w-full flex items-center justify-center gap-2 text-white py-3 rounded-xl text-sm font-semibold disabled:opacity-40 transition-all hover:opacity-90 active:scale-95"
-                    style={{ background: 'linear-gradient(135deg, #f94f1c, #ff6d2d)' }}
+                    className="w-full flex items-center justify-center gap-2 text-white py-3 rounded-xl text-sm font-semibold disabled:opacity-40 transition-all hover:opacity-90 active:scale-95 bg-brand-gradient"
                   >
                     Accéder au tableau de bord <ArrowRight className="w-4 h-4" />
                   </button>
@@ -196,8 +192,8 @@ export function WelcomePage({ onGreet }: Props) {
               </button>
 
               <div className="flex items-center gap-3 mb-5">
-                <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: '#fff4ee' }}>
-                  <Plus className="w-5 h-5" style={{ color: '#ff6d2d' }} />
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-primary-50">
+                  <Plus className="w-5 h-5 text-primary-500" />
                 </div>
                 <div>
                   <h2 className="text-base font-semibold text-gray-900">Nouvelle entreprise</h2>
@@ -218,7 +214,7 @@ export function WelcomePage({ onGreet }: Props) {
                   />
                   <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
                     {sirenLoading
-                      ? <Loader2 className="w-4 h-4 animate-spin" style={{ color: '#ff6d2d' }} />
+                      ? <Loader2 className="w-4 h-4 animate-spin text-primary-500" />
                       : newSiren.length === 9 && sirenInfo
                       ? <CheckCircle className="w-4 h-4 text-green-500" />
                       : <Search className="w-4 h-4" />}
@@ -227,11 +223,11 @@ export function WelcomePage({ onGreet }: Props) {
                 {sirenError && <p className="text-xs text-red-500">{sirenError}</p>}
 
                 {sirenInfo && (
-                  <div className="rounded-xl px-3 py-2 text-xs space-y-0.5" style={{ background: '#fff4ee', border: '1px solid #ffc9a0' }}>
-                    {sirenInfo.formeJuridique && <div><span style={{ color: '#ff6d2d' }}>Forme :</span> <span className="text-gray-700">{sirenInfo.formeJuridique}</span></div>}
-                    {sirenInfo.nafLibelle && <div><span style={{ color: '#ff6d2d' }}>Activité :</span> <span className="text-gray-700">{sirenInfo.nafCode} — {sirenInfo.nafLibelle}</span></div>}
-                    {sirenInfo.effectifLabel && <div><span style={{ color: '#ff6d2d' }}>Effectif :</span> <span className="text-gray-700">{sirenInfo.effectifLabel}</span></div>}
-                    {sirenInfo.dirigeants[0] && <div><span style={{ color: '#ff6d2d' }}>Dirigeant :</span> <span className="text-gray-700">{sirenInfo.dirigeants[0].prenom} {sirenInfo.dirigeants[0].nom}</span></div>}
+                  <div className="rounded-xl px-3 py-2 text-xs space-y-0.5 bg-primary-50 border border-primary-200">
+                    {sirenInfo.formeJuridique && <div><span className="text-primary-500">Forme :</span> <span className="text-gray-700">{sirenInfo.formeJuridique}</span></div>}
+                    {sirenInfo.nafLibelle && <div><span className="text-primary-500">Activité :</span> <span className="text-gray-700">{sirenInfo.nafCode} — {sirenInfo.nafLibelle}</span></div>}
+                    {sirenInfo.effectifLabel && <div><span className="text-primary-500">Effectif :</span> <span className="text-gray-700">{sirenInfo.effectifLabel}</span></div>}
+                    {sirenInfo.dirigeants[0] && <div><span className="text-primary-500">Dirigeant :</span> <span className="text-gray-700">{sirenInfo.dirigeants[0].prenom} {sirenInfo.dirigeants[0].nom}</span></div>}
                   </div>
                 )}
 
@@ -246,8 +242,8 @@ export function WelcomePage({ onGreet }: Props) {
 
                 {/* Séparateur identité */}
                 <div className="flex items-center gap-3 pt-1">
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: '#fff4ee' }}>
-                    <User className="w-4 h-4" style={{ color: '#ff6d2d' }} />
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-primary-50">
+                    <User className="w-4 h-4 text-primary-500" />
                   </div>
                   <span className="text-xs text-gray-400 font-medium">Vos informations</span>
                 </div>
@@ -274,8 +270,7 @@ export function WelcomePage({ onGreet }: Props) {
                 <button
                   type="submit"
                   disabled={creating || !newName.trim() || !firstName.trim() || !lastName.trim()}
-                  className="w-full flex items-center justify-center gap-2 text-white py-3 rounded-xl text-sm font-semibold disabled:opacity-40 transition-all hover:opacity-90 active:scale-95"
-                  style={{ background: 'linear-gradient(135deg, #f94f1c, #ff6d2d)' }}
+                  className="w-full flex items-center justify-center gap-2 text-white py-3 rounded-xl text-sm font-semibold disabled:opacity-40 transition-all hover:opacity-90 active:scale-95 bg-brand-gradient"
                 >
                   <Plus className="w-4 h-4" />
                   {creating ? 'Création...' : 'Créer et continuer'}

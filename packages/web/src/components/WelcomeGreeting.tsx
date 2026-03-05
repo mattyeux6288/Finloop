@@ -34,9 +34,8 @@ export function WelcomeGreeting({ firstName, lastName, onDone }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center"
+      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-brand-gradient"
       style={{
-        background: 'linear-gradient(135deg, #f94f1c 0%, #ff6d2d 55%, #ffa647 100%)',
         opacity: fading ? 0 : 1,
         transition: 'opacity 0.6s ease',
         pointerEvents: fading ? 'none' : 'auto',
@@ -46,16 +45,11 @@ export function WelcomeGreeting({ firstName, lastName, onDone }: Props) {
       <div className="flex flex-col items-center select-none splash-content">
         <FinloopLogo size={84} variant="white" className="mb-8 drop-shadow-lg" />
 
-        <p
-          className="text-white/75 text-sm font-light tracking-[0.4em] uppercase mb-4"
-        >
+        <p className="text-white/75 text-sm font-light tracking-brand-widest uppercase mb-4">
           Bienvenue
         </p>
 
-        <h1
-          className="text-5xl font-bold text-white text-center drop-shadow"
-          style={{ letterSpacing: '-1px', fontFamily: '"Segoe UI", system-ui, sans-serif' }}
-        >
+        <h1 className="text-5xl font-bold text-white text-center drop-shadow tracking-brand-h3">
           {firstName}
           {lastName ? ` ${lastName}` : ''}
         </h1>

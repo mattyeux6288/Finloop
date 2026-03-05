@@ -15,9 +15,8 @@ export function SplashScreen({ onDone }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center"
+      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-brand-gradient"
       style={{
-        background: 'linear-gradient(135deg, #f94f1c 0%, #ff6d2d 55%, #ffa647 100%)',
         transition: 'opacity 0.6s ease',
         opacity: fading ? 0 : 1,
         pointerEvents: fading ? 'none' : 'auto',
@@ -36,14 +35,11 @@ export function SplashScreen({ onDone }: Props) {
           />
         </svg>
 
-        <h1
-          className="text-7xl font-bold text-white drop-shadow"
-          style={{ letterSpacing: '-2px', fontFamily: '"Segoe UI", system-ui, sans-serif' }}
-        >
+        <h1 className="text-7xl font-bold text-white drop-shadow tracking-brand-title">
           Finloop
         </h1>
 
-        <p className="text-white/70 text-sm mt-3 tracking-[0.35em] uppercase font-light">
+        <p className="text-white/70 text-sm mt-3 tracking-brand-wider uppercase font-light">
           Analyse financière
         </p>
       </div>

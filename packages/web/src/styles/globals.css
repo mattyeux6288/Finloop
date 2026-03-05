@@ -12,6 +12,10 @@
   --color-primary-700: #d93c0d;
   --color-primary-800: #b52e0a;
   --color-primary-900: #2e2c2f;
+
+  /* Typographie */
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-display: 'Inter Tight', 'Inter', system-ui, sans-serif;
 }
 
 /* ── Variables globales ── */
@@ -20,6 +24,40 @@
   --primary: #ff6d2d;
   --primaryT: transparent;
   --transDur: 0.3s;
+  --gradient-brand: linear-gradient(135deg, #f94f1c 0%, #ff6d2d 55%, #ffa647 100%);
+}
+
+/* ── Base — Typographie & rendu ── */
+html {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: #f8f7f5;
+  color: #1a1a1a;
+}
+
+/* ── Letter-spacing précis (non disponibles nativement dans Tailwind) ── */
+.tracking-brand-title  { letter-spacing: -2px; }
+.tracking-brand-h2     { letter-spacing: -1.5px; }
+.tracking-brand-h3     { letter-spacing: -1px; }
+.tracking-brand-wide   { letter-spacing: 0.3em; }
+.tracking-brand-wider  { letter-spacing: 0.35em; }
+.tracking-brand-widest { letter-spacing: 0.4em; }
+
+/* ── Gradients utilitaires ── */
+.bg-brand-gradient {
+  background: var(--gradient-brand);
+}
+.text-gradient-brand {
+  background: var(--gradient-brand);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 /* ── Splash screen ── */
