@@ -3,14 +3,37 @@ import path from 'path';
 import { config } from '../config/env';
 import fs from 'fs';
 
-// Créer le dossier d'upload s'il n'existe pas
-if (!fs.existsSync(config.uploadDir)) {
-  fs.mkdirSync(config.uploadDir, { recursive: true });
+// Résoudre le dossier d'upload : on essaie le chemin configuré,
+// et si le filesystem est en lecture seule (ex: Vercel /var/task),
+// on bascule automatiquement sur /tmp.
+function resolveUploadDir(): string {
+  const candidates = [config.uploadDir, '/tmp'];
+
+  for (const dir of candidates) {
+    try {
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      // Vérifier qu'on peut écrire dans ce dossier
+      const testFile = path.join(dir, '.write-test');
+      fs.writeFileSync(testFile, '');
+      fs.unlinkSync(testFile);
+      return dir;
+    } catch {
+      console.warn(`[upload] Directory "${dir}" not writable, trying next...`);
+    }
+  }
+
+  // Dernier recours : /tmp sans vérification
+  return '/tmp';
 }
+
+const effectiveUploadDir = resolveUploadDir();
+console.log(`[upload] Using upload directory: ${effectiveUploadDir}`);
 
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => {
-    cb(null, config.uploadDir);
+    cb(null, effectiveUploadDir);
   },
   filename: (_req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
