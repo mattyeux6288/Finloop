@@ -16,12 +16,12 @@ interface MigrationModule {
 }
 
 const ALL_MIGRATIONS: { name: string; mod: MigrationModule }[] = [
-  { name: '001_create_users',           mod: m001 },
-  { name: '002_create_companies',       mod: m002 },
-  { name: '003_create_fiscal_years',    mod: m003 },
-  { name: '004_create_imports',         mod: m004 },
-  { name: '005_create_ecritures',       mod: m005 },
-  { name: '006_create_computed_reports', mod: m006 },
+  { name: '001_create_users.ts',            mod: m001 },
+  { name: '002_create_companies.ts',        mod: m002 },
+  { name: '003_create_fiscal_years.ts',     mod: m003 },
+  { name: '004_create_imports.ts',          mod: m004 },
+  { name: '005_create_ecritures.ts',        mod: m005 },
+  { name: '006_create_computed_reports.ts', mod: m006 },
 ];
 
 export const migrationSource: Knex.MigrationSource<{ name: string; mod: MigrationModule }> = {
