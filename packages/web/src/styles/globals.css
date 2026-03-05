@@ -1,9 +1,8 @@
 @import "tailwindcss";
 
-/* Force Tailwind v4 à scanner les fichiers source (nécessaire sur Vercel) */
-@source "../**/*.{tsx,ts}";
-@source "../../pages/**/*.{tsx,ts}";
-@source "../../components/**/*.{tsx,ts}";
+/* Scan explicite — chemins relatifs au fichier CSS (src/styles/) */
+@source "../**/*.tsx";
+@source "../**/*.ts";
 
 @theme {
   /* Finloop — palette orange */
