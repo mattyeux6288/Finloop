@@ -9,6 +9,7 @@ import * as m003 from './migrations/003_create_fiscal_years';
 import * as m004 from './migrations/004_create_imports';
 import * as m005 from './migrations/005_create_ecritures';
 import * as m006 from './migrations/006_create_computed_reports';
+import * as m007 from './migrations/007_add_user_role';
 
 interface MigrationModule {
   up: (knex: Knex) => Promise<void>;
@@ -22,6 +23,7 @@ const ALL_MIGRATIONS: { name: string; mod: MigrationModule }[] = [
   { name: '004_create_imports.ts',          mod: m004 },
   { name: '005_create_ecritures.ts',        mod: m005 },
   { name: '006_create_computed_reports.ts', mod: m006 },
+  { name: '007_add_user_role.ts',           mod: m007 },
 ];
 
 export const migrationSource: Knex.MigrationSource<{ name: string; mod: MigrationModule }> = {

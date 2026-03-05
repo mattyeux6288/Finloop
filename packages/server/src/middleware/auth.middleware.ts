@@ -4,6 +4,7 @@ import { config } from '../config/env';
 
 export interface AuthRequest extends Request {
   userId?: string;
+  userRole?: string;
 }
 
 export function authMiddleware(req: AuthRequest, res: Response, next: NextFunction): void {
@@ -20,8 +21,9 @@ export function authMiddleware(req: AuthRequest, res: Response, next: NextFuncti
   const token = authHeader.substring(7);
 
   try {
-    const decoded = jwt.verify(token, config.jwtSecret) as { userId: string };
+    const decoded = jwt.verify(token, config.jwtSecret) as { userId: string; role?: string };
     req.userId = decoded.userId;
+    req.userRole = decoded.role || 'user';
     next();
   } catch {
     res.status(401).json({

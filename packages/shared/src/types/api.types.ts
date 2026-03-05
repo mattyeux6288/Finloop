@@ -40,5 +40,6 @@ export interface AuthResponse {
     id: string;
     email: string;
     displayName: string;
+    role: string;
   };
 }

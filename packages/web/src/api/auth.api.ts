@@ -11,7 +11,17 @@ export async function register(email: string, password: string, displayName: str
   return data.data!;
 }
 
+export async function setupPassword(email: string, password: string): Promise<AuthResponse> {
+  const { data } = await api.post<ApiResponse<AuthResponse>>('/auth/setup-password', { email, password });
+  return data.data!;
+}
+
+export async function changePassword(currentPassword: string, newPassword: string): Promise<{ success: boolean }> {
+  const { data } = await api.post<ApiResponse<{ success: boolean }>>('/auth/change-password', { currentPassword, newPassword });
+  return data.data!;
+}
+
 export async function getMe() {
-  const { data } = await api.get<ApiResponse<{ id: string; email: string; display_name: string }>>('/auth/me');
+  const { data } = await api.get<ApiResponse<{ id: string; email: string; display_name: string; role: string }>>('/auth/me');
   return data.data!;
 }

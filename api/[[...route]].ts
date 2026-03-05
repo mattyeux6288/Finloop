@@ -33,14 +33,31 @@ async function initialize() {
   await db.migrate.latest();
   console.log('[finloop] Migrations done.');
 
-  // --- Utilisateur par défaut ---
-  const userExists = await db('users').where({ id: 'default' }).first();
-  if (!userExists) {
-    await db('users').insert({
-      id: 'default', email: 'local@finloop.fr',
-      password_hash: 'none', display_name: 'Utilisateur local',
-    });
-    console.log('[finloop] Default user created.');
+  // --- 4 utilisateurs prédéfinis ---
+  const seedUsers = [
+    { id: 'head-user',    email: 'admin@finloop.fr',        display_name: 'Administrateur', role: 'admin' },
+    { id: 'user-test',    email: 'user.test@finloop.fr',    display_name: 'Utilisateur Test', role: 'user' },
+    { id: 'user-dutheil', email: 'user.dutheil@finloop.fr', display_name: 'Utilisateur Dutheil', role: 'user' },
+    { id: 'user-raly',    email: 'user.raly@finloop.fr',    display_name: 'Utilisateur Raly', role: 'user' },
+  ];
+
+  for (const u of seedUsers) {
+    const exists = await db('users').where({ id: u.id }).first();
+    if (!exists) {
+      await db('users').insert({ ...u, password_hash: null });
+      console.log(`[finloop] User "${u.id}" created.`);
+    } else {
+      // Mettre à jour le role si la colonne existe mais la valeur est manquante
+      await db('users').where({ id: u.id }).update({ role: u.role });
+    }
+  }
+
+  // Migrer l'ancien user 'default' : transférer ses companies vers user-test puis supprimer
+  const oldDefault = await db('users').where({ id: 'default' }).first();
+  if (oldDefault) {
+    await db('companies').where({ user_id: 'default' }).update({ user_id: 'user-test' });
+    await db('users').where({ id: 'default' }).del();
+    console.log('[finloop] Migrated default user companies to user-test.');
   }
 
   // --- Société Test + Exercice 2025 + FEC test ---
@@ -53,7 +70,7 @@ async function initialize() {
     console.log('[finloop] Seeding Société Test...');
 
     await db('companies').insert({
-      id: companyId, user_id: 'default', name: 'Société Test', siren: '123456789',
+      id: companyId, user_id: 'user-test', name: 'Société Test', siren: '123456789',
     });
     await db('fiscal_years').insert({
       id: fyId, company_id: companyId, label: 'Exercice 2025',
@@ -100,6 +117,30 @@ async function initialize() {
       });
     }
     console.log('[finloop] Seed data created.');
+  } else {
+    // S'assurer que Société Test est bien liée à user-test
+    const currentOwner = companyExists.user_id;
+    if (currentOwner === 'default') {
+      await db('companies').where({ id: companyId }).update({ user_id: 'user-test' });
+      console.log('[finloop] Reassigned Société Test to user-test.');
+    }
+  }
+
+  // --- Société PARAME IMMOBILIER pour user-dutheil ---
+  const parameId = 'seed-company-parame';
+  const parameExists = await db('companies').where({ id: parameId }).first();
+  if (!parameExists) {
+    // Vérifier si PARAME IMMOBILIER existe déjà sous un autre id
+    const parameByName = await db('companies').where({ name: 'PARAME IMMOBILIER' }).first();
+    if (parameByName) {
+      await db('companies').where({ id: parameByName.id }).update({ user_id: 'user-dutheil' });
+      console.log('[finloop] Reassigned PARAME IMMOBILIER to user-dutheil.');
+    } else {
+      await db('companies').insert({
+        id: parameId, user_id: 'user-dutheil', name: 'PARAME IMMOBILIER',
+      });
+      console.log('[finloop] Seeded PARAME IMMOBILIER for user-dutheil.');
+    }
   }
 
   initialized = true;

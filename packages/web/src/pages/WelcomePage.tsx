@@ -1,23 +1,21 @@
 import { useState, FormEvent, useEffect, useRef } from 'react';
 import type { Company } from '@finthesis/shared';
 import { useCompanyStore } from '@/store/companyStore';
+import { useAuthStore } from '@/store/authStore';
 import { createCompany } from '@/api/company.api';
 import { lookupSiren, type SirenResult } from '@/api/siren.api';
-import { Plus, Search, Loader2, CheckCircle, Building2, ArrowRight, ChevronLeft, User } from 'lucide-react';
+import { Plus, Search, Loader2, CheckCircle, Building2, ArrowRight, ChevronLeft, LogOut } from 'lucide-react';
 import { FinloopLogo } from '@/components/FinloopLogo';
 
 interface Props {
-  onGreet: (firstName: string, lastName: string, company: Company) => void;
+  onSelect: (company: Company) => void;
 }
 
-export function WelcomePage({ onGreet }: Props) {
+export function WelcomePage({ onSelect }: Props) {
   const { companies, setCompanies } = useCompanyStore();
+  const { user, logout } = useAuthStore();
   const [selected, setSelected] = useState('');
   const [showCreate, setShowCreate] = useState(false);
-
-  // Champs identité
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName]   = useState('');
 
   // Formulaire création
   const [newName, setNewName]   = useState('');
@@ -55,18 +53,18 @@ export function WelcomePage({ onGreet }: Props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [newSiren]);
 
-  const canContinue = selected && firstName.trim() && lastName.trim();
+  const canContinue = !!selected;
 
   const handleContinue = () => {
     const company = companies.find(c => c.id === selected);
-    if (company && firstName.trim() && lastName.trim()) {
-      onGreet(firstName.trim(), lastName.trim(), company);
+    if (company) {
+      onSelect(company);
     }
   };
 
   const handleCreate = async (e: FormEvent) => {
     e.preventDefault();
-    if (!newName.trim() || !firstName.trim() || !lastName.trim()) return;
+    if (!newName.trim()) return;
     setCreating(true);
     try {
       const company = await createCompany({
@@ -77,11 +75,11 @@ export function WelcomePage({ onGreet }: Props) {
         address: sirenInfo?.adresse,
       });
       setCompanies([...companies, company]);
-      onGreet(firstName.trim(), lastName.trim(), company);
+      onSelect(company);
     } catch (err: any) {
       const data = err?.response?.data;
       const msg = typeof data === 'string' ? data
-        : data?.error ? `${data.error}${data.details ? '\n' + data.details : ''}`
+        : data?.error ? `${data.error.message || data.error}${data.details ? '\n' + data.details : ''}`
         : err?.message || 'Erreur serveur';
       alert(`Impossible de créer l'entreprise :\n${msg}`);
     } finally {
@@ -89,14 +87,35 @@ export function WelcomePage({ onGreet }: Props) {
     }
   };
 
+  const handleLogout = () => {
+    logout();
+    window.location.reload();
+  };
+
+  // Extraire le display name de l'utilisateur connecté
+  const displayName = user?.displayName || 'Utilisateur';
+
   return (
     <div className="min-h-screen flex flex-col bg-[#f8f7f5]">
 
       {/* Header branded */}
-      <div className="py-16 px-6 flex flex-col items-center bg-brand-gradient">
+      <div className="py-16 px-6 flex flex-col items-center bg-brand-gradient relative">
+        {/* Bouton déconnexion */}
+        <button
+          onClick={handleLogout}
+          className="absolute top-4 right-4 flex items-center gap-1.5 text-white/70 hover:text-white text-xs transition-colors"
+          title="Se déconnecter"
+        >
+          <LogOut className="w-3.5 h-3.5" />
+          Déconnexion
+        </button>
+
         <FinloopLogo size={64} variant="white" className="mb-4 drop-shadow" />
         <h1 className="text-5xl font-bold text-white tracking-brand-h2">Finloop</h1>
         <p className="text-white/70 mt-2 tracking-brand-wide text-sm uppercase font-light">Analyse financière</p>
+        <p className="text-white/90 mt-3 text-sm">
+          Bienvenue, <strong>{displayName}</strong>
+        </p>
       </div>
 
       {/* Carte centrale */}
@@ -148,44 +167,14 @@ export function WelcomePage({ onGreet }: Props) {
                 <Plus className="w-4 h-4" /> Créer une nouvelle entreprise
               </button>
 
-              {/* Champs identité */}
               {companies.length > 0 && (
-                <>
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-primary-50">
-                      <User className="w-5 h-5 text-primary-500" />
-                    </div>
-                    <div>
-                      <h2 className="text-base font-semibold text-gray-900">Vos informations</h2>
-                      <p className="text-xs text-gray-400 mt-0.5">Pour personnaliser votre expérience</p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3 mb-4">
-                    <input
-                      type="text"
-                      value={firstName}
-                      onChange={e => setFirstName(e.target.value)}
-                      placeholder="Prénom *"
-                      className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-gray-50"
-                    />
-                    <input
-                      type="text"
-                      value={lastName}
-                      onChange={e => setLastName(e.target.value)}
-                      placeholder="Nom *"
-                      className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-gray-50"
-                    />
-                  </div>
-
-                  <button
-                    onClick={handleContinue}
-                    disabled={!canContinue}
-                    className="w-full flex items-center justify-center gap-2 text-white py-3 rounded-xl text-sm font-semibold disabled:opacity-40 transition-all hover:opacity-90 active:scale-95 bg-brand-gradient"
-                  >
-                    Accéder au tableau de bord <ArrowRight className="w-4 h-4" />
-                  </button>
-                </>
+                <button
+                  onClick={handleContinue}
+                  disabled={!canContinue}
+                  className="w-full flex items-center justify-center gap-2 text-white py-3 rounded-xl text-sm font-semibold disabled:opacity-40 transition-all hover:opacity-90 active:scale-95 bg-brand-gradient"
+                >
+                  Accéder au tableau de bord <ArrowRight className="w-4 h-4" />
+                </button>
               )}
             </div>
           ) : (
@@ -246,36 +235,9 @@ export function WelcomePage({ onGreet }: Props) {
                   className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-gray-50"
                 />
 
-                {/* Séparateur identité */}
-                <div className="flex items-center gap-3 pt-1">
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-primary-50">
-                    <User className="w-4 h-4 text-primary-500" />
-                  </div>
-                  <span className="text-xs text-gray-400 font-medium">Vos informations</span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <input
-                    type="text"
-                    value={firstName}
-                    onChange={e => setFirstName(e.target.value)}
-                    placeholder="Prénom *"
-                    required
-                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-gray-50"
-                  />
-                  <input
-                    type="text"
-                    value={lastName}
-                    onChange={e => setLastName(e.target.value)}
-                    placeholder="Nom *"
-                    required
-                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-gray-50"
-                  />
-                </div>
-
                 <button
                   type="submit"
-                  disabled={creating || !newName.trim() || !firstName.trim() || !lastName.trim()}
+                  disabled={creating || !newName.trim()}
                   className="w-full flex items-center justify-center gap-2 text-white py-3 rounded-xl text-sm font-semibold disabled:opacity-40 transition-all hover:opacity-90 active:scale-95 bg-brand-gradient"
                 >
                   <Plus className="w-4 h-4" />

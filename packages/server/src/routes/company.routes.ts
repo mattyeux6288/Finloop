@@ -1,28 +1,32 @@
-import { Router, Request, Response } from 'express';
+import { Router, Response } from 'express';
 import * as companyService from '../services/company.service';
+import { authMiddleware, AuthRequest } from '../middleware/auth.middleware';
 
 const router = Router();
 
+// Toutes les routes company nécessitent l'authentification
+router.use(authMiddleware);
+
 // Companies
-router.get('/', async (_req: Request, res: Response) => {
+router.get('/', async (req: AuthRequest, res: Response) => {
   try {
-    const companies = await companyService.getCompanies();
+    const companies = await companyService.getCompanies(req.userId, req.userRole);
     res.json({ success: true, data: companies });
   } catch (err) {
     res.status(500).json({ success: false, error: { code: 'ERROR', message: (err as Error).message } });
   }
 });
 
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', async (req: AuthRequest, res: Response) => {
   try {
-    const company = await companyService.createCompany(req.body);
+    const company = await companyService.createCompany(req.userId as string, req.body);
     res.status(201).json({ success: true, data: company });
   } catch (err) {
     res.status(400).json({ success: false, error: { code: 'ERROR', message: (err as Error).message } });
   }
 });
 
-router.get('/:id', async (req: Request, res: Response) => {
+router.get('/:id', async (req: AuthRequest, res: Response) => {
   try {
     const company = await companyService.getCompanyById(req.params.id as string);
     res.json({ success: true, data: company });
@@ -31,7 +35,7 @@ router.get('/:id', async (req: Request, res: Response) => {
   }
 });
 
-router.put('/:id', async (req: Request, res: Response) => {
+router.put('/:id', async (req: AuthRequest, res: Response) => {
   try {
     const company = await companyService.updateCompany(req.params.id as string, req.body);
     res.json({ success: true, data: company });
@@ -40,7 +44,7 @@ router.put('/:id', async (req: Request, res: Response) => {
   }
 });
 
-router.delete('/:id', async (req: Request, res: Response) => {
+router.delete('/:id', async (req: AuthRequest, res: Response) => {
   try {
     await companyService.deleteCompany(req.params.id as string);
     res.json({ success: true });
@@ -50,7 +54,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 });
 
 // Fiscal Years (nested under company)
-router.get('/:companyId/fiscal-years', async (req: Request, res: Response) => {
+router.get('/:companyId/fiscal-years', async (req: AuthRequest, res: Response) => {
   try {
     const fiscalYears = await companyService.getFiscalYears(req.params.companyId as string);
     res.json({ success: true, data: fiscalYears });
@@ -59,7 +63,7 @@ router.get('/:companyId/fiscal-years', async (req: Request, res: Response) => {
   }
 });
 
-router.post('/:companyId/fiscal-years', async (req: Request, res: Response) => {
+router.post('/:companyId/fiscal-years', async (req: AuthRequest, res: Response) => {
   try {
     const fy = await companyService.createFiscalYear(req.params.companyId as string, req.body);
     res.status(201).json({ success: true, data: fy });
@@ -68,7 +72,7 @@ router.post('/:companyId/fiscal-years', async (req: Request, res: Response) => {
   }
 });
 
-router.put('/:companyId/fiscal-years/:fyId', async (req: Request, res: Response) => {
+router.put('/:companyId/fiscal-years/:fyId', async (req: AuthRequest, res: Response) => {
   try {
     const fy = await companyService.updateFiscalYear(req.params.fyId as string, req.body);
     res.json({ success: true, data: fy });
@@ -77,7 +81,7 @@ router.put('/:companyId/fiscal-years/:fyId', async (req: Request, res: Response)
   }
 });
 
-router.delete('/:companyId/fiscal-years/:fyId', async (req: Request, res: Response) => {
+router.delete('/:companyId/fiscal-years/:fyId', async (req: AuthRequest, res: Response) => {
   try {
     await companyService.deleteFiscalYear(req.params.fyId as string);
     res.json({ success: true });

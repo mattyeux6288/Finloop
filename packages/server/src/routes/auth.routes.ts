@@ -1,5 +1,12 @@
 import { Router, Request, Response } from 'express';
-import { registerUser, loginUser, refreshAccessToken, getUserById } from '../services/auth.service';
+import {
+  registerUser,
+  loginUser,
+  refreshAccessToken,
+  getUserById,
+  setupPassword,
+  changePassword,
+} from '../services/auth.service';
 import { authMiddleware, AuthRequest } from '../middleware/auth.middleware';
 
 const router = Router();
@@ -36,10 +43,67 @@ router.post('/login', async (req: Request, res: Response) => {
     }
     const result = await loginUser(email, password);
     res.json({ success: true, data: result });
-  } catch (err) {
+  } catch (err: any) {
+    const code = err.code || 'LOGIN_FAILED';
     res.status(401).json({
       success: false,
-      error: { code: 'LOGIN_FAILED', message: (err as Error).message },
+      error: { code, message: err.message },
+    });
+  }
+});
+
+/** Premier login : définir le mot de passe */
+router.post('/setup-password', async (req: Request, res: Response) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION', message: 'Email et nouveau mot de passe requis.' },
+      });
+      return;
+    }
+    if (password.length < 6) {
+      res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION', message: 'Le mot de passe doit contenir au moins 6 caractères.' },
+      });
+      return;
+    }
+    const result = await setupPassword(email, password);
+    res.json({ success: true, data: result });
+  } catch (err) {
+    res.status(400).json({
+      success: false,
+      error: { code: 'SETUP_FAILED', message: (err as Error).message },
+    });
+  }
+});
+
+/** Changer son mot de passe (authentifié) */
+router.post('/change-password', authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION', message: 'Mot de passe actuel et nouveau requis.' },
+      });
+      return;
+    }
+    if (newPassword.length < 6) {
+      res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION', message: 'Le nouveau mot de passe doit contenir au moins 6 caractères.' },
+      });
+      return;
+    }
+    const result = await changePassword(req.userId as string, currentPassword, newPassword);
+    res.json({ success: true, data: result });
+  } catch (err) {
+    res.status(400).json({
+      success: false,
+      error: { code: 'CHANGE_PASSWORD_FAILED', message: (err as Error).message },
     });
   }
 });

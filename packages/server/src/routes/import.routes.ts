@@ -1,8 +1,11 @@
 import { Router, Request, Response } from 'express';
 import { upload } from '../middleware/upload.middleware';
 import * as importService from '../services/import.service';
+import { authMiddleware } from '../middleware/auth.middleware';
 
 const router = Router();
+
+router.use(authMiddleware);
 
 // Upload et import d'un fichier FEC/CSV/XLSX
 router.post('/:fyId/import', upload.single('file'), async (req: Request, res: Response) => {

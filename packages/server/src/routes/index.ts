@@ -1,10 +1,12 @@
 import { Router } from 'express';
+import authRoutes from './auth.routes';
 import companyRoutes from './company.routes';
 import importRoutes from './import.routes';
 import analysisRoutes from './analysis.routes';
 
 const router = Router();
 
+router.use('/auth', authRoutes);
 router.use('/companies', companyRoutes);
 router.use('/fiscal-years', importRoutes);
 router.use('/fiscal-years', analysisRoutes);

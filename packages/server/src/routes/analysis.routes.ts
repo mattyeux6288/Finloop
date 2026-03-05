@@ -1,7 +1,10 @@
 import { Router, Request, Response } from 'express';
 import * as analysisService from '../services/analysis.service';
+import { authMiddleware } from '../middleware/auth.middleware';
 
 const router = Router();
+
+router.use(authMiddleware);
 
 router.get('/:fyId/dashboard', async (req: Request, res: Response) => {
   try {

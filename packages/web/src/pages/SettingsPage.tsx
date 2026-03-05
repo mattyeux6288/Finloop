@@ -1,12 +1,23 @@
 import { useState, FormEvent, useEffect, useRef } from 'react';
 import { useCompanyStore } from '@/store/companyStore';
+import { useAuthStore } from '@/store/authStore';
 import { createCompany, updateCompany, createFiscalYear, getFiscalYears, updateFiscalYear, deleteFiscalYear } from '@/api/company.api';
+import { changePassword } from '@/api/auth.api';
 import { lookupSiren, type SirenResult } from '@/api/siren.api';
-import { Plus, Search, Loader2, CheckCircle, Building2, Users, Calendar, Briefcase, Pencil, Trash2, X, Check, Save } from 'lucide-react';
+import { Plus, Search, Loader2, CheckCircle, Building2, Users, Calendar, Briefcase, Pencil, Trash2, X, Check, Save, KeyRound } from 'lucide-react';
 import type { FiscalYear } from '@finthesis/shared';
 
 export function SettingsPage() {
   const { selectedCompany, companies, setCompanies, selectCompany, updateCompanyInStore, fiscalYears, setFiscalYears, selectedFiscalYear, selectFiscalYear } = useCompanyStore();
+  const { user } = useAuthStore();
+
+  // Password change form
+  const [currentPwd, setCurrentPwd] = useState('');
+  const [newPwd, setNewPwd] = useState('');
+  const [confirmPwd, setConfirmPwd] = useState('');
+  const [pwdLoading, setPwdLoading] = useState(false);
+  const [pwdMessage, setPwdMessage] = useState('');
+  const [pwdMessageType, setPwdMessageType] = useState<'success' | 'error'>('success');
 
   // Company form
   const [companySiren, setCompanySiren] = useState('');
@@ -251,6 +262,36 @@ export function SettingsPage() {
       setCompanySiret(selectedCompany.siret || '');
       setSirenInfo(null);
       setSirenError('');
+    }
+  };
+
+  const handleChangePassword = async (e: FormEvent) => {
+    e.preventDefault();
+    setPwdMessage('');
+    if (newPwd !== confirmPwd) {
+      setPwdMessage('Les mots de passe ne correspondent pas.');
+      setPwdMessageType('error');
+      return;
+    }
+    if (newPwd.length < 6) {
+      setPwdMessage('Le nouveau mot de passe doit contenir au moins 6 caractères.');
+      setPwdMessageType('error');
+      return;
+    }
+    setPwdLoading(true);
+    try {
+      await changePassword(currentPwd, newPwd);
+      setPwdMessage('Mot de passe modifié avec succès.');
+      setPwdMessageType('success');
+      setCurrentPwd('');
+      setNewPwd('');
+      setConfirmPwd('');
+    } catch (err: any) {
+      const apiError = err?.response?.data?.error;
+      setPwdMessage(apiError?.message || err?.message || 'Erreur lors du changement de mot de passe.');
+      setPwdMessageType('error');
+    } finally {
+      setPwdLoading(false);
     }
   };
 
@@ -621,6 +662,67 @@ export function SettingsPage() {
           </form>
         </div>
       )}
+
+      {/* Changer le mot de passe */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+        <h3 className="text-lg font-semibold text-gray-900 mb-1 flex items-center gap-2">
+          <KeyRound className="w-5 h-5 text-primary-500" />
+          Changer le mot de passe
+        </h3>
+        <p className="text-xs text-gray-400 mb-4">
+          Connecté en tant que <strong>{user?.email}</strong>
+        </p>
+
+        {pwdMessage && (
+          <div className={`rounded-lg p-3 text-sm mb-4 ${pwdMessageType === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+            {pwdMessage}
+          </div>
+        )}
+
+        <form onSubmit={handleChangePassword} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Mot de passe actuel</label>
+            <input
+              type="password"
+              value={currentPwd}
+              onChange={(e) => setCurrentPwd(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+              required
+              minLength={6}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Nouveau mot de passe</label>
+            <input
+              type="password"
+              value={newPwd}
+              onChange={(e) => setNewPwd(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+              required
+              minLength={6}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Confirmer le nouveau mot de passe</label>
+            <input
+              type="password"
+              value={confirmPwd}
+              onChange={(e) => setConfirmPwd(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+              required
+              minLength={6}
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={pwdLoading || !currentPwd || !newPwd || !confirmPwd}
+            className="flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-700 disabled:opacity-50"
+          >
+            {pwdLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <KeyRound className="w-4 h-4" />}
+            Changer le mot de passe
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

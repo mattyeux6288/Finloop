@@ -1,7 +1,13 @@
 import { v4 as uuid } from 'uuid';
 import { db } from '../config/database';
 
-export async function getCompanies() {
+export async function getCompanies(userId?: string, role?: string) {
+  if (role === 'admin') {
+    return db('companies').orderBy('name');
+  }
+  if (userId) {
+    return db('companies').where({ user_id: userId }).orderBy('name');
+  }
   return db('companies').orderBy('name');
 }
 
@@ -11,7 +17,7 @@ export async function getCompanyById(companyId: string) {
   return company;
 }
 
-export async function createCompany(data: {
+export async function createCompany(userId: string, data: {
   name: string;
   siren?: string;
   siret?: string;
@@ -21,7 +27,7 @@ export async function createCompany(data: {
   const id = uuid();
   await db('companies').insert({
     id,
-    user_id: 'default',
+    user_id: userId,
     name: data.name,
     siren: data.siren || null,
     siret: data.siret || null,
