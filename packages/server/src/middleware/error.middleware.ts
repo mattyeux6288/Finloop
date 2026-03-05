@@ -7,9 +7,7 @@ export function errorMiddleware(err: Error, _req: Request, res: Response, _next:
     success: false,
     error: {
       code: 'INTERNAL_ERROR',
-      message: process.env.NODE_ENV === 'production'
-        ? 'Erreur interne du serveur.'
-        : err.message,
+      message: err.message,
     },
   });
 }
