@@ -11,6 +11,11 @@ export async function createCompany(payload: { name: string; siren?: string; sir
   return data.data!;
 }
 
+export async function updateCompany(companyId: string, payload: { name?: string; siren?: string; siret?: string; nafCode?: string; address?: string }): Promise<Company> {
+  const { data } = await api.put<ApiResponse<Company>>(`/companies/${companyId}`, payload);
+  return data.data!;
+}
+
 export async function getFiscalYears(companyId: string): Promise<FiscalYear[]> {
   const { data } = await api.get<ApiResponse<FiscalYear[]>>(`/companies/${companyId}/fiscal-years`);
   return data.data!;
