@@ -6,33 +6,55 @@ import type { IncomingMessage, ServerResponse } from 'http';
 import { createApp } from '../packages/server/src/app';
 import { db } from '../packages/server/src/config/database';
 
-const app = createApp();
+// Diagnostic au démarrage — visible dans les logs Vercel
+console.log('[finloop] Serverless function loading...');
+console.log('[finloop] DATABASE_TYPE =', process.env.DATABASE_TYPE ?? '(not set → defaults to sqlite)');
+console.log('[finloop] DATABASE_URL  =', process.env.DATABASE_URL ? '✓ set' : '✗ NOT SET');
+console.log('[finloop] JWT_SECRET    =', process.env.JWT_SECRET ? '✓ set' : '✗ NOT SET');
 
-// Flag en mémoire : les migrations ne tournent qu'une fois par instance (cold start)
+// Vérification critique : on refuse de démarrer sans PostgreSQL en prod
+if (process.env.VERCEL && process.env.DATABASE_TYPE !== 'postgresql') {
+  throw new Error(
+    '[finloop] FATAL: DATABASE_TYPE must be "postgresql" on Vercel. ' +
+    'Add DATABASE_TYPE=postgresql in Vercel Environment Variables.'
+  );
+}
+
+const app = createApp();
 let initialized = false;
 
 async function initialize() {
   if (initialized) return;
-  await db.migrate.latest();
 
-  // Créer l'utilisateur par défaut s'il n'existe pas
+  console.log('[finloop] Running migrations...');
+  await db.migrate.latest();
+  console.log('[finloop] Migrations done.');
+
   const exists = await db('users').where({ id: 'default' }).first();
   if (!exists) {
     await db('users').insert({
-      id:           'default',
-      email:        'local@finloop.fr',
+      id:            'default',
+      email:         'local@finloop.fr',
       password_hash: 'none',
-      display_name: 'Utilisateur local',
+      display_name:  'Utilisateur local',
     });
+    console.log('[finloop] Default user created.');
   }
 
   initialized = true;
+  console.log('[finloop] Ready.');
 }
 
 export default async function handler(req: IncomingMessage, res: ServerResponse) {
-  await initialize();
+  try {
+    await initialize();
+  } catch (err) {
+    console.error('[finloop] Initialization error:', err);
+    (res as any).statusCode = 500;
+    (res as any).end(JSON.stringify({ error: 'Server initialization failed', details: String(err) }));
+    return;
+  }
 
-  // Passe la requête à Express
   return new Promise<void>((resolve, reject) => {
     app(req as any, res as any, (err: unknown) => {
       if (err) reject(err);
