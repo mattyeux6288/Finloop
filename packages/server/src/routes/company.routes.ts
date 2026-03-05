@@ -68,4 +68,22 @@ router.post('/:companyId/fiscal-years', async (req: Request, res: Response) => {
   }
 });
 
+router.put('/:companyId/fiscal-years/:fyId', async (req: Request, res: Response) => {
+  try {
+    const fy = await companyService.updateFiscalYear(req.params.fyId as string, req.body);
+    res.json({ success: true, data: fy });
+  } catch (err) {
+    res.status(400).json({ success: false, error: { code: 'ERROR', message: (err as Error).message } });
+  }
+});
+
+router.delete('/:companyId/fiscal-years/:fyId', async (req: Request, res: Response) => {
+  try {
+    await companyService.deleteFiscalYear(req.params.fyId as string);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: (err as Error).message } });
+  }
+});
+
 export default router;

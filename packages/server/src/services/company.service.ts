@@ -85,7 +85,32 @@ export async function createFiscalYear(companyId: string, data: {
   return db('fiscal_years').where({ id }).first();
 }
 
+export async function updateFiscalYear(fyId: string, data: {
+  label?: string;
+  startDate?: string;
+  endDate?: string;
+}) {
+  const updateData: Record<string, unknown> = {};
+  if (data.label !== undefined) updateData.label = data.label;
+  if (data.startDate !== undefined) updateData.start_date = data.startDate;
+  if (data.endDate !== undefined) updateData.end_date = data.endDate;
+
+  if (Object.keys(updateData).length === 0) {
+    throw new Error('Aucune donnée à mettre à jour.');
+  }
+
+  const count = await db('fiscal_years').where({ id: fyId }).update(updateData);
+  if (!count) throw new Error('Exercice fiscal introuvable.');
+  return db('fiscal_years').where({ id: fyId }).first();
+}
+
 export async function deleteFiscalYear(fyId: string) {
-  const deleted = await db('fiscal_years').where({ id: fyId }).del();
-  if (!deleted) throw new Error('Exercice fiscal introuvable.');
+  const fy = await db('fiscal_years').where({ id: fyId }).first();
+  if (!fy) throw new Error('Exercice fiscal introuvable.');
+
+  // Suppression en cascade : rapports cachés → écritures → imports → exercice
+  await db('computed_reports').where({ fiscal_year_id: fyId }).del();
+  await db('ecritures').where({ fiscal_year_id: fyId }).del();
+  await db('imports').where({ fiscal_year_id: fyId }).del();
+  await db('fiscal_years').where({ id: fyId }).del();
 }

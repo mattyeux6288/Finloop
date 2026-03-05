@@ -20,3 +20,12 @@ export async function createFiscalYear(companyId: string, payload: { label: stri
   const { data } = await api.post<ApiResponse<FiscalYear>>(`/companies/${companyId}/fiscal-years`, payload);
   return data.data!;
 }
+
+export async function updateFiscalYear(companyId: string, fyId: string, payload: { label?: string; startDate?: string; endDate?: string }): Promise<FiscalYear> {
+  const { data } = await api.put<ApiResponse<FiscalYear>>(`/companies/${companyId}/fiscal-years/${fyId}`, payload);
+  return data.data!;
+}
+
+export async function deleteFiscalYear(companyId: string, fyId: string): Promise<void> {
+  await api.delete(`/companies/${companyId}/fiscal-years/${fyId}`);
+}

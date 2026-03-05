@@ -1,13 +1,42 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useCompanyStore } from '@/store/companyStore';
-import { uploadFile } from '@/api/analysis.api';
-import { Upload, CheckCircle, XCircle, FileText } from 'lucide-react';
+import { uploadFile, getImports, deleteImport, type ImportRecord } from '@/api/analysis.api';
+import { Upload, CheckCircle, XCircle, FileText, Trash2, X, Clock, AlertTriangle } from 'lucide-react';
 
 export function ImportPage() {
   const { selectedFiscalYear } = useCompanyStore();
   const [uploading, setUploading] = useState(false);
   const [result, setResult] = useState<{ status: string; stats?: Record<string, unknown>; errors?: unknown[] } | null>(null);
+
+  // Import history
+  const [imports, setImports] = useState<ImportRecord[]>([]);
+  const [importsLoading, setImportsLoading] = useState(false);
+  const [deletingImport, setDeletingImport] = useState<string | null>(null);
+  const [deleteMessage, setDeleteMessage] = useState('');
+
+  // Charger les imports quand l'exercice change
+  useEffect(() => {
+    if (!selectedFiscalYear) {
+      setImports([]);
+      return;
+    }
+    loadImports();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedFiscalYear?.id]);
+
+  async function loadImports() {
+    if (!selectedFiscalYear) return;
+    setImportsLoading(true);
+    try {
+      const data = await getImports(selectedFiscalYear.id);
+      setImports(data);
+    } catch {
+      // silently fail
+    } finally {
+      setImportsLoading(false);
+    }
+  }
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     if (!selectedFiscalYear || acceptedFiles.length === 0) return;
@@ -19,12 +48,27 @@ export function ImportPage() {
     try {
       const response = await uploadFile(selectedFiscalYear.id, file);
       setResult(response.data);
+      // Rafraîchir la liste après un import réussi
+      await loadImports();
     } catch (err) {
       setResult({ status: 'failed', errors: [{ message: err instanceof Error ? err.message : 'Erreur' }] });
     } finally {
       setUploading(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedFiscalYear]);
+
+  const handleDeleteImport = async (importId: string) => {
+    try {
+      await deleteImport(importId);
+      setDeletingImport(null);
+      setDeleteMessage('Import supprimé avec ses écritures.');
+      await loadImports();
+      setTimeout(() => setDeleteMessage(''), 3000);
+    } catch (err) {
+      setDeleteMessage(err instanceof Error ? err.message : 'Erreur lors de la suppression');
+    }
+  };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -37,6 +81,13 @@ export function ImportPage() {
     maxFiles: 1,
     disabled: !selectedFiscalYear || uploading,
   });
+
+  const formatDate = (d: string) => {
+    return new Date(d).toLocaleDateString('fr-FR', {
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit',
+    });
+  };
 
   if (!selectedFiscalYear) {
     return (
@@ -121,6 +172,96 @@ export function ImportPage() {
           )}
         </div>
       )}
+
+      {/* Historique des imports */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Imports précédents</h3>
+
+        {deleteMessage && (
+          <div className="rounded-lg p-3 text-sm bg-green-50 text-green-700 mb-4">
+            {deleteMessage}
+          </div>
+        )}
+
+        {importsLoading ? (
+          <div className="flex items-center gap-2 text-gray-500 text-sm py-4">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400"></div>
+            Chargement...
+          </div>
+        ) : imports.length === 0 ? (
+          <p className="text-sm text-gray-500 py-4">Aucun import pour cet exercice.</p>
+        ) : (
+          <div className="space-y-3">
+            {imports.map((imp) => (
+              <div key={imp.id} className="border border-gray-200 rounded-lg p-4">
+                {deletingImport === imp.id ? (
+                  /* Mode confirmation suppression */
+                  <div className="space-y-3">
+                    <p className="text-sm text-red-700 font-medium">
+                      Supprimer "{imp.filename}" ? Toutes les écritures importées seront supprimées.
+                    </p>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleDeleteImport(imp.id)}
+                        className="flex items-center gap-1 bg-red-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-red-700"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" /> Confirmer
+                      </button>
+                      <button
+                        onClick={() => setDeletingImport(null)}
+                        className="flex items-center gap-1 bg-gray-100 text-gray-700 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-gray-200"
+                      >
+                        <X className="w-3.5 h-3.5" /> Annuler
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  /* Mode affichage */
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-start gap-3">
+                      <FileText className="w-5 h-5 text-gray-400 mt-0.5 shrink-0" />
+                      <div>
+                        <p className="font-medium text-gray-900 text-sm">{imp.filename}</p>
+                        <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {formatDate(imp.imported_at)}
+                          </span>
+                          {imp.row_count != null && (
+                            <span>{imp.row_count} écritures</span>
+                          )}
+                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
+                            imp.status === 'completed'
+                              ? 'bg-green-100 text-green-700'
+                              : imp.status === 'failed'
+                              ? 'bg-red-100 text-red-700'
+                              : 'bg-yellow-100 text-yellow-700'
+                          }`}>
+                            {imp.status === 'completed' ? (
+                              <><CheckCircle className="w-3 h-3" /> Réussi</>
+                            ) : imp.status === 'failed' ? (
+                              <><AlertTriangle className="w-3 h-3" /> Échoué</>
+                            ) : (
+                              <><Clock className="w-3 h-3" /> En cours</>
+                            )}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setDeletingImport(imp.id)}
+                      className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      title="Supprimer cet import"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

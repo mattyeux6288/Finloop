@@ -29,3 +29,23 @@ export async function uploadFile(fyId: string, file: File) {
   });
   return data;
 }
+
+export interface ImportRecord {
+  id: string;
+  fiscal_year_id: string;
+  filename: string;
+  file_type: string;
+  status: string;
+  row_count: number | null;
+  error_log: string | null;
+  imported_at: string;
+}
+
+export async function getImports(fyId: string): Promise<ImportRecord[]> {
+  const { data } = await api.get<ApiResponse<ImportRecord[]>>(`/fiscal-years/${fyId}/imports`);
+  return data.data!;
+}
+
+export async function deleteImport(importId: string): Promise<void> {
+  await api.delete(`/fiscal-years/imports/${importId}`);
+}
