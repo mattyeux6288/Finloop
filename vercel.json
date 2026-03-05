@@ -1,7 +1,7 @@
 {
   "installCommand": "npm install",
-  "buildCommand": "cd packages/web && npx vite build",
-  "outputDirectory": "packages/web/dist",
+  "buildCommand": "cd packages/web && npx vite build --outDir ../../dist",
+  "outputDirectory": "dist",
   "functions": {
     "api/[[...route]].ts": {
       "memory": 512,
