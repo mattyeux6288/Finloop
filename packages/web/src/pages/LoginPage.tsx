@@ -70,6 +70,17 @@ export function LoginPage({ onLoginSuccess }: Props) {
       onLoginSuccess();
     } catch (err: any) {
       const apiError = err?.response?.data?.error;
+
+      // Mot de passe déjà défini → retour auto au login avec message
+      if (apiError?.code === 'PASSWORD_ALREADY_SET') {
+        clearPasswordSetup();
+        setPassword('');
+        setConfirmPassword('');
+        setError('Votre mot de passe est déjà défini. Connectez-vous avec vos identifiants.');
+        setLoading(false);
+        return;
+      }
+
       setError(apiError?.message || err?.message || 'Erreur lors de la création du mot de passe.');
     } finally {
       setLoading(false);

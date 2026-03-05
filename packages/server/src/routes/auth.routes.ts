@@ -73,9 +73,12 @@ router.post('/setup-password', async (req: Request, res: Response) => {
     const result = await setupPassword(email, password);
     res.json({ success: true, data: result });
   } catch (err) {
+    const message = (err as Error).message;
+    // Code spécifique pour distinguer "mdp déjà défini" des autres erreurs
+    const code = message.includes('déjà été défini') ? 'PASSWORD_ALREADY_SET' : 'SETUP_FAILED';
     res.status(400).json({
       success: false,
-      error: { code: 'SETUP_FAILED', message: (err as Error).message },
+      error: { code, message },
     });
   }
 });
