@@ -12,8 +12,8 @@ export const config = {
   port: parseInt(process.env.PORT || '3001', 10),
   nodeEnv: process.env.NODE_ENV || 'development',
 
-  // Database - SQLite par défaut (le fichier sera créé automatiquement)
-  databaseType: (process.env.DATABASE_TYPE || 'sqlite') as 'postgresql' | 'sqlite',
+  // Database — auto-détecte PostgreSQL si DATABASE_URL est défini
+  databaseType: (process.env.DATABASE_TYPE || (process.env.DATABASE_URL ? 'postgresql' : 'sqlite')) as 'postgresql' | 'sqlite',
   databaseUrl: process.env.DATABASE_URL || '',
   sqlitePath: process.env.SQLITE_PATH || path.join(rootDir, 'finthesis.sqlite'),
 

@@ -8,15 +8,13 @@ import { db } from '../packages/server/src/config/database';
 
 // Diagnostic au démarrage — visible dans les logs Vercel
 console.log('[finloop] Serverless function loading...');
-console.log('[finloop] DATABASE_TYPE =', process.env.DATABASE_TYPE ?? '(not set → defaults to sqlite)');
 console.log('[finloop] DATABASE_URL  =', process.env.DATABASE_URL ? '✓ set' : '✗ NOT SET');
-console.log('[finloop] JWT_SECRET    =', process.env.JWT_SECRET ? '✓ set' : '✗ NOT SET');
 
-// Vérification critique : on refuse de démarrer sans PostgreSQL en prod
-if (process.env.VERCEL && process.env.DATABASE_TYPE !== 'postgresql') {
+// Vérification : DATABASE_URL doit être défini sur Vercel
+if (process.env.VERCEL && !process.env.DATABASE_URL) {
   throw new Error(
-    '[finloop] FATAL: DATABASE_TYPE must be "postgresql" on Vercel. ' +
-    'Add DATABASE_TYPE=postgresql in Vercel Environment Variables.'
+    '[finloop] FATAL: DATABASE_URL is not set. ' +
+    'Add your Neon/PostgreSQL connection string in Vercel → Settings → Environment Variables.'
   );
 }
 
