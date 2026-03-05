@@ -2,9 +2,12 @@
   "name": "@finthesis/server",
   "version": "0.1.0",
   "private": true,
+  "main": "./dist/app.js",
+  "types": "./dist/app.d.ts",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "start": "tsx src/index.ts"
+    "start": "tsx src/index.ts",
+    "build": "tsc"
   },
   "dependencies": {
     "@finthesis/shared": "*",

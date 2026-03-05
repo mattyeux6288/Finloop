@@ -27,5 +27,5 @@ const ALL_MIGRATIONS: { name: string; mod: MigrationModule }[] = [
 export const migrationSource: Knex.MigrationSource<{ name: string; mod: MigrationModule }> = {
   getMigrations:   async () => ALL_MIGRATIONS,
   getMigrationName: (m) => m.name,
-  getMigration:    (m) => m.mod,
+  getMigration:    (m) => Promise.resolve(m.mod),
 };

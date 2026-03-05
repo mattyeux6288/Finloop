@@ -1,6 +1,6 @@
 {
   "installCommand": "npm install",
-  "buildCommand": "rm -rf packages/shared/dist packages/engine/dist && npm run build -w packages/shared && npm run build -w packages/engine && cd packages/web && npx vite build --outDir ../../dist",
+  "buildCommand": "rm -rf packages/shared/dist packages/engine/dist packages/server/dist && npm run build -w packages/shared && npm run build -w packages/engine && npm run build -w packages/server && cd packages/web && npx vite build --outDir ../../dist",
   "outputDirectory": "dist",
   "functions": {
     "api/[[...route]].ts": {

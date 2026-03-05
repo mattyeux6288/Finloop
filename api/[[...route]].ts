@@ -5,8 +5,11 @@
  * Knex est LAZY (Proxy dans database.ts) = better-sqlite3 jamais chargé.
  */
 import type { IncomingMessage, ServerResponse } from 'http';
-import { createApp } from '../packages/server/src/app';
-import { db } from '../packages/server/src/config/database';
+import { createApp } from '../packages/server/dist/app';
+import { db } from '../packages/server/dist/config/database';
+
+// Force le bundler Vercel à inclure pg (Knex le charge dynamiquement via require(clientName))
+import 'pg';
 
 const app = createApp();
 let initialized = false;
