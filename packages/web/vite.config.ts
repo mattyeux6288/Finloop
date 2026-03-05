@@ -8,6 +8,10 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      // Résoudre les workspace packages depuis les sources TS (Vite gère le TS nativement)
+      // Évite les problèmes d'import CJS ← ESM avec dist/index.js
+      '@finthesis/shared': path.resolve(__dirname, '../shared/src/index.ts'),
+      '@finthesis/engine': path.resolve(__dirname, '../engine/src/index.ts'),
     },
   },
   server: {
