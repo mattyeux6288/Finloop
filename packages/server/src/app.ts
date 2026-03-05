@@ -13,6 +13,7 @@ export function createApp() {
   // Ajouter ALLOWED_ORIGIN=https://votre-app.vercel.app dans les variables d'env Railway
   const allowedOrigins: RegExp[] = [
     /^http:\/\/localhost(:\d+)?$/,
+    /^http:\/\/127\.0\.0\.1(:\d+)?$/,
     /^https:\/\/.*\.vercel\.app$/,
   ];
   if (process.env.ALLOWED_ORIGIN) {

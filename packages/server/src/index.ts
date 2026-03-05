@@ -1,6 +1,7 @@
 import { createApp } from './app';
 import { config } from './config/env';
 import { db } from './config/database';
+import { seed } from './db/seeds/001_initial_users';
 
 async function main() {
   // Exécuter les migrations
@@ -8,17 +9,8 @@ async function main() {
   await db.migrate.latest();
   console.log('Migrations completed.');
 
-  // Créer un utilisateur par défaut (nécessaire pour la FK companies.user_id)
-  const defaultUser = await db('users').where({ id: 'default' }).first();
-  if (!defaultUser) {
-    await db('users').insert({
-      id: 'default',
-      email: 'local@finthesis.fr',
-      password_hash: 'none',
-      display_name: 'Utilisateur local',
-    });
-    console.log('Default user created.');
-  }
+  // Seed des utilisateurs initiaux
+  await seed(db as any);
 
   const app = createApp();
 

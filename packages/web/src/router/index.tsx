@@ -6,6 +6,7 @@ import { BilanPage } from '@/pages/BilanPage';
 import { CompteResultatPage } from '@/pages/CompteResultatPage';
 import { SigPage } from '@/pages/SigPage';
 import { SettingsPage } from '@/pages/SettingsPage';
+import { AdminPage } from '@/pages/AdminPage';
 
 export const router = createBrowserRouter([
   {
@@ -20,6 +21,7 @@ export const router = createBrowserRouter([
       { path: 'comparaison', element: <div className="text-gray-500">Page de comparaison (à venir)</div> },
       { path: 'export', element: <div className="text-gray-500">Page d'export PDF (à venir)</div> },
       { path: 'parametres', element: <SettingsPage /> },
+      { path: 'admin', element: <AdminPage /> },
     ],
   },
 ]);

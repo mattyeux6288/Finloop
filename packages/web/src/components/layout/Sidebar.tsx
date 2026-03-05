@@ -10,6 +10,7 @@ import {
   Settings,
   LogOut,
   User,
+  Shield,
 } from 'lucide-react';
 import { FinloopLogo } from '@/components/FinloopLogo';
 import { useAuthStore } from '@/store/authStore';
@@ -63,6 +64,26 @@ export function Sidebar() {
             {item.label}
           </NavLink>
         ))}
+
+        {/* Lien admin conditionnel */}
+        {user?.role === 'admin' && (
+          <>
+            <div className="my-2 mx-3 h-px bg-gray-100" />
+            <NavLink
+              to="/admin"
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                  isActive
+                    ? 'bg-primary-50 text-primary-700'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                }`
+              }
+            >
+              <Shield className="w-5 h-5" />
+              Administration
+            </NavLink>
+          </>
+        )}
       </nav>
 
       {/* Pied : infos utilisateur + déconnexion */}
