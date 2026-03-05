@@ -7,6 +7,7 @@
 import type { IncomingMessage, ServerResponse } from 'http';
 import { createApp } from '../packages/server/dist/app';
 import { db } from '../packages/server/dist/config/database';
+import bcrypt from 'bcryptjs';
 
 // Force le bundler Vercel à inclure ces dépendances indirectes
 // que @vercel/nft ne trace pas depuis les fichiers CJS compilés
@@ -34,21 +35,35 @@ async function initialize() {
   console.log('[finloop] Migrations done.');
 
   // --- 4 utilisateurs prédéfinis ---
+  // user-test a un mot de passe pré-défini ; les autres devront le définir au 1er login
+  const testPasswordHash = await bcrypt.hash('INCREDIBLE', 10);
+
   const seedUsers = [
-    { id: 'head-user',    email: 'admin@finloop.fr',        display_name: 'Administrateur', role: 'admin' },
-    { id: 'user-test',    email: 'user.test@finloop.fr',    display_name: 'Utilisateur Test', role: 'user' },
-    { id: 'user-dutheil', email: 'user.dutheil@finloop.fr', display_name: 'Utilisateur Dutheil', role: 'user' },
-    { id: 'user-raly',    email: 'user.raly@finloop.fr',    display_name: 'Utilisateur Raly', role: 'user' },
+    { id: 'head-user',    email: 'dutheil.matthieu@outlook.fr', display_name: 'head_user',    role: 'admin', password_hash: null },
+    { id: 'user-test',    email: 'test@finloop.fr',             display_name: 'user_test',    role: 'user',  password_hash: testPasswordHash },
+    { id: 'user-dutheil', email: 'pascaldutheil@orange.fr',     display_name: 'user_dutheil', role: 'user',  password_hash: null },
+    { id: 'user-raly',    email: 'matthieu@ralyconseils.com',   display_name: 'user_raly',    role: 'user',  password_hash: null },
   ];
 
   for (const u of seedUsers) {
     const exists = await db('users').where({ id: u.id }).first();
     if (!exists) {
-      await db('users').insert({ ...u, password_hash: null });
-      console.log(`[finloop] User "${u.id}" created.`);
+      await db('users').insert(u);
+      console.log(`[finloop] User "${u.id}" created (${u.email}).`);
     } else {
-      // Mettre à jour le role si la colonne existe mais la valeur est manquante
-      await db('users').where({ id: u.id }).update({ role: u.role });
+      // Mettre à jour email, display_name, role et mot de passe si nécessaire
+      const updateData: Record<string, unknown> = {
+        email: u.email,
+        display_name: u.display_name,
+        role: u.role,
+      };
+      // Pour user-test : forcer le mot de passe s'il n'en a pas encore
+      if (u.id === 'user-test' && !exists.password_hash) {
+        updateData.password_hash = testPasswordHash;
+        console.log('[finloop] Set password for user-test.');
+      }
+      await db('users').where({ id: u.id }).update(updateData);
+      console.log(`[finloop] User "${u.id}" updated (${u.email}).`);
     }
   }
 
