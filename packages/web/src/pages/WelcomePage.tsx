@@ -79,8 +79,11 @@ export function WelcomePage({ onGreet }: Props) {
       setCompanies([...companies, company]);
       onGreet(firstName.trim(), lastName.trim(), company);
     } catch (err: any) {
-      const msg = err?.response?.data?.error || err?.message || 'Erreur serveur';
-      alert(`Impossible de créer l'entreprise : ${msg}`);
+      const data = err?.response?.data;
+      const msg = typeof data === 'string' ? data
+        : data?.error ? `${data.error}${data.details ? '\n' + data.details : ''}`
+        : err?.message || 'Erreur serveur';
+      alert(`Impossible de créer l'entreprise :\n${msg}`);
     } finally {
       setCreating(false);
     }

@@ -9,14 +9,16 @@ import { createApp } from '../packages/server/src/app';
 import { db } from '../packages/server/src/config/database';
 
 // Diagnostic au démarrage — visible dans les logs Vercel
+const dbUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL || '';
 console.log('[finloop] Serverless function loading...');
-console.log('[finloop] DATABASE_URL  =', process.env.DATABASE_URL ? '✓ set' : '✗ NOT SET');
+console.log('[finloop] DATABASE_URL  =', dbUrl ? '✓ set' : '✗ NOT SET');
+console.log('[finloop] POSTGRES_URL  =', process.env.POSTGRES_URL ? '✓ set' : '✗ NOT SET');
 
-// Vérification : DATABASE_URL doit être défini sur Vercel
-if (process.env.VERCEL && !process.env.DATABASE_URL) {
+// Vérification : une URL PostgreSQL doit être définie sur Vercel
+if (process.env.VERCEL && !dbUrl) {
   throw new Error(
-    '[finloop] FATAL: DATABASE_URL is not set. ' +
-    'Add your Neon/PostgreSQL connection string in Vercel → Settings → Environment Variables.'
+    '[finloop] FATAL: Aucune URL PostgreSQL trouvée. ' +
+    'Ajoutez DATABASE_URL ou POSTGRES_URL dans Vercel → Settings → Environment Variables.'
   );
 }
 

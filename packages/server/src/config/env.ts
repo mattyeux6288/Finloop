@@ -12,9 +12,10 @@ export const config = {
   port: parseInt(process.env.PORT || '3001', 10),
   nodeEnv: process.env.NODE_ENV || 'development',
 
-  // Database — auto-détecte PostgreSQL si DATABASE_URL est défini
-  databaseType: (process.env.DATABASE_TYPE || (process.env.DATABASE_URL ? 'postgresql' : 'sqlite')) as 'postgresql' | 'sqlite',
-  databaseUrl: process.env.DATABASE_URL || '',
+  // Database — auto-détecte PostgreSQL si une URL est définie
+  // Supporte DATABASE_URL, POSTGRES_URL (Vercel intégration), NEON_DATABASE_URL
+  databaseType: (process.env.DATABASE_TYPE || ((process.env.DATABASE_URL || process.env.POSTGRES_URL) ? 'postgresql' : 'sqlite')) as 'postgresql' | 'sqlite',
+  databaseUrl: process.env.DATABASE_URL || process.env.POSTGRES_URL || '',
   sqlitePath: process.env.SQLITE_PATH || path.join(rootDir, 'finthesis.sqlite'),
 
   // JWT
