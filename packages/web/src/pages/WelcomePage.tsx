@@ -78,7 +78,10 @@ export function WelcomePage({ onGreet }: Props) {
       });
       setCompanies([...companies, company]);
       onGreet(firstName.trim(), lastName.trim(), company);
-    } catch { /* silencieux */ } finally {
+    } catch (err: any) {
+      const msg = err?.response?.data?.error || err?.message || 'Erreur serveur';
+      alert(`Impossible de créer l'entreprise : ${msg}`);
+    } finally {
       setCreating(false);
     }
   };
