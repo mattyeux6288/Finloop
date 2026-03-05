@@ -8,8 +8,10 @@ import type { IncomingMessage, ServerResponse } from 'http';
 import { createApp } from '../packages/server/dist/app';
 import { db } from '../packages/server/dist/config/database';
 
-// Force le bundler Vercel à inclure pg (Knex le charge dynamiquement via require(clientName))
-import 'pg';
+// Force le bundler Vercel à inclure ces dépendances indirectes
+// que @vercel/nft ne trace pas depuis les fichiers CJS compilés
+import 'pg';             // Knex le charge dynamiquement via require(clientName)
+import 'csv-parse/sync'; // @finthesis/engine l'utilise (sub-path export non tracé)
 
 const app = createApp();
 let initialized = false;
