@@ -65,8 +65,12 @@ export function LoginPage({ onLoginSuccess }: Props) {
 
     setLoading(true);
     try {
-      const result = await setupPassword(setupEmail!, password);
-      storeLogin(result.user, result.accessToken, result.refreshToken);
+      // Étape 1 : définir le mot de passe en DB
+      await setupPassword(setupEmail!, password);
+
+      // Étape 2 : connexion classique pour confirmer la sauvegarde et obtenir des tokens frais
+      const loginResult = await login(setupEmail!, password);
+      storeLogin(loginResult.user, loginResult.accessToken, loginResult.refreshToken);
       onLoginSuccess();
     } catch (err: any) {
       const apiError = err?.response?.data?.error;
