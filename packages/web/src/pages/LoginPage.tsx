@@ -2,7 +2,7 @@ import { useState, FormEvent } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { login, setupPassword } from '@/api/auth.api';
 import { FinloopLogo } from '@/components/FinloopLogo';
-import { LogIn, KeyRound, ArrowRight, AlertCircle } from 'lucide-react';
+import { LogIn, KeyRound, ArrowRight, AlertCircle, Sparkles } from 'lucide-react';
 
 interface Props {
   onLoginSuccess: () => void;
@@ -84,6 +84,17 @@ export function LoginPage({ onLoginSuccess }: Props) {
     setError('');
   };
 
+  // Raccourci premier login : aller directement au setup sans taper de mdp bidon
+  const handleFirstLoginClick = () => {
+    if (!email) {
+      setError('Veuillez saisir votre adresse e-mail.');
+      return;
+    }
+    setError('');
+    setPassword('');
+    setNeedsPasswordSetup(email);
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-[#f8f7f5]">
       {/* Header branded */}
@@ -159,6 +170,23 @@ export function LoginPage({ onLoginSuccess }: Props) {
                     {!loading && <ArrowRight className="w-4 h-4" />}
                   </button>
                 </form>
+
+                {/* Séparateur + lien premier accès */}
+                <div className="mt-5">
+                  <div className="relative flex items-center mb-4">
+                    <div className="flex-1 h-px bg-gray-100" />
+                    <span className="text-xs text-gray-300 px-3">ou</span>
+                    <div className="flex-1 h-px bg-gray-100" />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleFirstLoginClick}
+                    className="w-full flex items-center justify-center gap-2 text-sm text-gray-400 hover:text-orange-500 transition-colors py-2.5 rounded-xl border border-gray-100 hover:border-orange-200 hover:bg-orange-50"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    Première connexion ? Définir mon mot de passe
+                  </button>
+                </div>
               </>
             ) : (
               <>
