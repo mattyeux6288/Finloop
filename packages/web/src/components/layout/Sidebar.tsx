@@ -1,4 +1,5 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import {
   LayoutDashboard,
   Upload,
@@ -11,24 +12,41 @@ import {
   LogOut,
   User,
   Shield,
+  FolderInput,
+  ChevronDown,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useCompanyStore } from '@/store/companyStore';
 
 const navItems = [
   { to: '/', label: 'Tableau de bord', icon: LayoutDashboard },
-  { to: '/import', label: 'Import', icon: Upload },
   { to: '/bilan', label: 'Bilan', icon: FileText },
   { to: '/compte-resultat', label: 'Compte de résultat', icon: BarChart3 },
   { to: '/sig', label: 'SIG', icon: TrendingUp },
   { to: '/comparaison', label: 'Comparaison', icon: GitCompare },
-  { to: '/export', label: 'Export', icon: Download },
   { to: '/parametres', label: 'Paramètres', icon: Settings },
 ];
+
+const dataSubItems = [
+  { to: '/import', label: 'Import FEC', icon: Upload },
+  { to: '/export', label: 'Export PDF', icon: Download },
+];
+
+const activeClass = 'bg-accent-50 text-accent-700 shadow-[inset_3px_0_0_#E8621A]';
+const inactiveClass = 'text-gray-600 hover:bg-gray-50 hover:text-gray-900';
 
 export function Sidebar() {
   const { user, logout } = useAuthStore();
   const { selectCompany } = useCompanyStore();
+  const location = useLocation();
+
+  const isDataRoute = location.pathname === '/import' || location.pathname === '/export';
+  const [dataOpen, setDataOpen] = useState(isDataRoute);
+
+  // Ouvre automatiquement si on navigue vers import ou export
+  useEffect(() => {
+    if (isDataRoute) setDataOpen(true);
+  }, [isDataRoute]);
 
   const handleLogout = async () => {
     await logout();
@@ -58,11 +76,10 @@ export function Sidebar() {
           <NavLink
             key={item.to}
             to={item.to}
+            end={item.to === '/'}
             className={({ isActive }) =>
               `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                isActive
-                  ? 'bg-accent-50 text-accent-700 shadow-[inset_3px_0_0_#E8621A]'
-                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                isActive ? activeClass : inactiveClass
               }`
             }
           >
@@ -70,6 +87,41 @@ export function Sidebar() {
             {item.label}
           </NavLink>
         ))}
+
+        {/* Groupe Données : Import + Export */}
+        <div>
+          <button
+            onClick={() => setDataOpen((o) => !o)}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+              isDataRoute ? activeClass : inactiveClass
+            }`}
+          >
+            <FolderInput className="w-5 h-5 shrink-0" />
+            <span className="flex-1 text-left">Données</span>
+            <ChevronDown
+              className={`w-4 h-4 shrink-0 transition-transform duration-200 ${dataOpen ? 'rotate-180' : ''}`}
+            />
+          </button>
+
+          {dataOpen && (
+            <div className="mt-1 ml-4 pl-3 border-l border-gray-200 space-y-1">
+              {dataSubItems.map((sub) => (
+                <NavLink
+                  key={sub.to}
+                  to={sub.to}
+                  className={({ isActive }) =>
+                    `flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      isActive ? activeClass : inactiveClass
+                    }`
+                  }
+                >
+                  <sub.icon className="w-4 h-4" />
+                  {sub.label}
+                </NavLink>
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* Lien admin conditionnel */}
         {user?.role === 'admin' && (
@@ -79,9 +131,7 @@ export function Sidebar() {
               to="/admin"
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                  isActive
-                    ? 'bg-accent-50 text-accent-700 shadow-[inset_3px_0_0_#E8621A]'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                  isActive ? activeClass : inactiveClass
                 }`
               }
             >
