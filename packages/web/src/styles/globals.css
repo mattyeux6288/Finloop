@@ -41,7 +41,7 @@
   --accent:  #E8621A;
   --primaryT: transparent;
   --transDur: 0.3s;
-  --gradient-brand: linear-gradient(135deg, #1E3A30 0%, #2D6B48 50%, #E8621A 100%);
+  --gradient-brand: linear-gradient(135deg, #1E3A30 0%, #2D6B48 55%, #6DC28A 100%);
 }
 
 /* ── Base — Typographie & rendu ── */
