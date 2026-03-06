@@ -2,8 +2,8 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recha
 import type { ExpenseCategory } from '@finthesis/shared';
 import { formatEur } from '@finthesis/shared';
 
-// 10 nuances de vert — charte Raly Conseils
-const COLORS = ['#1E3A30', '#6DC28A', '#2D6B48', '#84caaa', '#3a7d52', '#aedfc5', '#4a9866', '#d6f0e1', '#5aaf78', '#243C33'];
+// Palette Raly Conseils — orange accent sur la tranche dominante, vert pour les suivantes
+const COLORS = ['#E8621A', '#1E3A30', '#6DC28A', '#2D6B48', '#84caaa', '#3a7d52', '#aedfc5', '#4a9866', '#c94f0e', '#243C33'];
 
 const RADIAN = Math.PI / 180;
 

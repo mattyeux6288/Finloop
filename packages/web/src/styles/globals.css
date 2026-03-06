@@ -17,6 +17,18 @@
   --color-primary-800: #2d6045;
   --color-primary-900: #1E3A30;
 
+  /* Raly Conseils — palette orange (accent) */
+  --color-accent-50:  #fff7f0;
+  --color-accent-100: #fee5cc;
+  --color-accent-200: #fdc898;
+  --color-accent-300: #faa660;
+  --color-accent-400: #f77c2e;
+  --color-accent-500: #E8621A;
+  --color-accent-600: #c94f0e;
+  --color-accent-700: #a33d08;
+  --color-accent-800: #7d2d04;
+  --color-accent-900: #5a1f02;
+
   /* Typographie */
   --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-display: 'Inter Tight', 'Inter', system-ui, sans-serif;
@@ -26,9 +38,10 @@
 :root {
   --bg: #ffffff;
   --primary: #6DC28A;
+  --accent:  #E8621A;
   --primaryT: transparent;
   --transDur: 0.3s;
-  --gradient-brand: linear-gradient(135deg, #1E3A30 0%, #2D6B48 55%, #6DC28A 100%);
+  --gradient-brand: linear-gradient(135deg, #1E3A30 0%, #2D6B48 50%, #E8621A 100%);
 }
 
 /* ── Base — Typographie & rendu ── */

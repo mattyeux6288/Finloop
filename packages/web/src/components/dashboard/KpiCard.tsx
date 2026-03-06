@@ -19,7 +19,7 @@ export function KpiCard({ label, value, format = 'currency', trend }: KpiCardPro
   const isPositive = trend !== undefined && trend >= 0;
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+    <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm" style={{ borderTop: '2px solid #E8621A' }}>
       <p className="text-sm font-medium text-gray-500 mb-1">{label}</p>
       <p className="text-2xl font-bold text-gray-900">{formattedValue}</p>
       {trend !== undefined && (

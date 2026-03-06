@@ -35,7 +35,7 @@ export function RevenueBarChart({ data }: Props) {
             formatter={(value: number) => [formatEur(value), 'CA']}
             labelFormatter={(label) => MOIS_LONG[label] ?? label}
           />
-          <Bar dataKey="montant" fill="#6DC28A" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="montant" fill="#E8621A" radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>

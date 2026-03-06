@@ -61,7 +61,7 @@ export function Sidebar() {
             className={({ isActive }) =>
               `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                 isActive
-                  ? 'bg-primary-50 text-primary-700'
+                  ? 'bg-accent-50 text-accent-700 shadow-[inset_3px_0_0_#E8621A]'
                   : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`
             }
@@ -80,7 +80,7 @@ export function Sidebar() {
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                   isActive
-                    ? 'bg-primary-50 text-primary-700'
+                    ? 'bg-accent-50 text-accent-700 shadow-[inset_3px_0_0_#E8621A]'
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`
               }
