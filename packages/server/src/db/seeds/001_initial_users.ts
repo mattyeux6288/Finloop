@@ -1,59 +1,53 @@
 import type { Knex } from 'knex';
-import { v4 as uuid } from 'uuid';
-import bcrypt from 'bcryptjs';
 
+/**
+ * Seed: placeholder users for local dev only.
+ * In production (Vercel), users are created via Supabase Auth in api/[[...route]].ts.
+ * This seed inserts minimal rows so local dev can reference user IDs in companies.
+ */
 export async function seed(knex: Knex): Promise<void> {
-  // Ne pas réinsérer si des utilisateurs (hors "default") existent déjà
-  const existing = await knex('users').whereNot({ id: 'default' }).count('* as count').first();
+  const existing = await knex('users').count('* as count').first();
   if (existing && Number(existing.count) > 0) {
-    console.log('Seed: des utilisateurs existent déjà, skip.');
+    console.log('Seed: users already exist, skip.');
     return;
   }
 
-  // Supprimer l'ancien utilisateur par défaut s'il existe
-  await knex('users').where({ id: 'default' }).del();
-
   const now = new Date().toISOString();
-  const testPasswordHash = await bcrypt.hash('INCREDIBLE', 10);
 
   await knex('users').insert([
     {
-      id: uuid(),
+      id: 'local-admin',
       email: 'dutheil.matthieu@outlook.fr',
-      password_hash: null,
       display_name: 'head_user',
       role: 'admin',
       created_at: now,
       updated_at: now,
     },
     {
-      id: uuid(),
+      id: 'local-test',
+      email: 'test@finloop.fr',
+      display_name: 'user_test',
+      role: 'user',
+      created_at: now,
+      updated_at: now,
+    },
+    {
+      id: 'local-dutheil',
       email: 'pascaldutheil@orange.fr',
-      password_hash: null,
       display_name: 'user_dutheil',
       role: 'user',
       created_at: now,
       updated_at: now,
     },
     {
-      id: uuid(),
+      id: 'local-raly',
       email: 'matthieu@ralyconseils.com',
-      password_hash: null,
       display_name: 'user_raly',
-      role: 'user',
-      created_at: now,
-      updated_at: now,
-    },
-    {
-      id: uuid(),
-      email: 'test@finloop.fr',
-      password_hash: testPasswordHash,
-      display_name: 'user_test',
       role: 'user',
       created_at: now,
       updated_at: now,
     },
   ]);
 
-  console.log('Seed: 4 utilisateurs créés (1 admin + 3 users). user_test a un mot de passe pré-défini.');
+  console.log('Seed: 4 local dev users created (1 admin + 3 users).');
 }

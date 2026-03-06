@@ -7,6 +7,7 @@ import { useCompanyStore } from './store/companyStore';
 import { useAuthStore } from './store/authStore';
 import { getCompanies, getFiscalYears } from './api/company.api';
 import { getMe } from './api/auth.api';
+import { supabase } from './config/supabase';
 import { SplashScreen } from './components/SplashScreen';
 import { WelcomeGreeting } from './components/WelcomeGreeting';
 import { WelcomePage } from './pages/WelcomePage';
@@ -45,35 +46,53 @@ export default function App() {
   const [authChecked, setAuthChecked] = useState(false);
   const [pendingGreet, setPendingGreet] = useState<Company | null>(null);
   const { selectedCompany, selectCompany, setCompanies } = useCompanyStore();
-  const { isAuthenticated, user, setUser, login: storeLogin, logout } = useAuthStore();
+  const { isAuthenticated, user, setUser, setSession, setLoading } = useAuthStore();
 
-  // Au démarrage, vérifier si le token est encore valide
+  // Initialize Supabase auth session
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    if (token && !user) {
-      getMe()
-        .then((me) => {
-          setUser({
-            id: me.id,
-            email: me.email,
-            displayName: me.display_name,
-            role: me.role,
-          });
-          setAuthChecked(true);
-        })
-        .catch(() => {
-          // Token invalide → logout
-          logout();
-          setAuthChecked(true);
-        });
-    } else {
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (session) {
+        // Fetch custom profile data from backend
+        getMe()
+          .then((me) => {
+            setUser({
+              id: me.id,
+              email: me.email,
+              displayName: me.display_name,
+              role: me.role,
+            });
+          })
+          .catch(() => {});
+      }
+      setLoading(false);
       setAuthChecked(true);
-    }
+    });
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setSession(session);
+        if (session) {
+          getMe()
+            .then((me) => setUser({
+              id: me.id,
+              email: me.email,
+              displayName: me.display_name,
+              role: me.role,
+            }))
+            .catch(() => {});
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleLoginSuccess = () => {
-    // Recharger les companies après login
+    // Reload companies after login
     getCompanies().then(setCompanies).catch(() => {});
   };
 
@@ -98,13 +117,10 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <AppInitializer />
 
-      {/* Splash d'ouverture */}
       {showSplash && <SplashScreen onDone={() => setSplashDone(true)} />}
 
-      {/* Page de connexion */}
       {showLogin && <LoginPage onLoginSuccess={handleLoginSuccess} />}
 
-      {/* Écran de bienvenue personnalisé */}
       {showGreeting && user && (
         <WelcomeGreeting
           firstName={user.displayName.split(' ')[0] || user.displayName}
@@ -113,10 +129,8 @@ export default function App() {
         />
       )}
 
-      {/* Page d'accueil (sélection entreprise) */}
       {showWelcome && <WelcomePage onSelect={handleCompanySelect} />}
 
-      {/* Application principale */}
       {showApp && <RouterProvider router={router} />}
     </QueryClientProvider>
   );

@@ -1,8 +1,7 @@
 import { useState, FormEvent } from 'react';
-import { useAuthStore } from '@/store/authStore';
-import { login, setupPassword } from '@/api/auth.api';
+import { supabase } from '@/config/supabase';
 import { FinloopLogo } from '@/components/FinloopLogo';
-import { LogIn, KeyRound, ArrowRight, AlertCircle, Sparkles } from 'lucide-react';
+import { LogIn, ArrowRight, AlertCircle, Mail } from 'lucide-react';
 
 interface Props {
   onLoginSuccess: () => void;
@@ -11,103 +10,50 @@ interface Props {
 export function LoginPage({ onLoginSuccess }: Props) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-
-  const {
-    login: storeLogin,
-    needsPasswordSetup,
-    setupEmail,
-    setNeedsPasswordSetup,
-    clearPasswordSetup,
-  } = useAuthStore();
-
-  const isSetupMode = needsPasswordSetup && setupEmail;
+  const [resetSent, setResetSent] = useState(false);
 
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    try {
-      const result = await login(email, password);
-      storeLogin(result.user, result.accessToken, result.refreshToken);
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (authError) {
+      setError(authError.message === 'Invalid login credentials'
+        ? 'Email ou mot de passe incorrect.'
+        : authError.message);
+    } else {
       onLoginSuccess();
-    } catch (err: any) {
-      const apiError = err?.response?.data?.error;
-
-      // Détecter le code FIRST_LOGIN_REQUIRED
-      if (apiError?.code === 'FIRST_LOGIN_REQUIRED') {
-        setNeedsPasswordSetup(email);
-        setPassword('');
-        setError('');
-      } else {
-        setError(apiError?.message || err?.message || 'Erreur de connexion.');
-      }
-    } finally {
-      setLoading(false);
     }
+
+    setLoading(false);
   };
 
-  const handleSetupPassword = async (e: FormEvent) => {
-    e.preventDefault();
-    setError('');
-
-    if (password !== confirmPassword) {
-      setError('Les mots de passe ne correspondent pas.');
-      return;
-    }
-    if (password.length < 6) {
-      setError('Le mot de passe doit contenir au moins 6 caractères.');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      // Étape 1 : définir le mot de passe en DB
-      await setupPassword(setupEmail!, password);
-
-      // Étape 2 : connexion classique pour confirmer la sauvegarde et obtenir des tokens frais
-      const loginResult = await login(setupEmail!, password);
-      storeLogin(loginResult.user, loginResult.accessToken, loginResult.refreshToken);
-      onLoginSuccess();
-    } catch (err: any) {
-      const apiError = err?.response?.data?.error;
-
-      // Mot de passe déjà défini → retour auto au login avec message
-      if (apiError?.code === 'PASSWORD_ALREADY_SET') {
-        clearPasswordSetup();
-        setPassword('');
-        setConfirmPassword('');
-        setError('Votre mot de passe est déjà défini. Connectez-vous avec vos identifiants.');
-        setLoading(false);
-        return;
-      }
-
-      setError(apiError?.message || err?.message || 'Erreur lors de la création du mot de passe.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleBackToLogin = () => {
-    clearPasswordSetup();
-    setEmail('');
-    setPassword('');
-    setConfirmPassword('');
-    setError('');
-  };
-
-  // Raccourci premier login : aller directement au setup sans taper de mdp bidon
-  const handleFirstLoginClick = () => {
+  const handleForgotPassword = async () => {
     if (!email) {
       setError('Veuillez saisir votre adresse e-mail.');
       return;
     }
     setError('');
-    setPassword('');
-    setNeedsPasswordSetup(email);
+    setLoading(true);
+
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}`,
+    });
+
+    if (resetError) {
+      setError(resetError.message);
+    } else {
+      setResetSent(true);
+    }
+
+    setLoading(false);
   };
 
   return (
@@ -125,9 +71,27 @@ export function LoginPage({ onLoginSuccess }: Props) {
       <div className="flex-1 flex items-start justify-center pt-10 px-4 pb-10">
         <div className="bg-white rounded-2xl shadow-lg w-full max-w-md overflow-hidden">
           <div className="p-8">
-            {!isSetupMode ? (
+            {resetSent ? (
+              /* Confirmation email envoyé */
+              <div className="text-center space-y-4">
+                <div className="w-14 h-14 rounded-full bg-green-50 flex items-center justify-center mx-auto">
+                  <Mail className="w-7 h-7 text-green-500" />
+                </div>
+                <h2 className="text-base font-semibold text-gray-900">Email envoyé</h2>
+                <p className="text-sm text-gray-500">
+                  Un lien de réinitialisation a été envoyé à <strong>{email}</strong>.
+                  Consultez votre boîte de réception.
+                </p>
+                <button
+                  onClick={() => { setResetSent(false); setError(''); }}
+                  className="text-sm text-primary-500 hover:text-primary-600 transition-colors"
+                >
+                  Retour à la connexion
+                </button>
+              </div>
+            ) : (
               <>
-                {/* Mode connexion classique */}
+                {/* Mode connexion */}
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-primary-50">
                     <LogIn className="w-5 h-5 text-primary-500" />
@@ -186,94 +150,16 @@ export function LoginPage({ onLoginSuccess }: Props) {
                   </button>
                 </form>
 
-                {/* Séparateur + lien premier accès */}
-                <div className="mt-5">
-                  <div className="relative flex items-center mb-4">
-                    <div className="flex-1 h-px bg-gray-100" />
-                    <span className="text-xs text-gray-300 px-3">ou</span>
-                    <div className="flex-1 h-px bg-gray-100" />
-                  </div>
+                {/* Mot de passe oublié */}
+                <div className="mt-5 text-center">
                   <button
                     type="button"
-                    onClick={handleFirstLoginClick}
-                    className="w-full flex items-center justify-center gap-2 text-sm text-gray-400 hover:text-orange-500 transition-colors py-2.5 rounded-xl border border-gray-100 hover:border-orange-200 hover:bg-orange-50"
+                    onClick={handleForgotPassword}
+                    className="text-sm text-gray-400 hover:text-orange-500 transition-colors"
                   >
-                    <Sparkles className="w-3.5 h-3.5" />
-                    Première connexion ? Définir mon mot de passe
+                    Mot de passe oublié ?
                   </button>
                 </div>
-              </>
-            ) : (
-              <>
-                {/* Mode premier login : définir le mot de passe */}
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-amber-50">
-                    <KeyRound className="w-5 h-5 text-amber-500" />
-                  </div>
-                  <div>
-                    <h2 className="text-base font-semibold text-gray-900">Premier accès</h2>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      Définissez votre mot de passe pour <strong>{setupEmail}</strong>
-                    </p>
-                  </div>
-                </div>
-
-                <form onSubmit={handleSetupPassword} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Nouveau mot de passe
-                    </label>
-                    <input
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Au moins 6 caractères"
-                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-gray-50"
-                      required
-                      minLength={6}
-                      autoFocus
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Confirmer le mot de passe
-                    </label>
-                    <input
-                      type="password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="Retapez le mot de passe"
-                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-gray-50"
-                      required
-                      minLength={6}
-                    />
-                  </div>
-
-                  {error && (
-                    <div className="flex items-start gap-2 text-sm text-red-600 bg-red-50 rounded-xl px-4 py-3">
-                      <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
-                      <span>{error}</span>
-                    </div>
-                  )}
-
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full flex items-center justify-center gap-2 text-white py-3 rounded-xl text-sm font-semibold disabled:opacity-40 transition-all hover:opacity-90 active:scale-95 bg-brand-gradient"
-                  >
-                    {loading ? 'Création...' : 'Définir le mot de passe et continuer'}
-                    {!loading && <ArrowRight className="w-4 h-4" />}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleBackToLogin}
-                    className="w-full text-sm text-gray-400 hover:text-gray-600 transition-colors py-2"
-                  >
-                    Retour à la connexion
-                  </button>
-                </form>
               </>
             )}
           </div>

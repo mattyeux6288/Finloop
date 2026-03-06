@@ -31,8 +31,8 @@ export function Sidebar() {
   const { user, logout } = useAuthStore();
   const { selectCompany } = useCompanyStore();
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     selectCompany(null);
     window.location.reload();
   };

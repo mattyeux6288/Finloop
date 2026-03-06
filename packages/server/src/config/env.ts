@@ -18,11 +18,10 @@ export const config = {
   databaseUrl: process.env.DATABASE_URL || process.env.POSTGRES_URL || '',
   sqlitePath: process.env.SQLITE_PATH || path.join(rootDir, 'finthesis.sqlite'),
 
-  // JWT
-  jwtSecret: process.env.JWT_SECRET || 'dev-secret',
-  jwtRefreshSecret: process.env.JWT_REFRESH_SECRET || 'dev-refresh-secret',
-  jwtExpiresIn: process.env.JWT_EXPIRES_IN || '1h',
-  jwtRefreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
+  // Supabase
+  supabaseUrl: process.env.SUPABASE_URL || '',
+  supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
+  supabaseJwtSecret: process.env.SUPABASE_JWT_SECRET || 'super-secret-jwt-token-with-at-least-32-characters-long',
 
   // Upload — /tmp en serverless (Vercel), dossier local sinon
   uploadDir: process.env.UPLOAD_DIR || (process.env.VERCEL ? '/tmp' : path.join(rootDir, 'uploads')),

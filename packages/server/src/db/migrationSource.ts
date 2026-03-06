@@ -11,6 +11,7 @@ import * as m005 from './migrations/005_create_ecritures';
 import * as m006 from './migrations/006_create_computed_reports';
 import * as m007 from './migrations/007_add_user_role';
 import * as m008 from './migrations/008_fix_password_hash_nullable';
+import * as m009 from './migrations/009_drop_password_hash';
 
 interface MigrationModule {
   up: (knex: Knex) => Promise<void>;
@@ -26,6 +27,7 @@ const ALL_MIGRATIONS: { name: string; mod: MigrationModule }[] = [
   { name: '006_create_computed_reports.ts',       mod: m006 },
   { name: '007_add_user_role.ts',                 mod: m007 },
   { name: '008_fix_password_hash_nullable.ts',    mod: m008 },
+  { name: '009_drop_password_hash.ts',            mod: m009 },
 ];
 
 export const migrationSource: Knex.MigrationSource<{ name: string; mod: MigrationModule }> = {

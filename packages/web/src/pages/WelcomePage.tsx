@@ -87,8 +87,8 @@ export function WelcomePage({ onSelect }: Props) {
     }
   };
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     window.location.reload();
   };
 

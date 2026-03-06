@@ -2,7 +2,7 @@ import { useState, FormEvent, useEffect, useRef } from 'react';
 import { useCompanyStore } from '@/store/companyStore';
 import { useAuthStore } from '@/store/authStore';
 import { createCompany, updateCompany, createFiscalYear, getFiscalYears, updateFiscalYear, deleteFiscalYear } from '@/api/company.api';
-import { changePassword } from '@/api/auth.api';
+import { supabase } from '@/config/supabase';
 import { lookupSiren, type SirenResult } from '@/api/siren.api';
 import { Plus, Search, Loader2, CheckCircle, Building2, Users, Calendar, Briefcase, Pencil, Trash2, X, Check, Save, KeyRound } from 'lucide-react';
 import type { FiscalYear } from '@finthesis/shared';
@@ -12,7 +12,6 @@ export function SettingsPage() {
   const { user } = useAuthStore();
 
   // Password change form
-  const [currentPwd, setCurrentPwd] = useState('');
   const [newPwd, setNewPwd] = useState('');
   const [confirmPwd, setConfirmPwd] = useState('');
   const [pwdLoading, setPwdLoading] = useState(false);
@@ -279,20 +278,17 @@ export function SettingsPage() {
       return;
     }
     setPwdLoading(true);
-    try {
-      await changePassword(currentPwd, newPwd);
+    const { error } = await supabase.auth.updateUser({ password: newPwd });
+    if (error) {
+      setPwdMessage(error.message);
+      setPwdMessageType('error');
+    } else {
       setPwdMessage('Mot de passe modifié avec succès.');
       setPwdMessageType('success');
-      setCurrentPwd('');
       setNewPwd('');
       setConfirmPwd('');
-    } catch (err: any) {
-      const apiError = err?.response?.data?.error;
-      setPwdMessage(apiError?.message || err?.message || 'Erreur lors du changement de mot de passe.');
-      setPwdMessageType('error');
-    } finally {
-      setPwdLoading(false);
     }
+    setPwdLoading(false);
   };
 
   // Champs du formulaire entreprise — partagés entre mode édition et création
@@ -681,17 +677,6 @@ export function SettingsPage() {
 
         <form onSubmit={handleChangePassword} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Mot de passe actuel</label>
-            <input
-              type="password"
-              value={currentPwd}
-              onChange={(e) => setCurrentPwd(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-              required
-              minLength={6}
-            />
-          </div>
-          <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Nouveau mot de passe</label>
             <input
               type="password"
@@ -715,7 +700,7 @@ export function SettingsPage() {
           </div>
           <button
             type="submit"
-            disabled={pwdLoading || !currentPwd || !newPwd || !confirmPwd}
+            disabled={pwdLoading || !newPwd || !confirmPwd}
             className="flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-700 disabled:opacity-50"
           >
             {pwdLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <KeyRound className="w-4 h-4" />}

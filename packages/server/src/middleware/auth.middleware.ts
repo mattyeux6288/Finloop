@@ -21,9 +21,14 @@ export function authMiddleware(req: AuthRequest, res: Response, next: NextFuncti
   const token = authHeader.substring(7);
 
   try {
-    const decoded = jwt.verify(token, config.jwtSecret) as { userId: string; role?: string };
-    req.userId = decoded.userId;
-    req.userRole = decoded.role || 'user';
+    const decoded = jwt.verify(token, config.supabaseJwtSecret) as {
+      sub: string;
+      role: string;
+      app_metadata?: { role?: string };
+    };
+
+    req.userId = decoded.sub;
+    req.userRole = decoded.app_metadata?.role || 'user';
     next();
   } catch {
     res.status(401).json({

@@ -1,4 +1,6 @@
 import { create } from 'zustand';
+import { supabase } from '@/config/supabase';
+import type { Session } from '@supabase/supabase-js';
 
 export interface AuthUser {
   id: string;
@@ -9,36 +11,49 @@ export interface AuthUser {
 
 interface AuthState {
   user: AuthUser | null;
+  session: Session | null;
   isAuthenticated: boolean;
-  needsPasswordSetup: boolean;
-  setupEmail: string | null;
-  login: (user: AuthUser, accessToken: string, refreshToken: string) => void;
-  logout: () => void;
+  loading: boolean;
+  setSession: (session: Session | null) => void;
   setUser: (user: AuthUser) => void;
-  setNeedsPasswordSetup: (email: string) => void;
-  clearPasswordSetup: () => void;
+  logout: () => Promise<void>;
+  setLoading: (loading: boolean) => void;
+}
+
+function userFromSession(session: Session): AuthUser {
+  const u = session.user;
+  return {
+    id: u.id,
+    email: u.email!,
+    displayName: u.user_metadata?.display_name || u.email!.split('@')[0],
+    role: u.app_metadata?.role || 'user',
+  };
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
-  isAuthenticated: !!localStorage.getItem('accessToken'),
-  needsPasswordSetup: false,
-  setupEmail: null,
+  session: null,
+  isAuthenticated: false,
+  loading: true,
 
-  login: (user, accessToken, refreshToken) => {
-    localStorage.setItem('accessToken', accessToken);
-    localStorage.setItem('refreshToken', refreshToken);
-    set({ user, isAuthenticated: true, needsPasswordSetup: false, setupEmail: null });
-  },
-
-  logout: () => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    set({ user: null, isAuthenticated: false, needsPasswordSetup: false, setupEmail: null });
+  setSession: (session) => {
+    if (session) {
+      set({
+        session,
+        user: userFromSession(session),
+        isAuthenticated: true,
+      });
+    } else {
+      set({ session: null, user: null, isAuthenticated: false });
+    }
   },
 
   setUser: (user) => set({ user }),
 
-  setNeedsPasswordSetup: (email) => set({ needsPasswordSetup: true, setupEmail: email }),
-  clearPasswordSetup: () => set({ needsPasswordSetup: false, setupEmail: null }),
+  logout: async () => {
+    await supabase.auth.signOut();
+    set({ user: null, session: null, isAuthenticated: false });
+  },
+
+  setLoading: (loading) => set({ loading }),
 }));
