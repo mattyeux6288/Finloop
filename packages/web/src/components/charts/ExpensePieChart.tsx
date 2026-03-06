@@ -16,9 +16,9 @@ interface LabelProps {
   pourcentage: number;
 }
 
-// Label rendu à l'intérieur du secteur, masqué si tranche < 5%
+// Label rendu à l'intérieur du secteur, masqué si tranche < 7%
 function renderInnerLabel({ cx, cy, midAngle, innerRadius, outerRadius, pourcentage }: LabelProps) {
-  if (pourcentage < 5) return null;
+  if (pourcentage < 7) return null;
   const radius = innerRadius + (outerRadius - innerRadius) * 0.55;
   const x = cx + radius * Math.cos(-midAngle * RADIAN);
   const y = cy + radius * Math.sin(-midAngle * RADIAN);
