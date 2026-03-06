@@ -5,17 +5,17 @@
 @source "../**/*.ts";
 
 @theme {
-  /* Finloop — palette orange */
-  --color-primary-50:  #fff4ee;
-  --color-primary-100: #ffe5d0;
-  --color-primary-200: #ffc9a0;
-  --color-primary-300: #ffa76b;
-  --color-primary-400: #ffa647;
-  --color-primary-500: #ff6d2d;
-  --color-primary-600: #f94f1c;
-  --color-primary-700: #d93c0d;
-  --color-primary-800: #b52e0a;
-  --color-primary-900: #2e2c2f;
+  /* Raly Conseils — palette verte */
+  --color-primary-50:  #f0faf4;
+  --color-primary-100: #d6f0e1;
+  --color-primary-200: #aedfc5;
+  --color-primary-300: #84caaa;
+  --color-primary-400: #6DC28A;
+  --color-primary-500: #5aaf78;
+  --color-primary-600: #4a9866;
+  --color-primary-700: #3a7d52;
+  --color-primary-800: #2d6045;
+  --color-primary-900: #1E3A30;
 
   /* Typographie */
   --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -25,10 +25,10 @@
 /* ── Variables globales ── */
 :root {
   --bg: #ffffff;
-  --primary: #ff6d2d;
+  --primary: #6DC28A;
   --primaryT: transparent;
   --transDur: 0.3s;
-  --gradient-brand: linear-gradient(135deg, #f94f1c 0%, #ff6d2d 55%, #ffa647 100%);
+  --gradient-brand: linear-gradient(135deg, #1E3A30 0%, #2D6B48 55%, #6DC28A 100%);
 }
 
 /* ── Base — Typographie & rendu ── */

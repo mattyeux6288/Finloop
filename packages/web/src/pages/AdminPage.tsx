@@ -382,7 +382,7 @@ export function AdminPage() {
                         <span
                           className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                             u.role === 'admin'
-                              ? 'bg-orange-100 text-orange-700'
+                              ? 'bg-primary-100 text-primary-700'
                               : 'bg-gray-100 text-gray-600'
                           }`}
                         >

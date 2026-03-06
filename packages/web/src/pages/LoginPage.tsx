@@ -1,6 +1,5 @@
 import { useState, FormEvent } from 'react';
 import { supabase } from '@/config/supabase';
-import { FinloopLogo } from '@/components/FinloopLogo';
 import { LogIn, ArrowRight, AlertCircle, Mail } from 'lucide-react';
 
 interface Props {
@@ -59,11 +58,21 @@ export function LoginPage({ onLoginSuccess }: Props) {
   return (
     <div className="min-h-screen flex flex-col bg-[#f8f7f5]">
       {/* Header branded */}
-      <div className="py-16 px-6 flex flex-col items-center bg-brand-gradient">
-        <FinloopLogo size={64} variant="white" className="mb-4 drop-shadow" />
+      <div className="py-14 px-6 flex flex-col items-center bg-brand-gradient">
+        {/* Logo RC */}
+        <div className="w-20 h-20 rounded-2xl overflow-hidden mb-5 shadow-xl ring-4 ring-white/20">
+          <img
+            src="/logo-rc.jpg"
+            alt="Raly Conseils"
+            className="w-full h-full object-cover"
+          />
+        </div>
         <h1 className="text-5xl font-bold text-white tracking-brand-h2">Finloop</h1>
         <p className="text-white/70 mt-2 tracking-brand-wide text-sm uppercase font-light">
           Analyse financière
+        </p>
+        <p className="text-white/50 text-xs mt-1 tracking-brand-wide font-light">
+          par Raly Conseils
         </p>
       </div>
 
@@ -111,8 +120,8 @@ export function LoginPage({ onLoginSuccess }: Props) {
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="votre.email@finloop.fr"
-                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-gray-50"
+                      placeholder="votre.email@domaine.fr"
+                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 bg-gray-50"
                       required
                       autoFocus
                     />
@@ -127,7 +136,7 @@ export function LoginPage({ onLoginSuccess }: Props) {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Votre mot de passe"
-                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-gray-50"
+                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 bg-gray-50"
                       required
                       minLength={6}
                     />
@@ -155,7 +164,7 @@ export function LoginPage({ onLoginSuccess }: Props) {
                   <button
                     type="button"
                     onClick={handleForgotPassword}
-                    className="text-sm text-gray-400 hover:text-orange-500 transition-colors"
+                    className="text-sm text-gray-400 hover:text-primary-500 transition-colors"
                   >
                     Mot de passe oublié ?
                   </button>

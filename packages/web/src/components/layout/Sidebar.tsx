@@ -12,7 +12,6 @@ import {
   User,
   Shield,
 } from 'lucide-react';
-import { FinloopLogo } from '@/components/FinloopLogo';
 import { useAuthStore } from '@/store/authStore';
 import { useCompanyStore } from '@/store/companyStore';
 
@@ -39,12 +38,19 @@ export function Sidebar() {
 
   return (
     <aside className="w-64 bg-white border-r border-gray-200 min-h-screen flex flex-col">
-      <div className="p-6 border-b border-gray-200">
-        <div className="flex items-center gap-2.5 mb-0.5">
-          <FinloopLogo size={32} variant="gradient" />
-          <h1 className="text-xl font-bold text-primary-600">Finloop</h1>
+      {/* En-tête : logo RC + nom */}
+      <div className="p-5 border-b border-gray-200">
+        <div className="flex items-center gap-3">
+          <img
+            src="/logo-rc.jpg"
+            alt="Raly Conseils"
+            className="w-10 h-10 rounded-lg object-cover"
+          />
+          <div>
+            <h1 className="text-base font-bold text-primary-600 leading-tight">Finloop</h1>
+            <p className="text-[10px] text-gray-400 leading-tight">par Raly Conseils</p>
+          </div>
         </div>
-        <p className="text-xs text-gray-500 mt-1">Analyse financière</p>
       </div>
 
       <nav className="flex-1 p-4 space-y-1">

@@ -2,8 +2,8 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recha
 import type { ExpenseCategory } from '@finthesis/shared';
 import { formatEur } from '@finthesis/shared';
 
-// 10 couleurs pour les 10 comptes max
-const COLORS = ['#ff6d2d', '#f94f1c', '#ffa647', '#d93c0d', '#ffb98a', '#ffd4a8', '#2e2c2f', '#e87820', '#c23b00', '#6b3a2a'];
+// 10 nuances de vert — charte Raly Conseils
+const COLORS = ['#1E3A30', '#6DC28A', '#2D6B48', '#84caaa', '#3a7d52', '#aedfc5', '#4a9866', '#d6f0e1', '#5aaf78', '#243C33'];
 
 const RADIAN = Math.PI / 180;
 

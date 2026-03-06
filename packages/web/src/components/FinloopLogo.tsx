@@ -2,7 +2,7 @@ import { useId } from 'react';
 
 interface Props {
   size?: number;
-  variant?: 'gradient' | 'white' | 'orange';
+  variant?: 'gradient' | 'white' | 'green';
   className?: string;
 }
 
@@ -13,8 +13,8 @@ export function FinloopLogo({ size = 48, variant = 'gradient', className = '' }:
   const gradId = `fl-grad-${uid.replace(/:/g, '')}`;
 
   const strokeColor =
-    variant === 'white'  ? 'white'    :
-    variant === 'orange' ? '#ff6d2d'  :
+    variant === 'white'  ? 'white'     :
+    variant === 'green'  ? '#6DC28A'   :
     `url(#${gradId})`;
 
   return (
@@ -29,9 +29,9 @@ export function FinloopLogo({ size = 48, variant = 'gradient', className = '' }:
       {variant === 'gradient' && (
         <defs>
           <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%"   stopColor="#f94f1c" />
-            <stop offset="55%"  stopColor="#ff6d2d" />
-            <stop offset="100%" stopColor="#ffa647" />
+            <stop offset="0%"   stopColor="#1E3A30" />
+            <stop offset="55%"  stopColor="#4a9866" />
+            <stop offset="100%" stopColor="#6DC28A" />
           </linearGradient>
         </defs>
       )}

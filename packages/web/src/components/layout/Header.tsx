@@ -4,7 +4,6 @@ import { createCompany, createFiscalYear } from '@/api/company.api';
 import { lookupSiren, type SirenResult } from '@/api/siren.api';
 import { Plus, X, Search, Loader2, CheckCircle, Calendar } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { FinloopLogo } from '@/components/FinloopLogo';
 
 export function Header() {
   const {
@@ -179,7 +178,11 @@ export function Header() {
       <div className="flex items-center gap-3">
         <ThemeToggle />
         <div className="flex items-center gap-2">
-          <FinloopLogo size={28} variant="gradient" />
+          <img
+            src="/logo-rc.jpg"
+            alt="Raly Conseils"
+            className="w-8 h-8 rounded-md object-cover"
+          />
           <span className="text-sm font-semibold text-primary-600">Finloop</span>
         </div>
       </div>

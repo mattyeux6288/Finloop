@@ -23,17 +23,14 @@ export function SplashScreen({ onDone }: Props) {
       }}
     >
       <div className="splash-content flex flex-col items-center select-none">
-        {/* Symbole infini */}
-        <svg width="96" height="58" viewBox="0 0 90 54" fill="none" className="mb-6 drop-shadow-lg">
-          <path
-            d="M 8 27 C 8 16 17 7 27 7 C 37 7 45 16 45 27 C 45 38 53 47 63 47 C 73 47 82 38 82 27 C 82 16 73 7 63 7 C 53 7 45 16 45 27 C 45 38 37 47 27 47 C 17 47 8 38 8 27 Z"
-            stroke="white"
-            strokeWidth="5.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            fill="none"
+        {/* Logo RC */}
+        <div className="w-24 h-24 rounded-2xl overflow-hidden mb-6 shadow-xl ring-4 ring-white/20">
+          <img
+            src="/logo-rc-dark.jpg"
+            alt="Raly Conseils"
+            className="w-full h-full object-cover"
           />
-        </svg>
+        </div>
 
         <h1 className="text-7xl font-bold text-white drop-shadow tracking-brand-title">
           Finloop
@@ -41,6 +38,10 @@ export function SplashScreen({ onDone }: Props) {
 
         <p className="text-white/70 text-sm mt-3 tracking-brand-wider uppercase font-light">
           Analyse financière
+        </p>
+
+        <p className="text-white/50 text-xs mt-1.5 tracking-brand-wide font-light">
+          par Raly Conseils
         </p>
       </div>
 

@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { FinloopLogo } from '@/components/FinloopLogo';
 
 interface Props {
   firstName: string;
@@ -43,7 +42,14 @@ export function WelcomeGreeting({ firstName, lastName, onDone }: Props) {
     >
       {/* Contenu centré */}
       <div className="flex flex-col items-center select-none splash-content">
-        <FinloopLogo size={84} variant="white" className="mb-8 drop-shadow-lg" />
+        {/* Logo RC */}
+        <div className="w-20 h-20 rounded-2xl overflow-hidden mb-8 shadow-xl ring-4 ring-white/20">
+          <img
+            src="/logo-rc-dark.jpg"
+            alt="Raly Conseils"
+            className="w-full h-full object-cover"
+          />
+        </div>
 
         <p className="text-white/75 text-sm font-light tracking-brand-widest uppercase mb-4">
           Bienvenue

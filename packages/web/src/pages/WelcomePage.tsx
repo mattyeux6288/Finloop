@@ -5,7 +5,6 @@ import { useAuthStore } from '@/store/authStore';
 import { createCompany } from '@/api/company.api';
 import { lookupSiren, type SirenResult } from '@/api/siren.api';
 import { Plus, Search, Loader2, CheckCircle, Building2, ArrowRight, ChevronLeft, LogOut } from 'lucide-react';
-import { FinloopLogo } from '@/components/FinloopLogo';
 
 interface Props {
   onSelect: (company: Company) => void;
@@ -92,14 +91,13 @@ export function WelcomePage({ onSelect }: Props) {
     window.location.reload();
   };
 
-  // Extraire le display name de l'utilisateur connecté
   const displayName = user?.displayName || 'Utilisateur';
 
   return (
     <div className="min-h-screen flex flex-col bg-[#f8f7f5]">
 
       {/* Header branded */}
-      <div className="py-16 px-6 flex flex-col items-center bg-brand-gradient relative">
+      <div className="py-14 px-6 flex flex-col items-center bg-brand-gradient relative">
         {/* Bouton déconnexion */}
         <button
           onClick={handleLogout}
@@ -110,7 +108,14 @@ export function WelcomePage({ onSelect }: Props) {
           Déconnexion
         </button>
 
-        <FinloopLogo size={64} variant="white" className="mb-4 drop-shadow" />
+        {/* Logo RC */}
+        <div className="w-20 h-20 rounded-2xl overflow-hidden mb-5 shadow-xl ring-4 ring-white/20">
+          <img
+            src="/logo-rc.jpg"
+            alt="Raly Conseils"
+            className="w-full h-full object-cover"
+          />
+        </div>
         <h1 className="text-5xl font-bold text-white tracking-brand-h2">Finloop</h1>
         <p className="text-white/70 mt-2 tracking-brand-wide text-sm uppercase font-light">Analyse financière</p>
         <p className="text-white/90 mt-3 text-sm">
@@ -140,7 +145,7 @@ export function WelcomePage({ onSelect }: Props) {
                   <select
                     value={selected}
                     onChange={e => setSelected(e.target.value)}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-400 mb-4 bg-gray-50"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-400 mb-4 bg-gray-50"
                   >
                     <option value="">— Choisir une entreprise —</option>
                     {companies.map(c => (
@@ -162,7 +167,7 @@ export function WelcomePage({ onSelect }: Props) {
 
               <button
                 onClick={() => setShowCreate(true)}
-                className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-gray-200 rounded-xl py-3 text-sm font-medium text-gray-500 hover:border-orange-300 hover:text-orange-500 transition-colors mb-6"
+                className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-gray-200 rounded-xl py-3 text-sm font-medium text-gray-500 hover:border-primary-400 hover:text-primary-600 transition-colors mb-6"
               >
                 <Plus className="w-4 h-4" /> Créer une nouvelle entreprise
               </button>
@@ -205,7 +210,7 @@ export function WelcomePage({ onSelect }: Props) {
                     onChange={e => setNewSiren(e.target.value.replace(/\D/g, '').slice(0, 9))}
                     placeholder="SIREN (9 chiffres — recherche auto)"
                     maxLength={9}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm pr-10 focus:outline-none focus:ring-2 focus:ring-orange-400 bg-gray-50"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm pr-10 focus:outline-none focus:ring-2 focus:ring-primary-400 bg-gray-50"
                   />
                   <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
                     {sirenLoading
@@ -219,10 +224,10 @@ export function WelcomePage({ onSelect }: Props) {
 
                 {sirenInfo && (
                   <div className="rounded-xl px-3 py-2 text-xs space-y-0.5 bg-primary-50 border border-primary-200">
-                    {sirenInfo.formeJuridique && <div><span className="text-primary-500">Forme :</span> <span className="text-gray-700">{sirenInfo.formeJuridique}</span></div>}
-                    {sirenInfo.nafLibelle && <div><span className="text-primary-500">Activité :</span> <span className="text-gray-700">{sirenInfo.nafCode} — {sirenInfo.nafLibelle}</span></div>}
-                    {sirenInfo.effectifLabel && <div><span className="text-primary-500">Effectif :</span> <span className="text-gray-700">{sirenInfo.effectifLabel}</span></div>}
-                    {sirenInfo.dirigeants[0] && <div><span className="text-primary-500">Dirigeant :</span> <span className="text-gray-700">{sirenInfo.dirigeants[0].prenom} {sirenInfo.dirigeants[0].nom}</span></div>}
+                    {sirenInfo.formeJuridique && <div><span className="text-primary-600">Forme :</span> <span className="text-gray-700">{sirenInfo.formeJuridique}</span></div>}
+                    {sirenInfo.nafLibelle && <div><span className="text-primary-600">Activité :</span> <span className="text-gray-700">{sirenInfo.nafCode} — {sirenInfo.nafLibelle}</span></div>}
+                    {sirenInfo.effectifLabel && <div><span className="text-primary-600">Effectif :</span> <span className="text-gray-700">{sirenInfo.effectifLabel}</span></div>}
+                    {sirenInfo.dirigeants[0] && <div><span className="text-primary-600">Dirigeant :</span> <span className="text-gray-700">{sirenInfo.dirigeants[0].prenom} {sirenInfo.dirigeants[0].nom}</span></div>}
                   </div>
                 )}
 
@@ -232,7 +237,7 @@ export function WelcomePage({ onSelect }: Props) {
                   onChange={e => setNewName(e.target.value)}
                   placeholder="Nom de l'entreprise *"
                   required
-                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-gray-50"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 bg-gray-50"
                 />
 
                 <button
