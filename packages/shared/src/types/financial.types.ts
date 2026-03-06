@@ -104,8 +104,8 @@ export interface MonthlyData {
 }
 
 export interface ExpenseCategory {
-  label: string;
-  compteRacine: string;
+  label: string;       // Libellé du compte (ex: "Rémunérations du personnel")
+  compteNum: string;   // Numéro du compte (ex: "641000")
   montant: number;
   pourcentage: number;
 }

@@ -91,19 +91,23 @@ export async function getDashboard(fiscalYearId: string) {
       .sum('debit as debitTotal')
       .orderBy('month');
 
-    // Répartition des charges par racine
-    const expenseBreakdown = await db('ecritures')
+    // Répartition des charges — top 10 comptes (par numéro de compte)
+    const allExpenses = await db('ecritures')
       .where({ fiscal_year_id: fiscalYearId, compte_classe: 6 })
-      .groupBy('compte_racine')
-      .select('compte_racine as compteRacine')
+      .groupBy(['compte_num', 'compte_lib'])
+      .select('compte_num as compteNum', 'compte_lib as compteLib')
       .sum('debit as debitTotal')
       .sum('credit as creditTotal')
       .orderByRaw('(COALESCE(SUM(debit),0) - COALESCE(SUM(credit),0)) DESC');
 
-    const totalCharges = expenseBreakdown.reduce(
-      (sum: number, e: any) => sum + ((Number(e.debitTotal) || 0) - (Number(e.creditTotal) || 0)),
+    // Total de TOUTES les charges (dénominateur pour les pourcentages)
+    const totalCharges = allExpenses.reduce(
+      (sum: number, e: any) => sum + Math.max(0, (Number(e.debitTotal) || 0) - (Number(e.creditTotal) || 0)),
       0,
     );
+
+    // On ne garde que les 10 plus importants
+    const expenseBreakdown = allExpenses.slice(0, 10);
 
     return {
       kpis,
@@ -115,8 +119,8 @@ export async function getDashboard(fiscalYearId: string) {
       expenseBreakdown: expenseBreakdown.map((e: any) => {
         const montant = (Number(e.debitTotal) || 0) - (Number(e.creditTotal) || 0);
         return {
-          compteRacine: String(e.compteRacine),
-          label: String(e.compteRacine),
+          compteNum: String(e.compteNum),
+          label: String(e.compteLib || e.compteNum), // libellé du compte, fallback sur le numéro
           montant,
           pourcentage: totalCharges > 0 ? Math.round((montant / totalCharges) * 10000) / 100 : 0,
         };

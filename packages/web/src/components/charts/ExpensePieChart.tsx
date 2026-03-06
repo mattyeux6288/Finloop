@@ -2,7 +2,8 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recha
 import type { ExpenseCategory } from '@finthesis/shared';
 import { formatEur } from '@finthesis/shared';
 
-const COLORS = ['#ff6d2d', '#f94f1c', '#ffa647', '#d93c0d', '#ffb98a', '#ffd4a8', '#2e2c2f', '#e87820'];
+// 10 couleurs pour les 10 comptes max
+const COLORS = ['#ff6d2d', '#f94f1c', '#ffa647', '#d93c0d', '#ffb98a', '#ffd4a8', '#2e2c2f', '#e87820', '#c23b00', '#6b3a2a'];
 
 interface Props {
   data: ExpenseCategory[];
