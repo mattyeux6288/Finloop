@@ -4,9 +4,9 @@
   "outputDirectory": "dist",
   "functions": {
     "api/[[...route]].ts": {
-      "memory": 512,
-      "maxDuration": 30,
-      "includeFiles": "node_modules/csv-parse/**"
+      "memory": 1024,
+      "maxDuration": 60,
+      "includeFiles": "node_modules/csv-parse/**,node_modules/pdf-parse/**"
     }
   },
   "rewrites": [

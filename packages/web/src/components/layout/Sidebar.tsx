@@ -14,6 +14,7 @@ import {
   Shield,
   FolderInput,
   ChevronDown,
+  Bot,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useCompanyStore } from '@/store/companyStore';
@@ -24,6 +25,7 @@ const navItems = [
   { to: '/compte-resultat', label: 'Compte de résultat', icon: BarChart3 },
   { to: '/sig', label: 'SIG', icon: TrendingUp },
   { to: '/comparaison', label: 'Comparaison', icon: GitCompare },
+  { to: '/krokmou', label: 'Krokmou IA', icon: Bot },
   { to: '/parametres', label: 'Paramètres', icon: Settings },
 ];
 

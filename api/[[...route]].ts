@@ -13,6 +13,7 @@ import { createClient } from '@supabase/supabase-js';
 // que @vercel/nft ne trace pas depuis les fichiers CJS compilés
 import 'pg';             // Knex le charge dynamiquement via require(clientName)
 import 'csv-parse/sync'; // @finthesis/engine l'utilise (sub-path export non tracé)
+import '@anthropic-ai/sdk'; // Krokmou — force le bundler à inclure le SDK Claude
 
 const app = createApp();
 let initialized = false;

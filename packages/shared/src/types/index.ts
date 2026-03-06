@@ -4,3 +4,4 @@ export * from './financial.types';
 export * from './company.types';
 export * from './api.types';
 export * from './admin.types';
+export * from './krokmou.types';
