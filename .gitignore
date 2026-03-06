@@ -11,3 +11,13 @@ coverage/
 *.tsbuildinfo
 uploads/
 dist-electron/
+
+# TypeScript build artifacts in source dirs
+packages/web/src/**/*.js
+packages/web/src/**/*.js.map
+packages/web/src/**/*.d.ts
+packages/web/src/**/*.d.ts.map
+packages/web/vite.config.js
+packages/web/vite.config.js.map
+packages/web/vite.config.d.ts
+packages/web/vite.config.d.ts.map
