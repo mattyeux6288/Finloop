@@ -15,12 +15,14 @@ import {
   FolderInput,
   ChevronDown,
   Bot,
+  FileBarChart2,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useCompanyStore } from '@/store/companyStore';
 
 const navItems = [
   { to: '/', label: 'Tableau de bord', icon: LayoutDashboard },
+  { to: '/rapport-activite', label: "Rapport d'activité", icon: FileBarChart2 },
   { to: '/bilan', label: 'Bilan', icon: FileText },
   { to: '/compte-resultat', label: 'Compte de résultat', icon: BarChart3 },
   { to: '/sig', label: 'SIG', icon: TrendingUp },

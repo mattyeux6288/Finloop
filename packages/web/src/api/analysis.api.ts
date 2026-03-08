@@ -1,5 +1,5 @@
 import api from './client';
-import type { ApiResponse, DashboardData, Bilan, CompteDeResultat, Sig } from '@finthesis/shared';
+import type { ApiResponse, DashboardData, Bilan, CompteDeResultat, Sig, RapportActiviteData } from '@finthesis/shared';
 
 export async function getDashboard(fyId: string): Promise<DashboardData> {
   const { data } = await api.get<ApiResponse<DashboardData>>(`/fiscal-years/${fyId}/dashboard`);
@@ -48,4 +48,9 @@ export async function getImports(fyId: string): Promise<ImportRecord[]> {
 
 export async function deleteImport(importId: string): Promise<void> {
   await api.delete(`/fiscal-years/imports/${importId}`);
+}
+
+export async function getRapportActivite(fyId: string): Promise<RapportActiviteData> {
+  const { data } = await api.get<ApiResponse<RapportActiviteData>>(`/fiscal-years/${fyId}/rapport-activite`);
+  return data.data!;
 }

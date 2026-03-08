@@ -206,3 +206,47 @@ body {
   .theme__toggle:focus { box-shadow: 0 0 0 0.125em var(--primaryT); }
   .theme__toggle:focus-visible { box-shadow: 0 0 0 0.125em var(--primary); }
 }
+
+/* ── Print — Rapport d'activité ── */
+@media print {
+  /* Masquer sidebar, header, et éléments non-rapport */
+  aside,
+  header,
+  nav,
+  .print\\:hidden {
+    display: none !important;
+  }
+
+  /* Le contenu prend toute la largeur */
+  body {
+    background: white !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .rapport-activite-container {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+
+  /* Page breaks */
+  .print\\:break-before-page {
+    break-before: page;
+  }
+
+  /* Cards sans shadow en print */
+  .shadow-sm {
+    box-shadow: none !important;
+  }
+
+  /* Taille de page */
+  @page {
+    size: A4 portrait;
+    margin: 15mm 12mm;
+  }
+}
