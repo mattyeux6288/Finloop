@@ -35,12 +35,14 @@ export async function getAllUsers() {
 
   return users.map((u: AdminUserRow) => {
     const authUser = authMap.get(u.id);
+    const disabled = (authUser as any)?.app_metadata?.disabled === true;
     return {
       id: u.id,
       email: u.email,
       displayName: u.display_name,
       role: u.role,
       hasPassword: authUser?.last_sign_in_at != null,
+      isActive: !disabled,
       createdAt: u.created_at,
       updatedAt: u.updated_at,
       companies: companyMap.get(u.id) || [],
@@ -100,6 +102,7 @@ export async function createUser(data: { email: string; displayName: string; rol
     displayName: data.displayName,
     role: data.role || 'user',
     hasPassword: false,
+    isActive: true,
     createdAt: now,
     updatedAt: now,
     companies: [],
@@ -147,9 +150,10 @@ export async function updateUser(userId: string, data: { email?: string; display
     .where({ user_id: userId })
     .select('id', 'name', 'siren');
 
-  // Check login status from Supabase
+  // Check login status and disabled status from Supabase
   const { data: authData } = await supabaseAdmin.auth.admin.getUserById(userId);
   const hasPassword = authData?.user?.last_sign_in_at != null;
+  const disabled = (authData?.user as any)?.app_metadata?.disabled === true;
 
   return {
     id: updated.id,
@@ -157,6 +161,7 @@ export async function updateUser(userId: string, data: { email?: string; display
     displayName: updated.display_name,
     role: updated.role,
     hasPassword,
+    isActive: !disabled,
     createdAt: updated.created_at,
     updatedAt: updated.updated_at,
     companies,
@@ -207,6 +212,45 @@ export async function resetPassword(userId: string) {
   });
 
   if (error) throw new Error(error.message);
+}
+
+/**
+ * Activer / désactiver un utilisateur.
+ * Stocke le flag `disabled` dans app_metadata Supabase.
+ */
+export async function toggleUserActive(userId: string) {
+  const user = await db('users').where({ id: userId }).first();
+  if (!user) throw new Error('Utilisateur introuvable.');
+
+  // Lire le statut actuel depuis Supabase
+  const { data: authData } = await supabaseAdmin.auth.admin.getUserById(userId);
+  if (!authData?.user) throw new Error('Utilisateur Supabase introuvable.');
+
+  const currentlyDisabled = (authData.user as any).app_metadata?.disabled === true;
+  const newDisabled = !currentlyDisabled;
+
+  // Mettre à jour app_metadata dans Supabase
+  const { error } = await supabaseAdmin.auth.admin.updateUserById(userId, {
+    app_metadata: { disabled: newDisabled },
+  });
+  if (error) throw new Error(error.message);
+
+  // Retourner le user mis à jour
+  const companies = await db('companies')
+    .where({ user_id: userId })
+    .select('id', 'name', 'siren');
+
+  return {
+    id: user.id,
+    email: user.email,
+    displayName: user.display_name,
+    role: user.role,
+    hasPassword: authData.user.last_sign_in_at != null,
+    isActive: !newDisabled,
+    createdAt: user.created_at,
+    updatedAt: user.updated_at,
+    companies,
+  };
 }
 
 /**

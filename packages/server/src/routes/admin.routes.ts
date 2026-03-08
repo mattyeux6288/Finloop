@@ -82,6 +82,27 @@ router.delete('/users/:id', async (req: AuthRequest, res: Response) => {
   }
 });
 
+/** PUT /admin/users/:id/toggle-active — Activer/désactiver un utilisateur */
+router.put('/users/:id/toggle-active', async (req: AuthRequest, res: Response) => {
+  try {
+    const id = req.params.id as string;
+    if (id === req.userId) {
+      res.status(400).json({
+        success: false,
+        error: { code: 'SELF_DISABLE', message: 'Vous ne pouvez pas désactiver votre propre compte.' },
+      });
+      return;
+    }
+    const user = await adminService.toggleUserActive(id);
+    res.json({ success: true, data: user });
+  } catch (err) {
+    res.status(400).json({
+      success: false,
+      error: { code: 'TOGGLE_FAILED', message: (err as Error).message },
+    });
+  }
+});
+
 /** POST /admin/users/:id/reset-password — Réinitialiser le mot de passe */
 router.post('/users/:id/reset-password', async (req: AuthRequest, res: Response) => {
   try {

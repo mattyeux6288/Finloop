@@ -31,6 +31,11 @@ export async function resetUserPassword(userId: string): Promise<void> {
   await api.post(`/admin/users/${userId}/reset-password`);
 }
 
+export async function toggleUserActive(userId: string): Promise<AdminUser> {
+  const { data } = await api.put<ApiResponse<AdminUser>>(`/admin/users/${userId}/toggle-active`);
+  return data.data!;
+}
+
 export async function assignCompany(companyId: string, userId: string): Promise<void> {
   await api.put(`/admin/companies/${companyId}/assign/${userId}`);
 }

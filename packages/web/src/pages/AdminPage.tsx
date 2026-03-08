@@ -7,6 +7,7 @@ import {
   deleteUser as apiDeleteUser,
   updateUser as apiUpdateUser,
   resetUserPassword,
+  toggleUserActive as apiToggleUserActive,
 } from '@/api/admin.api';
 import {
   Shield,
@@ -22,6 +23,8 @@ import {
   KeyRound,
   CheckCircle,
   Clock,
+  Power,
+  Ban,
 } from 'lucide-react';
 import type { AdminUser } from '@finthesis/shared';
 
@@ -47,6 +50,9 @@ export function AdminPage() {
 
   // Reset password confirmation
   const [resettingId, setResettingId] = useState<string | null>(null);
+
+  // Toggle active confirmation
+  const [togglingId, setTogglingId] = useState<string | null>(null);
 
   // Messages
   const [message, setMessage] = useState('');
@@ -168,6 +174,25 @@ export function AdminPage() {
     } catch (err: any) {
       const apiError = err?.response?.data?.error;
       setMessage(apiError?.message || err?.message || 'Erreur lors de la réinitialisation.');
+      setMessageType('error');
+    }
+  }
+
+  async function handleToggleActive(userId: string) {
+    setMessage('');
+    try {
+      const updated = await apiToggleUserActive(userId);
+      updateUserInStore(updated);
+      setTogglingId(null);
+      setMessage(
+        updated.isActive
+          ? `Utilisateur "${updated.displayName}" réactivé.`
+          : `Utilisateur "${updated.displayName}" désactivé.`,
+      );
+      setMessageType('success');
+    } catch (err: any) {
+      const apiError = err?.response?.data?.error;
+      setMessage(apiError?.message || err?.message || 'Erreur lors du changement de statut.');
       setMessageType('error');
     }
   }
@@ -373,9 +398,40 @@ export function AdminPage() {
                       </button>
                     </div>
                   </div>
+                ) : togglingId === u.id ? (
+                  /* Mode confirmation activation/désactivation */
+                  <div className="space-y-3">
+                    <div className={`flex items-start gap-2 text-sm ${u.isActive ? 'text-orange-700' : 'text-green-700'}`}>
+                      <Power className="w-4 h-4 mt-0.5 shrink-0" />
+                      <span>
+                        {u.isActive
+                          ? <>Désactiver <strong>{u.displayName}</strong> ? L'utilisateur ne pourra plus se connecter jusqu'à réactivation.</>
+                          : <>Réactiver <strong>{u.displayName}</strong> ? L'utilisateur pourra à nouveau se connecter.</>
+                        }
+                      </span>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleToggleActive(u.id)}
+                        className={`flex items-center gap-1 text-white px-3 py-1.5 rounded-lg text-sm font-medium ${
+                          u.isActive
+                            ? 'bg-orange-500 hover:bg-orange-600'
+                            : 'bg-green-600 hover:bg-green-700'
+                        }`}
+                      >
+                        <Power className="w-3.5 h-3.5" /> Confirmer
+                      </button>
+                      <button
+                        onClick={() => setTogglingId(null)}
+                        className="flex items-center gap-1 bg-gray-100 text-gray-700 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-gray-200"
+                      >
+                        <X className="w-3.5 h-3.5" /> Annuler
+                      </button>
+                    </div>
+                  </div>
                 ) : (
                   /* Mode affichage */
-                  <div className="flex items-center justify-between">
+                  <div className={`flex items-center justify-between ${!u.isActive ? 'opacity-60' : ''}`}>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <p className="font-medium text-gray-900">{u.displayName}</p>
@@ -388,7 +444,11 @@ export function AdminPage() {
                         >
                           {u.role === 'admin' ? 'Admin' : 'Utilisateur'}
                         </span>
-                        {u.hasPassword ? (
+                        {!u.isActive ? (
+                          <span className="flex items-center gap-1 text-xs text-red-600 font-medium">
+                            <Ban className="w-3 h-3" /> Désactivé
+                          </span>
+                        ) : u.hasPassword ? (
                           <span className="flex items-center gap-1 text-xs text-green-600">
                             <CheckCircle className="w-3 h-3" /> Actif
                           </span>
@@ -428,6 +488,19 @@ export function AdminPage() {
                       >
                         <KeyRound className="w-4 h-4" />
                       </button>
+                      {u.id !== currentUser?.id && (
+                        <button
+                          onClick={() => setTogglingId(u.id)}
+                          className={`p-2 rounded-lg transition-colors ${
+                            u.isActive
+                              ? 'text-gray-400 hover:text-orange-600 hover:bg-orange-50'
+                              : 'text-orange-500 hover:text-green-600 hover:bg-green-50'
+                          }`}
+                          title={u.isActive ? 'Désactiver' : 'Réactiver'}
+                        >
+                          <Power className="w-4 h-4" />
+                        </button>
+                      )}
                       {u.id !== currentUser?.id && (
                         <button
                           onClick={() => setDeletingId(u.id)}

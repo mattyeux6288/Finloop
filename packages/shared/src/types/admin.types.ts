@@ -8,6 +8,7 @@ export interface AdminUser {
   displayName: string;
   role: string;
   hasPassword: boolean;
+  isActive: boolean;
   createdAt: string;
   updatedAt: string;
   companies: AdminUserCompany[];

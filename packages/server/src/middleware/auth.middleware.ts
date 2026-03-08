@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import https from 'https';
 import { config } from '../config/env';
+import { supabaseAdmin } from '../config/supabase';
 
 export interface AuthRequest extends Request {
   userId?: string;
@@ -128,8 +129,18 @@ export async function authMiddleware(
       decoded = jwt.verify(token, config.supabaseJwtSecret) as jwt.JwtPayload;
     }
 
+    // Vérifier si l'utilisateur est désactivé
+    const appMetadata = (decoded as any).app_metadata || {};
+    if (appMetadata.disabled === true) {
+      res.status(403).json({
+        success: false,
+        error: { code: 'ACCOUNT_DISABLED', message: 'Votre compte a été désactivé. Contactez votre administrateur.' },
+      });
+      return;
+    }
+
     req.userId = decoded.sub as string;
-    req.userRole = (decoded as any).app_metadata?.role || 'user';
+    req.userRole = appMetadata.role || 'user';
     next();
   } catch {
     res.status(401).json({
