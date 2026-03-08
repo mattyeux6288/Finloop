@@ -393,7 +393,7 @@ function SigCascadeSection({ sig }: { sig: Sig }) {
                       }}
                     />
                   </div>
-                  <span className={`text-sm font-semibold w-28 text-right ${
+                  <span className={`text-sm font-semibold w-36 shrink-0 text-right ${
                     isPositive ? 'text-gray-900' : 'text-red-600'
                   }`}>
                     {formatEur(step.value)}
