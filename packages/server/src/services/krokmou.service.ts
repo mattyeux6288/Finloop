@@ -1,11 +1,11 @@
-import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
 import { v4 as uuid } from 'uuid';
 import { db } from '../config/database';
 import { config } from '../config/env';
 import * as analysisService from './analysis.service';
 
-// ── Claude API client ──
-const anthropic = new Anthropic({ apiKey: config.anthropicApiKey });
+// ── OpenAI API client ──
+const openai = new OpenAI({ apiKey: config.openaiApiKey });
 
 // ── Contexte financier ──
 
@@ -111,24 +111,23 @@ export async function sendMessage(
     .orderBy('created_at', 'asc')
     .select('role', 'content');
 
-  // Construire le contexte financier + appeler Claude
+  // Construire le contexte financier + appeler OpenAI
   const financialContext = await buildFinancialContext(fiscalYearId);
   const systemPrompt = buildSystemPrompt(financialContext);
 
-  const response = await anthropic.messages.create({
-    model: 'claude-sonnet-4-20250514',
+  const response = await openai.chat.completions.create({
+    model: 'gpt-4o',
     max_tokens: 4096,
-    system: systemPrompt,
-    messages: history.map((m: any) => ({
-      role: m.role as 'user' | 'assistant',
-      content: m.content,
-    })),
+    messages: [
+      { role: 'system', content: systemPrompt },
+      ...history.map((m: any) => ({
+        role: m.role as 'user' | 'assistant',
+        content: m.content,
+      })),
+    ],
   });
 
-  const assistantContent = response.content
-    .filter((b: any) => b.type === 'text')
-    .map((b: any) => b.text)
-    .join('');
+  const assistantContent = response.choices[0]?.message?.content || '';
 
   // Sauvegarder la réponse
   await db('krokmou_messages').insert({
