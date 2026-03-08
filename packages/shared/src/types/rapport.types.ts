@@ -28,6 +28,8 @@ export interface RatioFinancier {
   unite: '%' | 'jours' | 'ratio';
   interpretation: 'bon' | 'attention' | 'alerte';
   seuil?: string;           // ex: "Norme > 20%"
+  secteurMoyenne?: number;  // Moyenne sectorielle (NAF)
+  secteurLibelle?: string;  // ex: "Moyenne Conseil informatique"
 }
 
 // ---- POINTS DE DISCUSSION ----
@@ -46,12 +48,15 @@ export interface RapportEntreprise {
   exercice: string;
   dateDebut: string;
   dateFin: string;
+  nafCode?: string;
+  nafLibelle?: string;
 }
 
 export interface RapportActiviteData {
   entreprise: RapportEntreprise;
   kpis: DashboardKpis;
   revenueMonthly: MonthlyData[];
+  revenueMonthlyN1?: MonthlyData[]; // Exercice précédent (N-1)
   chargesDetaillees: ChargeClassDetail[];
   bilan: Bilan;
   sig: Sig;

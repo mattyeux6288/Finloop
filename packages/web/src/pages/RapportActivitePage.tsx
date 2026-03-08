@@ -95,7 +95,13 @@ function RapportHeader({ data }: { data: RapportActiviteData }) {
             {data.entreprise.exercice} ({data.entreprise.dateDebut} au {data.entreprise.dateFin})
           </span>
         </div>
-        <p className="text-xs text-gray-400 mt-2">Rapport généré le {dateStr}</p>
+        {data.entreprise.nafCode && (
+          <p className="text-xs text-gray-400 mt-1">
+            Code APE/NAF : {data.entreprise.nafCode}
+            {data.entreprise.nafLibelle && ` — ${data.entreprise.nafLibelle}`}
+          </p>
+        )}
+        <p className="text-xs text-gray-400 mt-1">Rapport généré le {dateStr}</p>
       </div>
     </div>
   );
@@ -140,7 +146,7 @@ function EvolutionCA({ data }: { data: RapportActiviteData }) {
         <TrendingUp className="w-5 h-5 text-accent-500" />
         Évolution du chiffre d'affaires
       </h2>
-      <RevenueBarChart data={data.revenueMonthly} />
+      <RevenueBarChart data={data.revenueMonthly} dataN1={data.revenueMonthlyN1} />
     </section>
   );
 }
@@ -411,28 +417,47 @@ function SigCascadeSection({ sig }: { sig: Sig }) {
 // ════════════════════════════════════════════
 // Section : Ratios clés
 // ════════════════════════════════════════════
-function RatiosSection({ ratios }: { ratios: RatioFinancier[] }) {
+function RatiosSection({ ratios, nafLibelle }: { ratios: RatioFinancier[]; nafLibelle?: string }) {
   const interpretationStyles = {
-    bon: { bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-700', dot: 'bg-green-500' },
-    attention: { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', dot: 'bg-amber-500' },
-    alerte: { bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-700', dot: 'bg-red-500' },
+    bon: { bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-700', dot: 'bg-green-500', bar: '#6DC28A' },
+    attention: { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', dot: 'bg-amber-500', bar: '#f59e0b' },
+    alerte: { bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-700', dot: 'bg-red-500', bar: '#ef4444' },
   };
+
+  const formatVal = (valeur: number, unite: string) =>
+    unite === '%'
+      ? formatPercent(valeur)
+      : unite === 'jours'
+        ? `${Math.round(valeur)} j`
+        : valeur.toFixed(2);
 
   return (
     <section className="print:break-before-page">
-      <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-        <BarChart3 className="w-5 h-5 text-accent-500" />
-        Ratios et indicateurs clés
-      </h2>
+      <div className="flex items-start justify-between mb-4">
+        <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+          <BarChart3 className="w-5 h-5 text-accent-500" />
+          Ratios et indicateurs clés
+        </h2>
+        {nafLibelle && (
+          <span className="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded-full">
+            Référence : {nafLibelle}
+          </span>
+        )}
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {ratios.map((ratio, i) => {
           const style = interpretationStyles[ratio.interpretation];
-          const formattedValue =
-            ratio.unite === '%'
-              ? formatPercent(ratio.valeur)
-              : ratio.unite === 'jours'
-                ? `${Math.round(ratio.valeur)} j`
-                : ratio.valeur.toFixed(2);
+          const formattedValue = formatVal(ratio.valeur, ratio.unite);
+          const hasSecteur = ratio.secteurMoyenne !== undefined;
+
+          // Largeur de la barre comparée (valeur entreprise vs secteur)
+          let barPct = 100;
+          let secteurPct = 100;
+          if (hasSecteur && ratio.secteurMoyenne! > 0 && ratio.valeur > 0) {
+            const max = Math.max(ratio.valeur, ratio.secteurMoyenne!);
+            barPct = Math.round((ratio.valeur / max) * 100);
+            secteurPct = Math.round((ratio.secteurMoyenne! / max) * 100);
+          }
 
           return (
             <div
@@ -441,11 +466,30 @@ function RatiosSection({ ratios }: { ratios: RatioFinancier[] }) {
             >
               <div className="flex items-center gap-2 mb-2">
                 <div className={`w-2.5 h-2.5 rounded-full ${style.dot}`} />
-                <span className="text-sm font-medium text-gray-700">{ratio.label}</span>
+                <span className="text-xs font-medium text-gray-600 leading-tight">{ratio.label}</span>
               </div>
-              <p className={`text-2xl font-bold ${style.text}`}>{formattedValue}</p>
-              {ratio.seuil && (
-                <p className="text-xs text-gray-400 mt-1">{ratio.seuil}</p>
+              <p className={`text-lg font-bold ${style.text} leading-snug`}>{formattedValue}</p>
+
+              {hasSecteur && (
+                <div className="mt-2 space-y-1">
+                  {/* Barre entreprise */}
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs text-gray-400 w-14 shrink-0">Société</span>
+                    <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div className="h-full rounded-full" style={{ width: `${barPct}%`, backgroundColor: style.bar }} />
+                    </div>
+                  </div>
+                  {/* Barre secteur */}
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs text-gray-400 w-14 shrink-0">Secteur</span>
+                    <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div className="h-full bg-gray-400 rounded-full" style={{ width: `${secteurPct}%` }} />
+                    </div>
+                    <span className="text-xs text-gray-400 ml-1">
+                      {formatVal(ratio.secteurMoyenne!, ratio.unite)}
+                    </span>
+                  </div>
+                </div>
               )}
             </div>
           );
@@ -573,7 +617,7 @@ export function RapportActivitePage() {
       <ChargesDetailSection charges={data.chargesDetaillees} />
       <BilanVisualSection bilan={data.bilan} />
       <SigCascadeSection sig={data.sig} />
-      <RatiosSection ratios={data.ratios} />
+      <RatiosSection ratios={data.ratios} nafLibelle={data.entreprise.nafLibelle} />
       <PointsDiscussionSection points={data.pointsDiscussion} />
 
       {/* Footer print */}

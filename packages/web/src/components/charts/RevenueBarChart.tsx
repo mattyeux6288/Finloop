@@ -1,4 +1,14 @@
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import {
+  ComposedChart,
+  Bar,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from 'recharts';
 import type { MonthlyData } from '@finthesis/shared';
 import { formatEur } from '@finthesis/shared';
 
@@ -16,14 +26,29 @@ const MOIS_LONG: Record<string, string> = {
 
 interface Props {
   data: MonthlyData[];
+  dataN1?: MonthlyData[];
 }
 
-export function RevenueBarChart({ data }: Props) {
+export function RevenueBarChart({ data, dataN1 }: Props) {
+  // Fusionner les deux séries par numéro de mois (label = "MM")
+  const mergedData = Array.from({ length: 12 }, (_, i) => {
+    const mm = String(i + 1).padStart(2, '0');
+    const current = data.find((d) => d.label === mm);
+    const prev = dataN1?.find((d) => d.label === mm);
+    return {
+      label: mm,
+      montant: current?.montant ?? null,
+      montantN1: prev?.montant ?? null,
+    };
+  }).filter((d) => d.montant !== null || d.montantN1 !== null);
+
+  const hasN1 = dataN1 && dataN1.length > 0;
+
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
       <h3 className="text-sm font-semibold text-gray-700 mb-4">Chiffre d'affaires mensuel</h3>
       <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={data}>
+        <ComposedChart data={mergedData}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
           <XAxis
             dataKey="label"
@@ -32,11 +57,26 @@ export function RevenueBarChart({ data }: Props) {
           />
           <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
           <Tooltip
-            formatter={(value: number) => [formatEur(value), 'CA']}
+            formatter={(value: number, name: string) => [
+              formatEur(value),
+              name === 'montant' ? 'N (exercice actuel)' : 'N-1',
+            ]}
             labelFormatter={(label) => MOIS_LONG[label] ?? label}
           />
-          <Bar dataKey="montant" fill="#6DC28A" radius={[4, 4, 0, 0]} />
-        </BarChart>
+          {hasN1 && <Legend formatter={(v) => (v === 'montant' ? 'Exercice actuel' : 'N-1')} />}
+          <Bar dataKey="montant" fill="#6DC28A" radius={[4, 4, 0, 0]} name="montant" />
+          {hasN1 && (
+            <Line
+              type="monotone"
+              dataKey="montantN1"
+              stroke="#E8621A"
+              strokeWidth={2}
+              dot={{ r: 3, fill: '#E8621A' }}
+              name="montantN1"
+              connectNulls
+            />
+          )}
+        </ComposedChart>
       </ResponsiveContainer>
     </div>
   );

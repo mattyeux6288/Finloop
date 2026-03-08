@@ -25,6 +25,7 @@ import {
   Clock,
   Power,
   Ban,
+  Database,
 } from 'lucide-react';
 import type { AdminUser } from '@finthesis/shared';
 
@@ -197,6 +198,26 @@ export function AdminPage() {
     }
   }
 
+  const [seedLoading, setSeedLoading] = useState(false);
+
+  async function handleSeedFec2024() {
+    setMessage('');
+    setSeedLoading(true);
+    try {
+      const { data } = await import('@/api/client').then(({ default: api }) =>
+        api.post<{ success: boolean; data: { message: string; rowsInserted: number } }>('/admin/seed-fec-2024'),
+      );
+      setMessage(data.data?.message || 'FEC 2024 généré avec succès.');
+      setMessageType('success');
+    } catch (err: any) {
+      const apiError = err?.response?.data?.error;
+      setMessage(apiError?.message || err?.message || 'Erreur lors de la génération du FEC 2024.');
+      setMessageType('error');
+    } finally {
+      setSeedLoading(false);
+    }
+  }
+
   const formatDate = (d: string | undefined) => {
     if (!d) return '—';
     return new Date(d).toLocaleDateString('fr-FR');
@@ -220,6 +241,30 @@ export function AdminPage() {
           {message}
         </div>
       )}
+
+      {/* Outils de test */}
+      <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+        <h3 className="text-base font-semibold text-gray-900 mb-3 flex items-center gap-2">
+          <Database className="w-5 h-5 text-primary-500" />
+          Données de test
+        </h3>
+        <div className="flex items-center gap-4">
+          <div className="flex-1">
+            <p className="text-sm text-gray-700 font-medium">FEC fictif 2024 — Société Test</p>
+            <p className="text-xs text-gray-500 mt-0.5">
+              Génère ~150 écritures pour l'exercice 2024 afin d'activer la comparaison N-1 dans le rapport d'activité.
+            </p>
+          </div>
+          <button
+            onClick={handleSeedFec2024}
+            disabled={seedLoading}
+            className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 text-sm shrink-0"
+          >
+            {seedLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Database className="w-4 h-4" />}
+            Générer
+          </button>
+        </div>
+      </div>
 
       {/* Formulaire de création */}
       <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">

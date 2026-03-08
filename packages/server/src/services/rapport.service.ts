@@ -1,6 +1,9 @@
 import { db } from '../config/database';
+import { config } from '../config/env';
 import * as analysisService from './analysis.service';
 import { PCG_MAIN_ACCOUNTS } from '@finthesis/shared';
+import { getBenchmarkByNaf } from '../data/naf-benchmarks';
+import type { SecteurBenchmark } from '../data/naf-benchmarks';
 import type {
   RapportActiviteData,
   ChargeClassDetail,
@@ -10,21 +13,25 @@ import type {
   Bilan,
   Sig,
   CompteAggregate,
+  MonthlyData,
 } from '@finthesis/shared';
+
+/** Expression SQL pour extraire YYYY-MM (compatible SQLite + PostgreSQL) */
+const monthExpr = config.databaseType === 'postgresql'
+  ? "to_char(ecriture_date, 'YYYY-MM')"
+  : "substr(ecriture_date, 1, 7)";
 
 // ── Charges détaillées par classe PCG ──
 
 function buildChargesDetaillees(aggregates: CompteAggregate[]): ChargeClassDetail[] {
-  // Filtrer uniquement les comptes de classe 6 (charges)
   const chargeAccounts = aggregates.filter((a) => a.compteClasse === 6);
 
-  // Grouper par racine 2 chiffres (60, 61, 62...)
   const grouped = new Map<string, { label: string; comptes: { compteNum: string; label: string; montant: number }[] }>();
 
   for (const acc of chargeAccounts) {
     const racine = acc.compteRacine.substring(0, 2);
     const montant = acc.totalDebit - acc.totalCredit;
-    if (montant <= 0) continue; // ignorer les comptes à solde nul ou créditeur
+    if (montant <= 0) continue;
 
     if (!grouped.has(racine)) {
       grouped.set(racine, {
@@ -40,7 +47,6 @@ function buildChargesDetaillees(aggregates: CompteAggregate[]): ChargeClassDetai
     });
   }
 
-  // Calculer les totaux par classe
   const classes: ChargeClassDetail[] = [];
   let totalCharges = 0;
 
@@ -51,12 +57,11 @@ function buildChargesDetaillees(aggregates: CompteAggregate[]): ChargeClassDetai
       classeCode: code,
       classeLabel: group.label,
       montant,
-      pourcentage: 0, // calculé après
+      pourcentage: 0,
       sousComptes: group.comptes.sort((a, b) => b.montant - a.montant),
     });
   }
 
-  // Calculer les pourcentages et trier par montant décroissant
   for (const c of classes) {
     c.pourcentage = totalCharges > 0 ? Math.round((c.montant / totalCharges) * 10000) / 100 : 0;
   }
@@ -64,18 +69,40 @@ function buildChargesDetaillees(aggregates: CompteAggregate[]): ChargeClassDetai
   return classes.sort((a, b) => b.montant - a.montant);
 }
 
-// ── Ratios financiers ──
+// ── Ratios financiers (avec benchmarks sectoriels) ──
 
-function buildRatios(kpis: DashboardKpis, bilan: Bilan, sig: Sig): RatioFinancier[] {
+function buildRatios(
+  kpis: DashboardKpis,
+  bilan: Bilan,
+  sig: Sig,
+  benchmark: SecteurBenchmark,
+): RatioFinancier[] {
   const ratios: RatioFinancier[] = [];
+  const B = benchmark.ratios;
+  const secteurLabel = benchmark.libelle;
+
+  // Helper : seuil adaptatif basé sur le benchmark sectoriel
+  function interp(valeur: number, moyenne: number, modeHaut: boolean): 'bon' | 'attention' | 'alerte' {
+    const ratio = modeHaut ? valeur / moyenne : moyenne / valeur;
+    if (ratio >= 1.1) return 'bon';
+    if (ratio >= 0.8) return 'attention';
+    return 'alerte';
+  }
+
+  function seuilStr(valeur: number, unite: string): string {
+    const formatted = unite === '%' ? `${valeur}%` : `${valeur} ${unite}`;
+    return `Moyenne secteur : ${formatted}`;
+  }
 
   // 1. Taux de marge brute
   ratios.push({
     label: 'Taux de marge brute',
     valeur: kpis.tauxMargeBrute,
     unite: '%',
-    interpretation: kpis.tauxMargeBrute >= 30 ? 'bon' : kpis.tauxMargeBrute >= 15 ? 'attention' : 'alerte',
-    seuil: 'Norme > 25%',
+    interpretation: interp(kpis.tauxMargeBrute, B.tauxMargeBrute, true),
+    seuil: seuilStr(B.tauxMargeBrute, '%'),
+    secteurMoyenne: B.tauxMargeBrute,
+    secteurLibelle: secteurLabel,
   });
 
   // 2. Rentabilité nette
@@ -83,11 +110,13 @@ function buildRatios(kpis: DashboardKpis, bilan: Bilan, sig: Sig): RatioFinancie
     label: 'Rentabilité nette',
     valeur: kpis.ratioRentabilite,
     unite: '%',
-    interpretation: kpis.ratioRentabilite >= 5 ? 'bon' : kpis.ratioRentabilite >= 0 ? 'attention' : 'alerte',
-    seuil: 'Norme > 5%',
+    interpretation: interp(kpis.ratioRentabilite, B.rentabiliteNette, true),
+    seuil: seuilStr(B.rentabiliteNette, '%'),
+    secteurMoyenne: B.rentabiliteNette,
+    secteurLibelle: secteurLabel,
   });
 
-  // 3. Ratio d'endettement (Dettes financières / Capitaux propres)
+  // 3. Ratio d'endettement
   const cp = bilan.passif.capitauxPropres.total;
   const dettesFinancieres = bilan.passif.dettesFinancieres.total;
   const ratioEndettement = cp !== 0 ? Math.round((dettesFinancieres / cp) * 10000) / 100 : 0;
@@ -95,11 +124,13 @@ function buildRatios(kpis: DashboardKpis, bilan: Bilan, sig: Sig): RatioFinancie
     label: "Ratio d'endettement",
     valeur: ratioEndettement,
     unite: '%',
-    interpretation: ratioEndettement <= 50 ? 'bon' : ratioEndettement <= 100 ? 'attention' : 'alerte',
-    seuil: 'Norme < 100%',
+    interpretation: interp(ratioEndettement, B.endettement, false), // moins = mieux
+    seuil: seuilStr(B.endettement, '%'),
+    secteurMoyenne: B.endettement,
+    secteurLibelle: secteurLabel,
   });
 
-  // 4. Autonomie financière (Capitaux propres / Total passif)
+  // 4. Autonomie financière
   const autonomie = bilan.passif.totalPassif !== 0
     ? Math.round((cp / bilan.passif.totalPassif) * 10000) / 100
     : 0;
@@ -107,8 +138,10 @@ function buildRatios(kpis: DashboardKpis, bilan: Bilan, sig: Sig): RatioFinancie
     label: 'Autonomie financière',
     valeur: autonomie,
     unite: '%',
-    interpretation: autonomie >= 30 ? 'bon' : autonomie >= 15 ? 'attention' : 'alerte',
-    seuil: 'Norme > 25%',
+    interpretation: interp(autonomie, B.autonomieFinanciere, true),
+    seuil: seuilStr(B.autonomieFinanciere, '%'),
+    secteurMoyenne: B.autonomieFinanciere,
+    secteurLibelle: secteurLabel,
   });
 
   // 5. BFR en jours de CA
@@ -119,8 +152,10 @@ function buildRatios(kpis: DashboardKpis, bilan: Bilan, sig: Sig): RatioFinancie
     label: 'BFR en jours de CA',
     valeur: bfrJours,
     unite: 'jours',
-    interpretation: bfrJours <= 30 ? 'bon' : bfrJours <= 90 ? 'attention' : 'alerte',
-    seuil: 'Norme < 60 jours',
+    interpretation: interp(bfrJours, B.bfrJours, false), // moins = mieux
+    seuil: seuilStr(B.bfrJours, 'jours'),
+    secteurMoyenne: B.bfrJours,
+    secteurLibelle: secteurLabel,
   });
 
   // 6. Délai client moyen
@@ -128,8 +163,10 @@ function buildRatios(kpis: DashboardKpis, bilan: Bilan, sig: Sig): RatioFinancie
     label: 'Délai client moyen',
     valeur: kpis.delaiClientMoyen,
     unite: 'jours',
-    interpretation: kpis.delaiClientMoyen <= 45 ? 'bon' : kpis.delaiClientMoyen <= 60 ? 'attention' : 'alerte',
-    seuil: 'Norme < 45 jours',
+    interpretation: interp(kpis.delaiClientMoyen, B.delaiClient, false),
+    seuil: seuilStr(B.delaiClient, 'jours'),
+    secteurMoyenne: B.delaiClient,
+    secteurLibelle: secteurLabel,
   });
 
   // 7. Délai fournisseur moyen
@@ -137,21 +174,25 @@ function buildRatios(kpis: DashboardKpis, bilan: Bilan, sig: Sig): RatioFinancie
     label: 'Délai fournisseur moyen',
     valeur: kpis.delaiFournisseurMoyen,
     unite: 'jours',
-    interpretation: kpis.delaiFournisseurMoyen >= 30 && kpis.delaiFournisseurMoyen <= 60 ? 'bon' : 'attention',
-    seuil: 'Norme 30-60 jours',
+    interpretation: kpis.delaiFournisseurMoyen >= B.delaiFournisseur * 0.5 && kpis.delaiFournisseurMoyen <= B.delaiFournisseur * 1.5 ? 'bon' : 'attention',
+    seuil: seuilStr(B.delaiFournisseur, 'jours'),
+    secteurMoyenne: B.delaiFournisseur,
+    secteurLibelle: secteurLabel,
   });
 
-  // 8. Taux de VA (Valeur Ajoutée / CA)
+  // 8. Taux de valeur ajoutée
   const va = sig.valeurAjoutee.montant;
   const tauxVA = kpis.chiffreAffaires > 0
     ? Math.round((va / kpis.chiffreAffaires) * 10000) / 100
     : 0;
   ratios.push({
-    label: "Taux de valeur ajoutée",
+    label: 'Taux de valeur ajoutée',
     valeur: tauxVA,
     unite: '%',
-    interpretation: tauxVA >= 30 ? 'bon' : tauxVA >= 15 ? 'attention' : 'alerte',
-    seuil: 'Varie par secteur',
+    interpretation: interp(tauxVA, B.tauxVA, true),
+    seuil: seuilStr(B.tauxVA, '%'),
+    secteurMoyenne: B.tauxVA,
+    secteurLibelle: secteurLabel,
   });
 
   return ratios;
@@ -165,16 +206,25 @@ function buildPointsDiscussion(
   chargesDetaillees: ChargeClassDetail[],
   bilan: Bilan,
   sig: Sig,
+  benchmark: SecteurBenchmark,
 ): PointDiscussion[] {
   const points: PointDiscussion[] = [];
+  const B = benchmark.ratios;
+  const secteurLabel = benchmark.libelle;
 
   // ── Forces ──
 
-  if (kpis.tauxMargeBrute >= 30) {
+  if (kpis.tauxMargeBrute >= B.tauxMargeBrute * 1.05) {
     points.push({
       type: 'force',
-      titre: 'Marge brute solide',
-      description: `Le taux de marge brute s'établit à ${kpis.tauxMargeBrute.toFixed(1)}%, un niveau confortable qui témoigne d'un bon positionnement prix.`,
+      titre: 'Marge brute supérieure au secteur',
+      description: `Le taux de marge brute de ${kpis.tauxMargeBrute.toFixed(1)}% dépasse la moyenne du secteur "${secteurLabel}" (${B.tauxMargeBrute}%). Signe d'un bon positionnement prix ou de conditions d'achat favorables.`,
+    });
+  } else if (kpis.tauxMargeBrute >= B.tauxMargeBrute * 0.9) {
+    points.push({
+      type: 'force',
+      titre: 'Marge brute dans la norme sectorielle',
+      description: `Le taux de marge brute de ${kpis.tauxMargeBrute.toFixed(1)}% est aligné avec la moyenne "${secteurLabel}" (${B.tauxMargeBrute}%).`,
     });
   }
 
@@ -197,49 +247,59 @@ function buildPointsDiscussion(
     }
   }
 
-  if (kpis.resultatNet > 0 && kpis.ratioRentabilite >= 5) {
+  if (kpis.resultatNet > 0 && kpis.ratioRentabilite >= B.rentabiliteNette) {
+    points.push({
+      type: 'force',
+      titre: 'Rentabilité supérieure au secteur',
+      description: `L'exercice dégage une rentabilité nette de ${kpis.ratioRentabilite.toFixed(1)}%, au-dessus de la moyenne "${secteurLabel}" (${B.rentabiliteNette}%).`,
+    });
+  } else if (kpis.resultatNet > 0) {
     points.push({
       type: 'force',
       titre: 'Exercice bénéficiaire',
-      description: `L'exercice dégage un résultat net positif avec une rentabilité de ${kpis.ratioRentabilite.toFixed(1)}%.`,
+      description: `L'exercice se clôture avec un résultat net positif (rentabilité de ${kpis.ratioRentabilite.toFixed(1)}%).`,
     });
   }
 
   const ratioEndettement = ratios.find((r) => r.label === "Ratio d'endettement");
-  if (ratioEndettement && ratioEndettement.valeur <= 30) {
+  if (ratioEndettement && ratioEndettement.valeur <= B.endettement * 0.5) {
     points.push({
       type: 'force',
-      titre: 'Faible endettement',
-      description: `Le ratio d'endettement est de ${ratioEndettement.valeur.toFixed(1)}%, laissant une capacité d'emprunt importante.`,
+      titre: 'Endettement faible vs secteur',
+      description: `Le ratio d'endettement est de ${ratioEndettement.valeur.toFixed(1)}%, soit la moitié de la moyenne "${secteurLabel}" (${B.endettement}%). La capacité d'emprunt est préservée.`,
     });
   }
 
-  // Tendance CA mensuelle
   const ebeMensuel = sig.ebe.montant;
   if (ebeMensuel > 0) {
     const tauxEBE = kpis.chiffreAffaires > 0
       ? Math.round((ebeMensuel / kpis.chiffreAffaires) * 10000) / 100
       : 0;
-    if (tauxEBE >= 10) {
+    if (tauxEBE >= B.tauxEBE * 1.1) {
       points.push({
         type: 'force',
-        titre: "EBE performant",
-        description: `L'EBE représente ${tauxEBE.toFixed(1)}% du CA, signe d'une bonne performance opérationnelle avant prise en compte de la politique d'investissement.`,
+        titre: 'EBE au-dessus de la moyenne sectorielle',
+        description: `L'EBE représente ${tauxEBE.toFixed(1)}% du CA contre ${B.tauxEBE}% en moyenne pour le secteur "${secteurLabel}". La performance opérationnelle est solide.`,
+      });
+    } else if (tauxEBE >= B.tauxEBE * 0.9) {
+      points.push({
+        type: 'force',
+        titre: 'EBE dans la norme sectorielle',
+        description: `L'EBE s'établit à ${tauxEBE.toFixed(1)}% du CA, aligné avec la moyenne du secteur "${secteurLabel}" (${B.tauxEBE}%).`,
       });
     }
   }
 
   // ── Vigilance ──
 
-  if (kpis.tauxMargeBrute > 0 && kpis.tauxMargeBrute < 15) {
+  if (kpis.tauxMargeBrute > 0 && kpis.tauxMargeBrute < B.tauxMargeBrute * 0.8) {
     points.push({
       type: 'vigilance',
-      titre: 'Marge brute fragile',
-      description: `Le taux de marge brute de ${kpis.tauxMargeBrute.toFixed(1)}% est en-dessous des normes habituelles. Revoir la politique tarifaire ou les conditions d'achat.`,
+      titre: 'Marge brute en-dessous du secteur',
+      description: `Le taux de marge brute de ${kpis.tauxMargeBrute.toFixed(1)}% est inférieur à la moyenne "${secteurLabel}" (${B.tauxMargeBrute}%). Revoir la politique tarifaire ou les conditions d'achat.`,
     });
   }
 
-  // Poids salarial dans la VA
   const chargesPersonnel = chargesDetaillees.find((c) => c.classeCode === '64');
   const va = sig.valeurAjoutee.montant;
   if (chargesPersonnel && va > 0) {
@@ -248,24 +308,24 @@ function buildPointsDiscussion(
       points.push({
         type: 'vigilance',
         titre: 'Charges de personnel élevées',
-        description: `Les charges de personnel représentent ${poidsPersonnel.toFixed(1)}% de la valeur ajoutée (norme : < 65%). Évaluer l'efficacité organisationnelle.`,
+        description: `Les charges de personnel représentent ${poidsPersonnel.toFixed(1)}% de la valeur ajoutée (seuil habituel : < 65%). Évaluer l'efficacité organisationnelle.`,
       });
     }
   }
 
-  if (ratioEndettement && ratioEndettement.valeur > 70) {
+  if (ratioEndettement && ratioEndettement.valeur > B.endettement * 1.3) {
     points.push({
       type: 'vigilance',
-      titre: 'Endettement significatif',
-      description: `Le ratio d'endettement de ${ratioEndettement.valeur.toFixed(1)}% indique un recours important aux dettes financières. Veiller à la capacité de remboursement.`,
+      titre: 'Endettement élevé vs secteur',
+      description: `Le ratio d'endettement de ${ratioEndettement.valeur.toFixed(1)}% dépasse significativement la moyenne "${secteurLabel}" (${B.endettement}%). Veiller à la capacité de remboursement.`,
     });
   }
 
-  if (kpis.delaiClientMoyen > 60) {
+  if (kpis.delaiClientMoyen > B.delaiClient * 1.3) {
     points.push({
       type: 'vigilance',
-      titre: 'Délais clients longs',
-      description: `Le délai moyen de paiement clients est de ${Math.round(kpis.delaiClientMoyen)} jours (norme < 45j). La trésorerie en est directement impactée.`,
+      titre: 'Délais clients au-dessus du secteur',
+      description: `Le délai moyen de paiement clients est de ${Math.round(kpis.delaiClientMoyen)} jours contre ${B.delaiClient} jours en moyenne pour le secteur "${secteurLabel}". La trésorerie en est directement impactée.`,
     });
   }
 
@@ -288,15 +348,14 @@ function buildPointsDiscussion(
   }
 
   const bfrJours = ratios.find((r) => r.label === 'BFR en jours de CA');
-  if (bfrJours && bfrJours.valeur > 90) {
+  if (bfrJours && bfrJours.valeur > B.bfrJours * 1.4) {
     points.push({
       type: 'action',
-      titre: 'BFR élevé',
-      description: `Le BFR représente ${bfrJours.valeur} jours de CA. Négocier des délais fournisseurs plus longs ou raccourcir les délais clients pour améliorer le cycle de trésorerie.`,
+      titre: 'BFR élevé vs secteur',
+      description: `Le BFR représente ${bfrJours.valeur} jours de CA contre ${B.bfrJours} jours pour le secteur "${secteurLabel}". Négocier des délais fournisseurs plus longs ou raccourcir les délais clients.`,
     });
   }
 
-  // Services extérieurs importants
   const servicesExt = chargesDetaillees.filter((c) => c.classeCode === '61' || c.classeCode === '62');
   const totalServExt = servicesExt.reduce((sum, s) => sum + s.montant, 0);
   if (kpis.chiffreAffaires > 0) {
@@ -310,7 +369,6 @@ function buildPointsDiscussion(
     }
   }
 
-  // Capitaux propres faibles ou négatifs
   if (bilan.passif.capitauxPropres.total <= 0) {
     points.push({
       type: 'action',
@@ -334,7 +392,6 @@ function buildPointsDiscussion(
 // ── Fonction principale ──
 
 export async function getRapportActivite(fiscalYearId: string): Promise<RapportActiviteData> {
-  // Récupérer les données en parallèle (bénéficient du cache computed_reports)
   const [dashboard, bilan, sig, aggregates] = await Promise.all([
     analysisService.getDashboard(fiscalYearId),
     analysisService.getBilan(fiscalYearId),
@@ -342,14 +399,44 @@ export async function getRapportActivite(fiscalYearId: string): Promise<RapportA
     getAggregatesForRapport(fiscalYearId),
   ]);
 
-  // Infos entreprise
+  // Infos entreprise + NAF
   const fy = await db('fiscal_years').where({ id: fiscalYearId }).first();
   const company = fy ? await db('companies').where({ id: fy.company_id }).first() : null;
 
+  // Benchmark sectoriel
+  const { benchmark } = getBenchmarkByNaf(company?.naf_code);
+
   // Construire les sections calculées
   const chargesDetaillees = buildChargesDetaillees(aggregates);
-  const ratios = buildRatios(dashboard.kpis, bilan, sig);
-  const pointsDiscussion = buildPointsDiscussion(dashboard.kpis, ratios, chargesDetaillees, bilan, sig);
+  const ratios = buildRatios(dashboard.kpis, bilan, sig, benchmark);
+  const pointsDiscussion = buildPointsDiscussion(dashboard.kpis, ratios, chargesDetaillees, bilan, sig, benchmark);
+
+  // Données N-1 (exercice précédent de la même entreprise)
+  let revenueMonthlyN1: MonthlyData[] = [];
+  if (fy && company) {
+    const previousFy = await db('fiscal_years')
+      .where({ company_id: company.id })
+      .where('end_date', '<', fy.start_date)
+      .orderBy('end_date', 'desc')
+      .first();
+
+    if (previousFy) {
+      const monthlyN1 = await db('ecritures')
+        .where({ fiscal_year_id: previousFy.id })
+        .whereRaw("compte_num LIKE '70%'")
+        .groupByRaw(monthExpr)
+        .select(db.raw(`${monthExpr} as month`))
+        .sum('credit as creditTotal')
+        .sum('debit as debitTotal')
+        .orderBy('month');
+
+      revenueMonthlyN1 = monthlyN1.map((r: any) => ({
+        month: String(r.month),
+        label: String(r.month).substring(5),
+        montant: (Number(r.creditTotal) || 0) - (Number(r.debitTotal) || 0),
+      }));
+    }
+  }
 
   return {
     entreprise: {
@@ -358,9 +445,12 @@ export async function getRapportActivite(fiscalYearId: string): Promise<RapportA
       exercice: fy?.label || '',
       dateDebut: fy?.start_date || '',
       dateFin: fy?.end_date || '',
+      nafCode: company?.naf_code || undefined,
+      nafLibelle: benchmark.libelle,
     },
     kpis: dashboard.kpis,
     revenueMonthly: dashboard.revenueMonthly,
+    revenueMonthlyN1,
     chargesDetaillees,
     bilan,
     sig,
@@ -371,8 +461,7 @@ export async function getRapportActivite(fiscalYearId: string): Promise<RapportA
 }
 
 /**
- * Récupère les agrégats par compte — réutilise la logique de analysis.service
- * mais on a besoin d'y accéder directement ici pour le détail des charges.
+ * Récupère les agrégats par compte pour le détail des charges.
  */
 async function getAggregatesForRapport(fiscalYearId: string): Promise<CompteAggregate[]> {
   const rows = await db('ecritures')

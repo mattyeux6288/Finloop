@@ -2,6 +2,7 @@ import { Router, Response } from 'express';
 import { authMiddleware, AuthRequest } from '../middleware/auth.middleware';
 import { adminMiddleware } from '../middleware/admin.middleware';
 import * as adminService from '../services/admin.service';
+import { seedFec2024 } from '../services/admin.seed.service';
 
 const router = Router();
 
@@ -125,6 +126,19 @@ router.put('/companies/:companyId/assign/:userId', async (req: AuthRequest, res:
     res.status(400).json({
       success: false,
       error: { code: 'ASSIGN_FAILED', message: (err as Error).message },
+    });
+  }
+});
+
+/** POST /admin/seed-fec-2024 — Génère le FEC fictif 2024 pour "Société Test" */
+router.post('/seed-fec-2024', async (_req: AuthRequest, res: Response) => {
+  try {
+    const result = await seedFec2024();
+    res.json({ success: true, data: result });
+  } catch (err) {
+    res.status(400).json({
+      success: false,
+      error: { code: 'SEED_FAILED', message: (err as Error).message },
     });
   }
 });
