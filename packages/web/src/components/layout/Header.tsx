@@ -3,7 +3,6 @@ import { useCompanyStore } from '@/store/companyStore';
 import { createCompany, createFiscalYear } from '@/api/company.api';
 import { lookupSiren, type SirenResult } from '@/api/siren.api';
 import { Plus, X, Search, Loader2, CheckCircle, Calendar } from 'lucide-react';
-import { ThemeToggle } from '@/components/ThemeToggle';
 
 export function Header() {
   const {
@@ -176,7 +175,6 @@ export function Header() {
       </div>
 
       <div className="flex items-center gap-3">
-        <ThemeToggle />
         <div className="flex items-center gap-2">
           <img
             src="/logo-rc.jpg"
