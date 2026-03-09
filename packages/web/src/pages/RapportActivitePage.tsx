@@ -4,11 +4,13 @@ import { useCompanyStore } from '@/store/companyStore';
 import { getRapportActivite } from '@/api/analysis.api';
 import { KpiCard } from '@/components/dashboard/KpiCard';
 import { RevenueBarChart } from '@/components/charts/RevenueBarChart';
+import { TresorerieChart } from '@/components/charts/TresorerieChart';
 import { formatEur, formatPercent } from '@finthesis/shared';
 import type {
   ChargeClassDetail,
   RatioFinancier,
   PointDiscussion,
+  EquilibreFinancier,
   Bilan,
   Sig,
   RapportActiviteData,
@@ -24,6 +26,8 @@ import {
   Building2,
   Calendar,
   BarChart3,
+  Wallet,
+  Scale,
 } from 'lucide-react';
 
 // ── Couleurs SIG waterfall ──
@@ -112,6 +116,7 @@ function RapportHeader({ data }: { data: RapportActiviteData }) {
 // ════════════════════════════════════════════
 function SyntheseExecutive({ data }: { data: RapportActiviteData }) {
   const { kpis } = data;
+  const { caf, frng } = data.equilibreFinancier;
   return (
     <section className="print:break-before-auto">
       <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
@@ -126,8 +131,10 @@ function SyntheseExecutive({ data }: { data: RapportActiviteData }) {
         <KpiCard label="Résultat net" value={kpis.resultatNet} />
         <KpiCard label="Trésorerie" value={kpis.tresorerieNette} />
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mt-4">
         <KpiCard label="BFR" value={kpis.bfr} />
+        <KpiCard label="FRNG" value={frng} />
+        <KpiCard label="CAF" value={caf} />
         <KpiCard label="Rentabilité nette" value={kpis.ratioRentabilite} format="percent" />
         <KpiCard label="Délai client" value={kpis.delaiClientMoyen} format="days" />
         <KpiCard label="Délai fournisseur" value={kpis.delaiFournisseurMoyen} format="days" />
@@ -147,6 +154,142 @@ function EvolutionCA({ data }: { data: RapportActiviteData }) {
         Évolution du chiffre d'affaires
       </h2>
       <RevenueBarChart data={data.revenueMonthly} dataN1={data.revenueMonthlyN1} />
+    </section>
+  );
+}
+
+// ════════════════════════════════════════════
+// Section : Trésorerie & Équilibre financier
+// ════════════════════════════════════════════
+function TresorerieSection({ data }: { data: RapportActiviteData }) {
+  return (
+    <section className="print:break-before-page">
+      <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+        <Wallet className="w-5 h-5 text-accent-500" />
+        Évolution de la trésorerie
+      </h2>
+      <TresorerieChart data={data.tresorerieMensuelle} />
+    </section>
+  );
+}
+
+function EquilibreFinancierSection({ equilibre }: { equilibre: EquilibreFinancier }) {
+  const { frng, bfr, tresorerieNette, caf, joursCA } = equilibre;
+
+  // Pour la visualisation de l'équation FRNG = BFR + Trésorerie
+  const maxVal = Math.max(Math.abs(frng), Math.abs(bfr) + Math.abs(tresorerieNette), 1);
+
+  const interpretFrng = frng > 0
+    ? (frng >= bfr ? 'bon' : 'attention')
+    : 'alerte';
+
+  const interpretCaf = caf > 0
+    ? (caf / Math.max(Math.abs(tresorerieNette), 1) >= 0.5 ? 'bon' : 'attention')
+    : 'alerte';
+
+  const styles = {
+    bon: 'bg-green-50 border-green-200 text-green-700',
+    attention: 'bg-amber-50 border-amber-200 text-amber-700',
+    alerte: 'bg-red-50 border-red-200 text-red-700',
+  };
+
+  return (
+    <section className="print:break-before-auto">
+      <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+        <Scale className="w-5 h-5 text-accent-500" />
+        Équilibre financier
+      </h2>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Carte FRNG */}
+        <div className={`rounded-xl border p-5 ${styles[interpretFrng]} print:bg-white`}>
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <p className="text-xs font-medium opacity-75">Fonds de Roulement Net Global</p>
+              <p className="text-2xl font-bold mt-1">{formatEur(frng)}</p>
+            </div>
+            <div className="text-right text-xs opacity-75 space-y-0.5">
+              <p>Capitaux permanents − Immobilisations</p>
+            </div>
+          </div>
+
+          {/* Visualisation de l'équation FRNG = BFR + Trésorerie */}
+          <div className="mt-3 pt-3 border-t border-current/10">
+            <p className="text-xs font-semibold mb-2 opacity-80">FRNG = BFR + Trésorerie nette</p>
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <span className="text-xs w-24 shrink-0 opacity-70">FRNG</span>
+                <div className="flex-1 h-3 bg-white/50 rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full"
+                    style={{
+                      width: `${Math.max(2, (Math.abs(frng) / maxVal) * 100)}%`,
+                      backgroundColor: '#2D5A3D',
+                    }}
+                  />
+                </div>
+                <span className="text-xs font-semibold w-20 text-right">{formatEur(frng)}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs w-24 shrink-0 opacity-70">BFR</span>
+                <div className="flex-1 h-3 bg-white/50 rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full"
+                    style={{
+                      width: `${Math.max(2, (Math.abs(bfr) / maxVal) * 100)}%`,
+                      backgroundColor: '#E8621A',
+                    }}
+                  />
+                </div>
+                <span className="text-xs font-semibold w-20 text-right">{formatEur(bfr)}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs w-24 shrink-0 opacity-70">Trésorerie</span>
+                <div className="flex-1 h-3 bg-white/50 rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full"
+                    style={{
+                      width: `${Math.max(2, (Math.abs(tresorerieNette) / maxVal) * 100)}%`,
+                      backgroundColor: tresorerieNette >= 0 ? '#6DC28A' : '#ef4444',
+                    }}
+                  />
+                </div>
+                <span className="text-xs font-semibold w-20 text-right">{formatEur(tresorerieNette)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Carte CAF */}
+        <div className={`rounded-xl border p-5 ${styles[interpretCaf]} print:bg-white`}>
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <p className="text-xs font-medium opacity-75">Capacité d'Autofinancement</p>
+              <p className="text-2xl font-bold mt-1">{formatEur(caf)}</p>
+            </div>
+            <div className="text-right text-xs opacity-75 space-y-0.5">
+              <p>Résultat net + Dotations</p>
+              <p>− Reprises ± Cessions</p>
+            </div>
+          </div>
+
+          <div className="mt-3 pt-3 border-t border-current/10 space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <span className="opacity-70">Autonomie de trésorerie</span>
+              <span className="font-bold text-base">{joursCA} jours de CA</span>
+            </div>
+            <p className="text-xs opacity-60">
+              {joursCA >= 90
+                ? 'Réserve confortable (> 3 mois de CA)'
+                : joursCA >= 30
+                  ? 'Réserve correcte (1-3 mois de CA)'
+                  : joursCA >= 0
+                    ? 'Réserve limitée (< 1 mois de CA)'
+                    : 'Trésorerie négative — situation critique'}
+            </p>
+          </div>
+        </div>
+      </div>
     </section>
   );
 }
@@ -614,6 +757,8 @@ export function RapportActivitePage() {
       <RapportHeader data={data} />
       <SyntheseExecutive data={data} />
       <EvolutionCA data={data} />
+      <TresorerieSection data={data} />
+      <EquilibreFinancierSection equilibre={data.equilibreFinancier} />
       <ChargesDetailSection charges={data.chargesDetaillees} />
       <BilanVisualSection bilan={data.bilan} />
       <SigCascadeSection sig={data.sig} />

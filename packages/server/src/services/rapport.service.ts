@@ -14,7 +14,16 @@ import type {
   Sig,
   CompteAggregate,
   MonthlyData,
+  TresorerieMensuelle,
+  EquilibreFinancier,
 } from '@finthesis/shared';
+
+/** Helper : formater un montant en k€ */
+function formatK(v: number): string {
+  const abs = Math.abs(v);
+  if (abs >= 1000) return `${(v / 1000).toFixed(0)} k€`;
+  return `${Math.round(v)} €`;
+}
 
 /** Expression SQL pour extraire YYYY-MM (compatible SQLite + PostgreSQL) */
 const monthExpr = config.databaseType === 'postgresql'
@@ -207,6 +216,7 @@ function buildPointsDiscussion(
   bilan: Bilan,
   sig: Sig,
   benchmark: SecteurBenchmark,
+  equilibre: EquilibreFinancier,
 ): PointDiscussion[] {
   const points: PointDiscussion[] = [];
   const B = benchmark.ratios;
@@ -377,6 +387,59 @@ function buildPointsDiscussion(
     });
   }
 
+  // ── Analyse FRNG / CAF ──
+
+  if (equilibre.frng > 0 && equilibre.frng >= kpis.bfr) {
+    points.push({
+      type: 'force',
+      titre: 'Équilibre financier respecté',
+      description: `Le Fonds de Roulement (${formatK(equilibre.frng)}) couvre le BFR (${formatK(kpis.bfr)}). L'entreprise dispose d'un matelas de sécurité pour ses opérations courantes.`,
+    });
+  } else if (equilibre.frng < 0) {
+    points.push({
+      type: 'action',
+      titre: 'Fonds de roulement négatif',
+      description: `Le FRNG est négatif (${formatK(equilibre.frng)}) : les immobilisations ne sont pas entièrement financées par des ressources stables. Envisager un renforcement des fonds propres ou un emprunt long terme.`,
+    });
+  } else if (equilibre.frng > 0 && equilibre.frng < kpis.bfr) {
+    points.push({
+      type: 'vigilance',
+      titre: 'FRNG insuffisant pour couvrir le BFR',
+      description: `Le Fonds de Roulement (${formatK(equilibre.frng)}) ne couvre pas entièrement le BFR (${formatK(kpis.bfr)}). L'écart est financé par la trésorerie courante, ce qui peut créer des tensions.`,
+    });
+  }
+
+  if (equilibre.caf > 0) {
+    const cafPctCA = kpis.chiffreAffaires > 0
+      ? Math.round((equilibre.caf / kpis.chiffreAffaires) * 10000) / 100
+      : 0;
+    if (cafPctCA >= 8) {
+      points.push({
+        type: 'force',
+        titre: 'Capacité d\'autofinancement solide',
+        description: `La CAF s'élève à ${formatK(equilibre.caf)} (${cafPctCA.toFixed(1)}% du CA), offrant une bonne capacité de remboursement et d'investissement sans recours à l'endettement.`,
+      });
+    } else if (cafPctCA >= 3) {
+      points.push({
+        type: 'vigilance',
+        titre: 'CAF modérée',
+        description: `La Capacité d'Autofinancement représente ${cafPctCA.toFixed(1)}% du CA (${formatK(equilibre.caf)}). Elle permet de couvrir les remboursements mais laisse peu de marge pour l'investissement.`,
+      });
+    } else {
+      points.push({
+        type: 'action',
+        titre: 'CAF faible',
+        description: `La CAF ne représente que ${cafPctCA.toFixed(1)}% du CA. L'entreprise dispose de peu de ressources internes pour rembourser ses emprunts ou autofinancer ses investissements.`,
+      });
+    }
+  } else if (equilibre.caf <= 0) {
+    points.push({
+      type: 'action',
+      titre: 'Capacité d\'autofinancement négative',
+      description: `La CAF est négative (${formatK(equilibre.caf)}). L'activité ne génère pas assez de trésorerie pour couvrir ses besoins. Revoir la structure de coûts en priorité.`,
+    });
+  }
+
   // Garantir au moins un point par type
   if (!points.some((p) => p.type === 'force')) {
     points.push({
@@ -389,14 +452,93 @@ function buildPointsDiscussion(
   return points;
 }
 
+// ── Trésorerie mensuelle (soldes classe 5 cumulés mois par mois) ──
+
+async function buildTresorerieMensuelle(fiscalYearId: string): Promise<TresorerieMensuelle[]> {
+  // Solde des comptes de trésorerie (51x banques, 53x caisse) - concours bancaires (519)
+  // Groupé par mois pour montrer l'évolution au fil de l'exercice
+  const rows = await db('ecritures')
+    .where({ fiscal_year_id: fiscalYearId })
+    .whereRaw("(compte_num LIKE '51%' OR compte_num LIKE '53%')")
+    .groupByRaw(monthExpr)
+    .select(db.raw(`${monthExpr} as month`))
+    .sum('debit as totalDebit')
+    .sum('credit as totalCredit')
+    .orderBy('month');
+
+  // Calculer le solde cumulé mois par mois
+  let cumul = 0;
+  return rows.map((r: any) => {
+    // Comptes d'actif : débit = entrée, crédit = sortie → solde = D - C
+    const flux = (Number(r.totalDebit) || 0) - (Number(r.totalCredit) || 0);
+    cumul += flux;
+    return {
+      month: String(r.month),
+      label: String(r.month).substring(5),
+      solde: Math.round(cumul * 100) / 100,
+    };
+  });
+}
+
+// ── Équilibre financier (FRNG, BFR, Trésorerie, CAF) ──
+
+function buildEquilibreFinancier(
+  kpis: DashboardKpis,
+  bilan: Bilan,
+  sig: Sig,
+  aggregates: CompteAggregate[],
+): EquilibreFinancier {
+  const round = (v: number) => Math.round(v * 100) / 100;
+
+  // FRNG = Capitaux permanents - Actif immobilisé
+  // Capitaux permanents = Capitaux propres + Dettes financières (LT)
+  const capitauxPermanents = bilan.passif.capitauxPropres.total + bilan.passif.dettesFinancieres.total;
+  const frng = round(capitauxPermanents - bilan.actif.immobilisations.total);
+
+  // CAF = Résultat net + Dotations aux amortissements/provisions (68x)
+  //       - Reprises sur amortissements/provisions (78x)
+  //       + VNC des actifs cédés (675) - Produits de cession (775)
+  const dotations = aggregates
+    .filter((a) => a.compteRacine.startsWith('68'))
+    .reduce((sum, a) => sum + a.totalDebit - a.totalCredit, 0);
+
+  const reprises = aggregates
+    .filter((a) => a.compteRacine.startsWith('78'))
+    .reduce((sum, a) => sum + a.totalCredit - a.totalDebit, 0);
+
+  const vncCessions = aggregates
+    .filter((a) => a.compteNum.startsWith('675'))
+    .reduce((sum, a) => sum + a.totalDebit - a.totalCredit, 0);
+
+  const produitsCession = aggregates
+    .filter((a) => a.compteNum.startsWith('775'))
+    .reduce((sum, a) => sum + a.totalCredit - a.totalDebit, 0);
+
+  const caf = round(sig.resultatNet.montant + dotations - reprises + vncCessions - produitsCession);
+
+  // Trésorerie en jours de CA (autonomie de trésorerie)
+  const joursCA = kpis.chiffreAffaires > 0
+    ? Math.round((kpis.tresorerieNette / kpis.chiffreAffaires) * 365)
+    : 0;
+
+  return {
+    frng,
+    bfr: kpis.bfr,
+    tresorerieNette: kpis.tresorerieNette,
+    caf,
+    joursCA,
+  };
+}
+
 // ── Fonction principale ──
 
 export async function getRapportActivite(fiscalYearId: string): Promise<RapportActiviteData> {
-  const [dashboard, bilan, sig, aggregates] = await Promise.all([
+  const [dashboard, bilan, sig, aggregates, tresorerieMensuelle] = await Promise.all([
     analysisService.getDashboard(fiscalYearId),
     analysisService.getBilan(fiscalYearId),
     analysisService.getSig(fiscalYearId),
     getAggregatesForRapport(fiscalYearId),
+    buildTresorerieMensuelle(fiscalYearId),
   ]);
 
   // Infos entreprise + NAF
@@ -408,8 +550,9 @@ export async function getRapportActivite(fiscalYearId: string): Promise<RapportA
 
   // Construire les sections calculées
   const chargesDetaillees = buildChargesDetaillees(aggregates);
+  const equilibreFinancier = buildEquilibreFinancier(dashboard.kpis, bilan, sig, aggregates);
   const ratios = buildRatios(dashboard.kpis, bilan, sig, benchmark);
-  const pointsDiscussion = buildPointsDiscussion(dashboard.kpis, ratios, chargesDetaillees, bilan, sig, benchmark);
+  const pointsDiscussion = buildPointsDiscussion(dashboard.kpis, ratios, chargesDetaillees, bilan, sig, benchmark, equilibreFinancier);
 
   // Données N-1 (exercice précédent de la même entreprise)
   let revenueMonthlyN1: MonthlyData[] = [];
@@ -451,6 +594,8 @@ export async function getRapportActivite(fiscalYearId: string): Promise<RapportA
     kpis: dashboard.kpis,
     revenueMonthly: dashboard.revenueMonthly,
     revenueMonthlyN1,
+    tresorerieMensuelle,
+    equilibreFinancier,
     chargesDetaillees,
     bilan,
     sig,

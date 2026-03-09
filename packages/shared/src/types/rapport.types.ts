@@ -52,11 +52,29 @@ export interface RapportEntreprise {
   nafLibelle?: string;
 }
 
+// ---- TRÉSORERIE & ÉQUILIBRE FINANCIER ----
+
+export interface TresorerieMensuelle {
+  month: string;   // YYYY-MM
+  label: string;   // "01", "02"...
+  solde: number;   // solde cumulé en fin de mois
+}
+
+export interface EquilibreFinancier {
+  frng: number;           // Fonds de Roulement Net Global
+  bfr: number;            // Besoin en Fonds de Roulement
+  tresorerieNette: number; // FRNG - BFR = Trésorerie nette
+  caf: number;            // Capacité d'Autofinancement
+  joursCA: number;        // Trésorerie en jours de CA (autonomie)
+}
+
 export interface RapportActiviteData {
   entreprise: RapportEntreprise;
   kpis: DashboardKpis;
   revenueMonthly: MonthlyData[];
   revenueMonthlyN1?: MonthlyData[]; // Exercice précédent (N-1)
+  tresorerieMensuelle: TresorerieMensuelle[];
+  equilibreFinancier: EquilibreFinancier;
   chargesDetaillees: ChargeClassDetail[];
   bilan: Bilan;
   sig: Sig;
