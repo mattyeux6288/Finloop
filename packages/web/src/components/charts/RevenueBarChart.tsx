@@ -10,7 +10,7 @@ import {
   Legend,
 } from 'recharts';
 import type { MonthlyData } from '@finthesis/shared';
-import { formatEur } from '@finthesis/shared';
+import { useCurrencyFormat } from '@/hooks/useCurrencyFormat';
 
 const MOIS_COURT: Record<string, string> = {
   '01': 'Jan', '02': 'Fév', '03': 'Mar', '04': 'Avr',
@@ -30,6 +30,7 @@ interface Props {
 }
 
 export function RevenueBarChart({ data, dataN1 }: Props) {
+  const { formatCurrency } = useCurrencyFormat();
   // Fusionner les deux séries par numéro de mois (label = "MM")
   const mergedData = Array.from({ length: 12 }, (_, i) => {
     const mm = String(i + 1).padStart(2, '0');
@@ -58,7 +59,7 @@ export function RevenueBarChart({ data, dataN1 }: Props) {
           <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
           <Tooltip
             formatter={(value: number, name: string) => [
-              formatEur(value),
+              formatCurrency(value),
               name === 'montant' ? 'N (exercice actuel)' : 'N-1',
             ]}
             labelFormatter={(label) => MOIS_LONG[label] ?? label}

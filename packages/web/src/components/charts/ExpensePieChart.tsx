@@ -1,6 +1,6 @@
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import type { ExpenseCategory } from '@finthesis/shared';
-import { formatEur } from '@finthesis/shared';
+import { useCurrencyFormat } from '@/hooks/useCurrencyFormat';
 
 // Palette Raly Conseils — orange accent sur la tranche dominante, vert pour les suivantes
 const COLORS = ['#E8621A', '#1E3A30', '#6DC28A', '#2D6B48', '#84caaa', '#3a7d52', '#aedfc5', '#4a9866', '#c94f0e', '#243C33'];
@@ -42,6 +42,7 @@ interface Props {
 }
 
 export function ExpensePieChart({ data }: Props) {
+  const { formatCurrency } = useCurrencyFormat();
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
       <h3 className="text-sm font-semibold text-gray-700 mb-4">Répartition des charges</h3>
@@ -63,7 +64,7 @@ export function ExpensePieChart({ data }: Props) {
           </Pie>
           <Tooltip
             formatter={(value: number, _name: string, props: any) => [
-              `${formatEur(value)}  (${props.payload.pourcentage.toFixed(1)}%)`,
+              `${formatCurrency(value)}  (${props.payload.pourcentage.toFixed(1)}%)`,
             ]}
           />
           <Legend

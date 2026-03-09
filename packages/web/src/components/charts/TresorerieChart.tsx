@@ -9,7 +9,7 @@ import {
   ReferenceLine,
 } from 'recharts';
 import type { TresorerieMensuelle } from '@finthesis/shared';
-import { formatEur } from '@finthesis/shared';
+import { useCurrencyFormat } from '@/hooks/useCurrencyFormat';
 
 const MOIS_COURT: Record<string, string> = {
   '01': 'Jan', '02': 'Fév', '03': 'Mar', '04': 'Avr',
@@ -28,6 +28,8 @@ interface Props {
 }
 
 export function TresorerieChart({ data }: Props) {
+  const { formatCurrency } = useCurrencyFormat();
+
   if (data.length === 0) return null;
 
   const hasNegative = data.some((d) => d.solde < 0);
@@ -56,7 +58,7 @@ export function TresorerieChart({ data }: Props) {
             tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
           />
           <Tooltip
-            formatter={(value: number) => [formatEur(value), 'Trésorerie']}
+            formatter={(value: number) => [formatCurrency(value), 'Trésorerie']}
             labelFormatter={(label) => MOIS_LONG[String(label)] ?? label}
           />
           {hasNegative && (

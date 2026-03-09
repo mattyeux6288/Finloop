@@ -5,7 +5,8 @@ import { getRapportActivite } from '@/api/analysis.api';
 import { KpiCard } from '@/components/dashboard/KpiCard';
 import { RevenueBarChart } from '@/components/charts/RevenueBarChart';
 import { TresorerieChart } from '@/components/charts/TresorerieChart';
-import { formatEur, formatPercent } from '@finthesis/shared';
+import { formatPercent } from '@finthesis/shared';
+import { useCurrencyFormat } from '@/hooks/useCurrencyFormat';
 import type {
   ChargeClassDetail,
   RatioFinancier,
@@ -174,6 +175,7 @@ function TresorerieSection({ data }: { data: RapportActiviteData }) {
 }
 
 function EquilibreFinancierSection({ equilibre }: { equilibre: EquilibreFinancier }) {
+  const { formatCurrency } = useCurrencyFormat();
   const { frng, bfr, tresorerieNette, caf, joursCA } = equilibre;
 
   // Pour la visualisation de l'équation FRNG = BFR + Trésorerie
@@ -206,7 +208,7 @@ function EquilibreFinancierSection({ equilibre }: { equilibre: EquilibreFinancie
           <div className="flex items-center justify-between mb-3">
             <div>
               <p className="text-xs font-medium opacity-75">Fonds de Roulement Net Global</p>
-              <p className="text-2xl font-bold mt-1">{formatEur(frng)}</p>
+              <p className="text-2xl font-bold mt-1">{formatCurrency(frng)}</p>
             </div>
             <div className="text-right text-xs opacity-75 space-y-0.5">
               <p>Capitaux permanents − Immobilisations</p>
@@ -228,7 +230,7 @@ function EquilibreFinancierSection({ equilibre }: { equilibre: EquilibreFinancie
                     }}
                   />
                 </div>
-                <span className="text-xs font-semibold w-20 text-right">{formatEur(frng)}</span>
+                <span className="text-xs font-semibold w-20 text-right">{formatCurrency(frng)}</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-xs w-24 shrink-0 opacity-70">BFR</span>
@@ -241,7 +243,7 @@ function EquilibreFinancierSection({ equilibre }: { equilibre: EquilibreFinancie
                     }}
                   />
                 </div>
-                <span className="text-xs font-semibold w-20 text-right">{formatEur(bfr)}</span>
+                <span className="text-xs font-semibold w-20 text-right">{formatCurrency(bfr)}</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-xs w-24 shrink-0 opacity-70">Trésorerie</span>
@@ -254,7 +256,7 @@ function EquilibreFinancierSection({ equilibre }: { equilibre: EquilibreFinancie
                     }}
                   />
                 </div>
-                <span className="text-xs font-semibold w-20 text-right">{formatEur(tresorerieNette)}</span>
+                <span className="text-xs font-semibold w-20 text-right">{formatCurrency(tresorerieNette)}</span>
               </div>
             </div>
           </div>
@@ -265,7 +267,7 @@ function EquilibreFinancierSection({ equilibre }: { equilibre: EquilibreFinancie
           <div className="flex items-center justify-between mb-3">
             <div>
               <p className="text-xs font-medium opacity-75">Capacité d'Autofinancement</p>
-              <p className="text-2xl font-bold mt-1">{formatEur(caf)}</p>
+              <p className="text-2xl font-bold mt-1">{formatCurrency(caf)}</p>
             </div>
             <div className="text-right text-xs opacity-75 space-y-0.5">
               <p>Résultat net + Dotations</p>
@@ -298,6 +300,7 @@ function EquilibreFinancierSection({ equilibre }: { equilibre: EquilibreFinancie
 // Section : Détail des charges
 // ════════════════════════════════════════════
 function ChargesDetailSection({ charges }: { charges: ChargeClassDetail[] }) {
+  const { formatCurrency } = useCurrencyFormat();
   const [openClasses, setOpenClasses] = useState<Set<string>>(new Set());
 
   const toggleClass = (code: string) => {
@@ -318,7 +321,7 @@ function ChargesDetailSection({ charges }: { charges: ChargeClassDetail[] }) {
         Analyse détaillée des charges
       </h2>
       <p className="text-sm text-gray-500 mb-4">
-        Total des charges : <span className="font-semibold text-gray-700">{formatEur(totalCharges)}</span>
+        Total des charges : <span className="font-semibold text-gray-700">{formatCurrency(totalCharges)}</span>
       </p>
 
       <div className="space-y-3">
@@ -356,7 +359,7 @@ function ChargesDetailSection({ charges }: { charges: ChargeClassDetail[] }) {
                       {classe.classeLabel}
                     </span>
                     <div className="flex items-center gap-3 shrink-0 ml-4">
-                      <span className="text-sm font-bold text-gray-900">{formatEur(classe.montant)}</span>
+                      <span className="text-sm font-bold text-gray-900">{formatCurrency(classe.montant)}</span>
                       <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
                         {classe.pourcentage.toFixed(1)}%
                       </span>
@@ -388,7 +391,7 @@ function ChargesDetailSection({ charges }: { charges: ChargeClassDetail[] }) {
                         <tr key={sc.compteNum} className="border-t border-gray-100">
                           <td className="py-1.5 text-gray-500 font-mono text-xs">{sc.compteNum}</td>
                           <td className="py-1.5 text-gray-700">{sc.label}</td>
-                          <td className="py-1.5 text-right font-medium text-gray-900">{formatEur(sc.montant)}</td>
+                          <td className="py-1.5 text-right font-medium text-gray-900">{formatCurrency(sc.montant)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -405,7 +408,7 @@ function ChargesDetailSection({ charges }: { charges: ChargeClassDetail[] }) {
                         <tr key={sc.compteNum} className="border-t border-gray-100">
                           <td className="py-1 text-gray-500 font-mono text-xs">{sc.compteNum}</td>
                           <td className="py-1 text-gray-700">{sc.label}</td>
-                          <td className="py-1 text-right font-medium text-gray-900">{formatEur(sc.montant)}</td>
+                          <td className="py-1 text-right font-medium text-gray-900">{formatCurrency(sc.montant)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -424,6 +427,7 @@ function ChargesDetailSection({ charges }: { charges: ChargeClassDetail[] }) {
 // Section : Bilan visuel
 // ════════════════════════════════════════════
 function BilanVisualSection({ bilan }: { bilan: Bilan }) {
+  const { formatCurrency } = useCurrencyFormat();
   const actifItems = [
     { label: 'Immobilisations', value: bilan.actif.immobilisations.total, color: '#1E3A30' },
     { label: 'Stocks', value: bilan.actif.stocks.total, color: '#2D6B48' },
@@ -449,7 +453,7 @@ function BilanVisualSection({ bilan }: { bilan: Bilan }) {
               key={i}
               className="flex items-center justify-center text-white text-xs font-medium transition-all"
               style={{ width: `${pct}%`, backgroundColor: item.color, minWidth: pct > 3 ? 'auto' : '0' }}
-              title={`${item.label}: ${formatEur(item.value)}`}
+              title={`${item.label}: ${formatCurrency(item.value)}`}
             >
               {pct > 8 && `${Math.round(pct)}%`}
             </div>
@@ -463,7 +467,7 @@ function BilanVisualSection({ bilan }: { bilan: Bilan }) {
               <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: item.color }} />
               <span className="text-gray-700">{item.label}</span>
             </div>
-            <span className="font-medium text-gray-900">{formatEur(item.value)}</span>
+            <span className="font-medium text-gray-900">{formatCurrency(item.value)}</span>
           </div>
         ))}
       </div>
@@ -479,13 +483,13 @@ function BilanVisualSection({ bilan }: { bilan: Bilan }) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm print:shadow-none">
           <h3 className="text-lg font-semibold text-gray-900 mb-3">
-            Actif <span className="text-sm font-normal text-gray-500">— {formatEur(bilan.actif.totalActif)}</span>
+            Actif <span className="text-sm font-normal text-gray-500">— {formatCurrency(bilan.actif.totalActif)}</span>
           </h3>
           {renderBar(actifItems, bilan.actif.totalActif)}
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm print:shadow-none">
           <h3 className="text-lg font-semibold text-gray-900 mb-3">
-            Passif <span className="text-sm font-normal text-gray-500">— {formatEur(bilan.passif.totalPassif)}</span>
+            Passif <span className="text-sm font-normal text-gray-500">— {formatCurrency(bilan.passif.totalPassif)}</span>
           </h3>
           {renderBar(passifItems, bilan.passif.totalPassif)}
         </div>
@@ -498,6 +502,7 @@ function BilanVisualSection({ bilan }: { bilan: Bilan }) {
 // Section : Cascade SIG
 // ════════════════════════════════════════════
 function SigCascadeSection({ sig }: { sig: Sig }) {
+  const { formatCurrency } = useCurrencyFormat();
   const steps = [
     { label: 'Marge commerciale', value: sig.margeCommerciale.montant },
     { label: 'Production', value: sig.productionExercice.montant },
@@ -545,7 +550,7 @@ function SigCascadeSection({ sig }: { sig: Sig }) {
                   <span className={`text-sm font-semibold w-36 shrink-0 text-right ${
                     isPositive ? 'text-gray-900' : 'text-red-600'
                   }`}>
-                    {formatEur(step.value)}
+                    {formatCurrency(step.value)}
                   </span>
                 </div>
               </div>
@@ -605,7 +610,7 @@ function RatiosSection({ ratios, nafLibelle }: { ratios: RatioFinancier[]; nafLi
           return (
             <div
               key={i}
-              className={`rounded-xl border p-4 ${style.bg} ${style.border} print:bg-white`}
+              className={`rounded-xl border p-4 ${style.bg} ${style.border} print:bg-white relative group`}
             >
               <div className="flex items-center gap-2 mb-2">
                 <div className={`w-2.5 h-2.5 rounded-full ${style.dot}`} />
@@ -632,6 +637,15 @@ function RatiosSection({ ratios, nafLibelle }: { ratios: RatioFinancier[]; nafLi
                       {formatVal(ratio.secteurMoyenne!, ratio.unite)}
                     </span>
                   </div>
+                </div>
+              )}
+
+              {/* Tooltip formule au survol */}
+              {ratio.formule && (
+                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 w-72 text-center print:hidden">
+                  <p className="font-medium mb-0.5">Formule :</p>
+                  <p className="text-gray-300">{ratio.formule}</p>
+                  <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900" />
                 </div>
               )}
             </div>
@@ -701,9 +715,18 @@ function PointsDiscussionSection({ points }: { points: PointDiscussion[] }) {
             ) : (
               <ul className="space-y-3">
                 {col.items.map((item, i) => (
-                  <li key={i}>
+                  <li key={i} className="relative group/point">
                     <p className="text-sm font-semibold text-gray-900">{item.titre}</p>
                     <p className="text-sm text-gray-600 mt-0.5">{item.description}</p>
+
+                    {/* Tooltip formule au survol */}
+                    {item.formule && (
+                      <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg shadow-lg opacity-0 group-hover/point:opacity-100 transition-opacity pointer-events-none z-50 w-72 text-center print:hidden">
+                        <p className="font-medium mb-0.5">Calcul :</p>
+                        <p className="text-gray-300">{item.formule}</p>
+                        <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900" />
+                      </div>
+                    )}
                   </li>
                 ))}
               </ul>

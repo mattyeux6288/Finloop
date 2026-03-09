@@ -1,5 +1,6 @@
 import { useState, FormEvent, useEffect, useRef } from 'react';
 import { useCompanyStore } from '@/store/companyStore';
+import { useDisplayStore } from '@/store/displayStore';
 import { createCompany, createFiscalYear } from '@/api/company.api';
 import { lookupSiren, type SirenResult } from '@/api/siren.api';
 import { Plus, X, Search, Loader2, CheckCircle, Calendar } from 'lucide-react';
@@ -9,6 +10,8 @@ export function Header() {
     companies, selectedCompany, selectCompany, setCompanies,
     fiscalYears, selectedFiscalYear, selectFiscalYear, setFiscalYears,
   } = useCompanyStore();
+
+  const { currencyMode, toggleCurrencyMode } = useDisplayStore();
 
   // --- Formulaire entreprise ---
   const [showCompanyForm, setShowCompanyForm] = useState(false);
@@ -175,6 +178,20 @@ export function Header() {
       </div>
 
       <div className="flex items-center gap-3">
+        {/* Toggle EUR / kEUR */}
+        <button
+          onClick={toggleCurrencyMode}
+          className="flex items-center gap-1 px-2.5 py-1 rounded-lg border text-xs font-semibold transition-colors print:hidden"
+          style={{
+            borderColor: currencyMode === 'keur' ? '#E8621A' : '#2D5A3D',
+            backgroundColor: currencyMode === 'keur' ? '#FEF3ED' : '#F0F7F2',
+            color: currencyMode === 'keur' ? '#E8621A' : '#2D5A3D',
+          }}
+          title={currencyMode === 'eur' ? 'Afficher en k€' : 'Afficher en €'}
+        >
+          {currencyMode === 'eur' ? '€' : 'k€'}
+        </button>
+
         <div className="flex items-center gap-2">
           <img
             src="/logo-rc.jpg"

@@ -5,8 +5,8 @@
 const eurFormatter = new Intl.NumberFormat('fr-FR', {
   style: 'currency',
   currency: 'EUR',
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 0,
 });
 
 const eurCompactFormatter = new Intl.NumberFormat('fr-FR', {
@@ -24,8 +24,8 @@ const percentFormatter = new Intl.NumberFormat('fr-FR', {
 });
 
 const numberFormatter = new Intl.NumberFormat('fr-FR', {
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 0,
 });
 
 /**

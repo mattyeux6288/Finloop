@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { useCompanyStore } from '@/store/companyStore';
 import { getSig } from '@/api/analysis.api';
-import { formatEur } from '@finthesis/shared';
+import { useCurrencyFormat } from '@/hooks/useCurrencyFormat';
 import type { SigLevel } from '@finthesis/shared';
 
 function SigRow({ level, index }: { level: SigLevel; index: number }) {
+  const { formatCurrency } = useCurrencyFormat();
   const isPositive = level.montant >= 0;
   const bgColors = [
     'bg-blue-50', 'bg-indigo-50', 'bg-violet-50', 'bg-purple-50',
@@ -16,7 +17,7 @@ function SigRow({ level, index }: { level: SigLevel; index: number }) {
       <div className="flex justify-between items-center">
         <span className="font-semibold text-gray-900">{level.label}</span>
         <span className={`text-lg font-bold ${isPositive ? 'text-green-700' : 'text-red-700'}`}>
-          {formatEur(level.montant)}
+          {formatCurrency(level.montant)}
         </span>
       </div>
       {level.details.length > 0 && (
@@ -24,7 +25,7 @@ function SigRow({ level, index }: { level: SigLevel; index: number }) {
           {level.details.map((d, i) => (
             <div key={i} className="flex justify-between text-sm text-gray-600 pl-4">
               <span>{d.label}</span>
-              <span className="font-medium">{formatEur(d.montant)}</span>
+              <span className="font-medium">{formatCurrency(d.montant)}</span>
             </div>
           ))}
         </div>

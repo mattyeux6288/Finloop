@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { useCompanyStore } from '@/store/companyStore';
 import { getBilan } from '@/api/analysis.api';
-import { formatEur } from '@finthesis/shared';
+import { useCurrencyFormat } from '@/hooks/useCurrencyFormat';
 import type { BilanSection } from '@finthesis/shared';
 
 function BilanTable({ section, title }: { section: BilanSection; title: string }) {
+  const { formatCurrency } = useCurrencyFormat();
   return (
     <div>
       <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">{title}</h4>
@@ -13,12 +14,12 @@ function BilanTable({ section, title }: { section: BilanSection; title: string }
           {section.items.map((item, i) => (
             <tr key={i} className="border-b border-gray-100">
               <td className="py-2 text-gray-700">{item.label}</td>
-              <td className="py-2 text-right font-medium text-gray-900">{formatEur(item.montant)}</td>
+              <td className="py-2 text-right font-medium text-gray-900">{formatCurrency(item.montant)}</td>
             </tr>
           ))}
           <tr className="border-t-2 border-gray-300 font-bold">
             <td className="py-2 text-gray-900">Total {section.label}</td>
-            <td className="py-2 text-right text-gray-900">{formatEur(section.total)}</td>
+            <td className="py-2 text-right text-gray-900">{formatCurrency(section.total)}</td>
           </tr>
         </tbody>
       </table>
@@ -27,6 +28,7 @@ function BilanTable({ section, title }: { section: BilanSection; title: string }
 }
 
 export function BilanPage() {
+  const { formatCurrency } = useCurrencyFormat();
   const { selectedFiscalYear } = useCompanyStore();
 
   const { data: bilan, isLoading } = useQuery({
@@ -61,7 +63,7 @@ export function BilanPage() {
           </div>
           <div className="mt-6 pt-4 border-t-2 border-primary-500 flex justify-between text-lg font-bold text-primary-700">
             <span>Total Actif</span>
-            <span>{formatEur(bilan.actif.totalActif)}</span>
+            <span>{formatCurrency(bilan.actif.totalActif)}</span>
           </div>
         </div>
 
@@ -76,7 +78,7 @@ export function BilanPage() {
           </div>
           <div className="mt-6 pt-4 border-t-2 border-primary-500 flex justify-between text-lg font-bold text-primary-700">
             <span>Total Passif</span>
-            <span>{formatEur(bilan.passif.totalPassif)}</span>
+            <span>{formatCurrency(bilan.passif.totalPassif)}</span>
           </div>
         </div>
       </div>

@@ -112,6 +112,7 @@ function buildRatios(
     seuil: seuilStr(B.tauxMargeBrute, '%'),
     secteurMoyenne: B.tauxMargeBrute,
     secteurLibelle: secteurLabel,
+    formule: `Marge brute (${formatK(kpis.margeBrute)}) / CA (${formatK(kpis.chiffreAffaires)}) × 100`,
   });
 
   // 2. Rentabilité nette
@@ -123,6 +124,7 @@ function buildRatios(
     seuil: seuilStr(B.rentabiliteNette, '%'),
     secteurMoyenne: B.rentabiliteNette,
     secteurLibelle: secteurLabel,
+    formule: `Résultat net (${formatK(kpis.resultatNet)}) / CA (${formatK(kpis.chiffreAffaires)}) × 100`,
   });
 
   // 3. Ratio d'endettement
@@ -137,6 +139,7 @@ function buildRatios(
     seuil: seuilStr(B.endettement, '%'),
     secteurMoyenne: B.endettement,
     secteurLibelle: secteurLabel,
+    formule: `Dettes financières (${formatK(dettesFinancieres)}) / Capitaux propres (${formatK(cp)}) × 100`,
   });
 
   // 4. Autonomie financière
@@ -151,6 +154,7 @@ function buildRatios(
     seuil: seuilStr(B.autonomieFinanciere, '%'),
     secteurMoyenne: B.autonomieFinanciere,
     secteurLibelle: secteurLabel,
+    formule: `Capitaux propres (${formatK(cp)}) / Total passif (${formatK(bilan.passif.totalPassif)}) × 100`,
   });
 
   // 5. BFR en jours de CA
@@ -165,6 +169,7 @@ function buildRatios(
     seuil: seuilStr(B.bfrJours, 'jours'),
     secteurMoyenne: B.bfrJours,
     secteurLibelle: secteurLabel,
+    formule: `BFR (${formatK(kpis.bfr)}) / CA (${formatK(kpis.chiffreAffaires)}) × 365`,
   });
 
   // 6. Délai client moyen
@@ -176,6 +181,7 @@ function buildRatios(
     seuil: seuilStr(B.delaiClient, 'jours'),
     secteurMoyenne: B.delaiClient,
     secteurLibelle: secteurLabel,
+    formule: `Créances clients / CA TTC × 365`,
   });
 
   // 7. Délai fournisseur moyen
@@ -187,6 +193,7 @@ function buildRatios(
     seuil: seuilStr(B.delaiFournisseur, 'jours'),
     secteurMoyenne: B.delaiFournisseur,
     secteurLibelle: secteurLabel,
+    formule: `Dettes fournisseurs / Achats TTC × 365`,
   });
 
   // 8. Taux de valeur ajoutée
@@ -202,6 +209,7 @@ function buildRatios(
     seuil: seuilStr(B.tauxVA, '%'),
     secteurMoyenne: B.tauxVA,
     secteurLibelle: secteurLabel,
+    formule: `Valeur ajoutée (${formatK(va)}) / CA (${formatK(kpis.chiffreAffaires)}) × 100`,
   });
 
   return ratios;
@@ -229,12 +237,14 @@ function buildPointsDiscussion(
       type: 'force',
       titre: 'Marge brute supérieure au secteur',
       description: `Le taux de marge brute de ${kpis.tauxMargeBrute.toFixed(1)}% dépasse la moyenne du secteur "${secteurLabel}" (${B.tauxMargeBrute}%). Signe d'un bon positionnement prix ou de conditions d'achat favorables.`,
+      formule: `Marge brute (${formatK(kpis.margeBrute)}) / CA (${formatK(kpis.chiffreAffaires)}) × 100 = ${kpis.tauxMargeBrute.toFixed(1)}%`,
     });
   } else if (kpis.tauxMargeBrute >= B.tauxMargeBrute * 0.9) {
     points.push({
       type: 'force',
       titre: 'Marge brute dans la norme sectorielle',
       description: `Le taux de marge brute de ${kpis.tauxMargeBrute.toFixed(1)}% est aligné avec la moyenne "${secteurLabel}" (${B.tauxMargeBrute}%).`,
+      formule: `Marge brute (${formatK(kpis.margeBrute)}) / CA (${formatK(kpis.chiffreAffaires)}) × 100 = ${kpis.tauxMargeBrute.toFixed(1)}%`,
     });
   }
 
@@ -243,6 +253,7 @@ function buildPointsDiscussion(
       type: 'force',
       titre: 'BFR négatif',
       description: `Le BFR est négatif : l'activité génère un excédent de trésorerie de cycle. Les fournisseurs financent une partie du cycle d'exploitation.`,
+      formule: `BFR = Stocks + Créances clients − Dettes fournisseurs − Dettes fiscales = ${formatK(kpis.bfr)}`,
     });
   }
 
@@ -253,6 +264,7 @@ function buildPointsDiscussion(
         type: 'force',
         titre: 'Trésorerie confortable',
         description: `La trésorerie nette représente ${moisCA} mois de CA, offrant une marge de sécurité pour absorber les imprévus.`,
+        formule: `Trésorerie nette (${formatK(kpis.tresorerieNette)}) / CA mensuel (${formatK(kpis.chiffreAffaires / 12)}) = ${moisCA} mois`,
       });
     }
   }
@@ -262,12 +274,14 @@ function buildPointsDiscussion(
       type: 'force',
       titre: 'Rentabilité supérieure au secteur',
       description: `L'exercice dégage une rentabilité nette de ${kpis.ratioRentabilite.toFixed(1)}%, au-dessus de la moyenne "${secteurLabel}" (${B.rentabiliteNette}%).`,
+      formule: `Résultat net (${formatK(kpis.resultatNet)}) / CA (${formatK(kpis.chiffreAffaires)}) × 100 = ${kpis.ratioRentabilite.toFixed(1)}%`,
     });
   } else if (kpis.resultatNet > 0) {
     points.push({
       type: 'force',
       titre: 'Exercice bénéficiaire',
       description: `L'exercice se clôture avec un résultat net positif (rentabilité de ${kpis.ratioRentabilite.toFixed(1)}%).`,
+      formule: `Résultat net (${formatK(kpis.resultatNet)}) / CA (${formatK(kpis.chiffreAffaires)}) × 100 = ${kpis.ratioRentabilite.toFixed(1)}%`,
     });
   }
 
@@ -277,6 +291,7 @@ function buildPointsDiscussion(
       type: 'force',
       titre: 'Endettement faible vs secteur',
       description: `Le ratio d'endettement est de ${ratioEndettement.valeur.toFixed(1)}%, soit la moitié de la moyenne "${secteurLabel}" (${B.endettement}%). La capacité d'emprunt est préservée.`,
+      formule: `Dettes financières / Capitaux propres × 100 = ${ratioEndettement.valeur.toFixed(1)}%`,
     });
   }
 
@@ -290,12 +305,14 @@ function buildPointsDiscussion(
         type: 'force',
         titre: 'EBE au-dessus de la moyenne sectorielle',
         description: `L'EBE représente ${tauxEBE.toFixed(1)}% du CA contre ${B.tauxEBE}% en moyenne pour le secteur "${secteurLabel}". La performance opérationnelle est solide.`,
+        formule: `EBE (${formatK(ebeMensuel)}) / CA (${formatK(kpis.chiffreAffaires)}) × 100 = ${tauxEBE.toFixed(1)}%`,
       });
     } else if (tauxEBE >= B.tauxEBE * 0.9) {
       points.push({
         type: 'force',
         titre: 'EBE dans la norme sectorielle',
         description: `L'EBE s'établit à ${tauxEBE.toFixed(1)}% du CA, aligné avec la moyenne du secteur "${secteurLabel}" (${B.tauxEBE}%).`,
+        formule: `EBE (${formatK(ebeMensuel)}) / CA (${formatK(kpis.chiffreAffaires)}) × 100 = ${tauxEBE.toFixed(1)}%`,
       });
     }
   }
@@ -307,6 +324,7 @@ function buildPointsDiscussion(
       type: 'vigilance',
       titre: 'Marge brute en-dessous du secteur',
       description: `Le taux de marge brute de ${kpis.tauxMargeBrute.toFixed(1)}% est inférieur à la moyenne "${secteurLabel}" (${B.tauxMargeBrute}%). Revoir la politique tarifaire ou les conditions d'achat.`,
+      formule: `Marge brute (${formatK(kpis.margeBrute)}) / CA (${formatK(kpis.chiffreAffaires)}) × 100 = ${kpis.tauxMargeBrute.toFixed(1)}%`,
     });
   }
 
@@ -319,6 +337,7 @@ function buildPointsDiscussion(
         type: 'vigilance',
         titre: 'Charges de personnel élevées',
         description: `Les charges de personnel représentent ${poidsPersonnel.toFixed(1)}% de la valeur ajoutée (seuil habituel : < 65%). Évaluer l'efficacité organisationnelle.`,
+        formule: `Charges personnel (${formatK(chargesPersonnel.montant)}) / VA (${formatK(va)}) × 100 = ${poidsPersonnel.toFixed(1)}%`,
       });
     }
   }
@@ -328,6 +347,7 @@ function buildPointsDiscussion(
       type: 'vigilance',
       titre: 'Endettement élevé vs secteur',
       description: `Le ratio d'endettement de ${ratioEndettement.valeur.toFixed(1)}% dépasse significativement la moyenne "${secteurLabel}" (${B.endettement}%). Veiller à la capacité de remboursement.`,
+      formule: `Dettes financières / Capitaux propres × 100 = ${ratioEndettement.valeur.toFixed(1)}%`,
     });
   }
 
@@ -336,6 +356,7 @@ function buildPointsDiscussion(
       type: 'vigilance',
       titre: 'Délais clients au-dessus du secteur',
       description: `Le délai moyen de paiement clients est de ${Math.round(kpis.delaiClientMoyen)} jours contre ${B.delaiClient} jours en moyenne pour le secteur "${secteurLabel}". La trésorerie en est directement impactée.`,
+      formule: `Créances clients / CA TTC × 365 = ${Math.round(kpis.delaiClientMoyen)} jours`,
     });
   }
 
@@ -346,6 +367,7 @@ function buildPointsDiscussion(
       type: 'action',
       titre: 'Exercice déficitaire',
       description: `L'exercice se clôture avec un résultat net négatif. Identifier les postes de charges à optimiser et les leviers de CA à activer en priorité.`,
+      formule: `Résultat net (${formatK(kpis.resultatNet)}) / CA (${formatK(kpis.chiffreAffaires)}) × 100 = ${kpis.ratioRentabilite.toFixed(1)}%`,
     });
   }
 
@@ -354,6 +376,7 @@ function buildPointsDiscussion(
       type: 'action',
       titre: 'Trésorerie négative',
       description: `La trésorerie nette est négative, signalant un risque de tension de cash. Envisager un rééchelonnement des dettes ou une ligne de crédit court terme.`,
+      formule: `Trésorerie nette = Banques (51x) + Caisse (53x) − Concours bancaires (519) = ${formatK(kpis.tresorerieNette)}`,
     });
   }
 
@@ -363,6 +386,7 @@ function buildPointsDiscussion(
       type: 'action',
       titre: 'BFR élevé vs secteur',
       description: `Le BFR représente ${bfrJours.valeur} jours de CA contre ${B.bfrJours} jours pour le secteur "${secteurLabel}". Négocier des délais fournisseurs plus longs ou raccourcir les délais clients.`,
+      formule: `BFR (${formatK(kpis.bfr)}) / CA (${formatK(kpis.chiffreAffaires)}) × 365 = ${bfrJours.valeur} jours`,
     });
   }
 
@@ -375,6 +399,7 @@ function buildPointsDiscussion(
         type: 'action',
         titre: 'Services extérieurs importants',
         description: `Les services extérieurs (sous-traitance, locations, honoraires...) pèsent ${pctServExt.toFixed(1)}% du CA. Passer en revue les contrats pour identifier des optimisations.`,
+        formule: `Services ext. (${formatK(totalServExt)}) / CA (${formatK(kpis.chiffreAffaires)}) × 100 = ${pctServExt.toFixed(1)}%`,
       });
     }
   }
@@ -394,18 +419,21 @@ function buildPointsDiscussion(
       type: 'force',
       titre: 'Équilibre financier respecté',
       description: `Le Fonds de Roulement (${formatK(equilibre.frng)}) couvre le BFR (${formatK(kpis.bfr)}). L'entreprise dispose d'un matelas de sécurité pour ses opérations courantes.`,
+      formule: `FRNG (${formatK(equilibre.frng)}) − BFR (${formatK(kpis.bfr)}) = excédent de ${formatK(equilibre.frng - kpis.bfr)}`,
     });
   } else if (equilibre.frng < 0) {
     points.push({
       type: 'action',
       titre: 'Fonds de roulement négatif',
       description: `Le FRNG est négatif (${formatK(equilibre.frng)}) : les immobilisations ne sont pas entièrement financées par des ressources stables. Envisager un renforcement des fonds propres ou un emprunt long terme.`,
+      formule: `FRNG = Capitaux permanents − Immobilisations = ${formatK(equilibre.frng)}`,
     });
   } else if (equilibre.frng > 0 && equilibre.frng < kpis.bfr) {
     points.push({
       type: 'vigilance',
       titre: 'FRNG insuffisant pour couvrir le BFR',
       description: `Le Fonds de Roulement (${formatK(equilibre.frng)}) ne couvre pas entièrement le BFR (${formatK(kpis.bfr)}). L'écart est financé par la trésorerie courante, ce qui peut créer des tensions.`,
+      formule: `FRNG (${formatK(equilibre.frng)}) − BFR (${formatK(kpis.bfr)}) = déficit de ${formatK(kpis.bfr - equilibre.frng)}`,
     });
   }
 
@@ -418,18 +446,21 @@ function buildPointsDiscussion(
         type: 'force',
         titre: 'Capacité d\'autofinancement solide',
         description: `La CAF s'élève à ${formatK(equilibre.caf)} (${cafPctCA.toFixed(1)}% du CA), offrant une bonne capacité de remboursement et d'investissement sans recours à l'endettement.`,
+        formule: `CAF (${formatK(equilibre.caf)}) / CA (${formatK(kpis.chiffreAffaires)}) × 100 = ${cafPctCA.toFixed(1)}%`,
       });
     } else if (cafPctCA >= 3) {
       points.push({
         type: 'vigilance',
         titre: 'CAF modérée',
         description: `La Capacité d'Autofinancement représente ${cafPctCA.toFixed(1)}% du CA (${formatK(equilibre.caf)}). Elle permet de couvrir les remboursements mais laisse peu de marge pour l'investissement.`,
+        formule: `CAF (${formatK(equilibre.caf)}) / CA (${formatK(kpis.chiffreAffaires)}) × 100 = ${cafPctCA.toFixed(1)}%`,
       });
     } else {
       points.push({
         type: 'action',
         titre: 'CAF faible',
         description: `La CAF ne représente que ${cafPctCA.toFixed(1)}% du CA. L'entreprise dispose de peu de ressources internes pour rembourser ses emprunts ou autofinancer ses investissements.`,
+        formule: `CAF (${formatK(equilibre.caf)}) / CA (${formatK(kpis.chiffreAffaires)}) × 100 = ${cafPctCA.toFixed(1)}%`,
       });
     }
   } else if (equilibre.caf <= 0) {
@@ -437,6 +468,7 @@ function buildPointsDiscussion(
       type: 'action',
       titre: 'Capacité d\'autofinancement négative',
       description: `La CAF est négative (${formatK(equilibre.caf)}). L'activité ne génère pas assez de trésorerie pour couvrir ses besoins. Revoir la structure de coûts en priorité.`,
+      formule: `CAF = Résultat net + Dotations (68x) − Reprises (78x) ± Cessions = ${formatK(equilibre.caf)}`,
     });
   }
 

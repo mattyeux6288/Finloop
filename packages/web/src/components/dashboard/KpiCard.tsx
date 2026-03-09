@@ -1,5 +1,6 @@
 import { TrendingUp, TrendingDown } from 'lucide-react';
-import { formatEur, formatPercent } from '@finthesis/shared';
+import { formatPercent } from '@finthesis/shared';
+import { useCurrencyFormat } from '@/hooks/useCurrencyFormat';
 
 interface KpiCardProps {
   label: string;
@@ -9,9 +10,10 @@ interface KpiCardProps {
 }
 
 export function KpiCard({ label, value, format = 'currency', trend }: KpiCardProps) {
+  const { formatCurrency } = useCurrencyFormat();
   const formattedValue =
     format === 'currency'
-      ? formatEur(value)
+      ? formatCurrency(value)
       : format === 'percent'
         ? formatPercent(value)
         : `${Math.round(value)} jours`;

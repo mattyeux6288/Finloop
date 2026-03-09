@@ -30,6 +30,7 @@ export interface RatioFinancier {
   seuil?: string;           // ex: "Norme > 20%"
   secteurMoyenne?: number;  // Moyenne sectorielle (NAF)
   secteurLibelle?: string;  // ex: "Moyenne Conseil informatique"
+  formule?: string;          // ex: "Marge brute (45 k€) / CA (120 k€) × 100"
 }
 
 // ---- POINTS DE DISCUSSION ----
@@ -38,6 +39,7 @@ export interface PointDiscussion {
   type: 'force' | 'vigilance' | 'action';
   titre: string;
   description: string;
+  formule?: string;          // ex: "Résultat net / CA × 100 = 5,2%"
 }
 
 // ---- RAPPORT COMPLET ----

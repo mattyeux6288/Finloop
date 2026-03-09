@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { useCompanyStore } from '@/store/companyStore';
 import { getCompteDeResultat } from '@/api/analysis.api';
-import { formatEur } from '@finthesis/shared';
+import { useCurrencyFormat } from '@/hooks/useCurrencyFormat';
 import type { ResultatSection } from '@finthesis/shared';
 
 function ResultSection({ section }: { section: ResultatSection }) {
+  const { formatCurrency } = useCurrencyFormat();
   return (
     <div className="mb-4">
       <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
@@ -16,13 +17,13 @@ function ResultSection({ section }: { section: ResultatSection }) {
             <tr key={i} className="border-b border-gray-100">
               <td className="py-1.5 text-gray-700 pl-4">{item.label}</td>
               <td className="py-1.5 text-right font-medium text-gray-900 w-36">
-                {formatEur(item.montant)}
+                {formatCurrency(item.montant)}
               </td>
             </tr>
           ))}
           <tr className="font-semibold">
             <td className="py-2 text-gray-900">Total</td>
-            <td className="py-2 text-right text-gray-900 w-36">{formatEur(section.total)}</td>
+            <td className="py-2 text-right text-gray-900 w-36">{formatCurrency(section.total)}</td>
           </tr>
         </tbody>
       </table>
@@ -31,16 +32,18 @@ function ResultSection({ section }: { section: ResultatSection }) {
 }
 
 function SubtotalRow({ label, value, highlight }: { label: string; value: number; highlight?: boolean }) {
+  const { formatCurrency } = useCurrencyFormat();
   const isNeg = value < 0;
   return (
     <div className={`flex justify-between py-3 px-4 rounded-lg mb-2 ${highlight ? 'bg-primary-50 text-primary-800 font-bold text-lg' : 'bg-gray-50 font-semibold'}`}>
       <span>{label}</span>
-      <span className={isNeg ? 'text-red-600' : ''}>{formatEur(value)}</span>
+      <span className={isNeg ? 'text-red-600' : ''}>{formatCurrency(value)}</span>
     </div>
   );
 }
 
 export function CompteResultatPage() {
+  const { formatCurrency } = useCurrencyFormat();
   const { selectedFiscalYear } = useCompanyStore();
 
   const { data: cr, isLoading } = useQuery({
@@ -76,7 +79,7 @@ export function CompteResultatPage() {
 
         <div className="flex justify-between py-2 px-4 text-sm">
           <span className="text-gray-600">Impôts sur les bénéfices</span>
-          <span className="font-medium">{formatEur(cr.impots)}</span>
+          <span className="font-medium">{formatCurrency(cr.impots)}</span>
         </div>
 
         <SubtotalRow label="Résultat net" value={cr.resultatNet} highlight />
