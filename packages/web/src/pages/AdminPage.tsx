@@ -1,6 +1,7 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { useAdminStore } from '@/store/adminStore';
 import { useAuthStore } from '@/store/authStore';
+import { useCompanyStore } from '@/store/companyStore';
 import {
   getUsers,
   createUser as apiCreateUser,
@@ -10,6 +11,7 @@ import {
   toggleUserActive as apiToggleUserActive,
   seedFec2024 as apiSeedFec2024,
 } from '@/api/admin.api';
+import { getCompanies, getFiscalYears } from '@/api/company.api';
 import {
   Shield,
   UserPlus,
@@ -34,6 +36,7 @@ export function AdminPage() {
   const { users, setUsers, addUser, removeUser, updateUserInStore, loading, setLoading } =
     useAdminStore();
   const { user: currentUser } = useAuthStore();
+  const { companies, setCompanies, selectedCompany, setFiscalYears } = useCompanyStore();
 
   // Create form
   const [email, setEmail] = useState('');
@@ -206,7 +209,26 @@ export function AdminPage() {
     setSeedLoading(true);
     try {
       const result = await apiSeedFec2024();
-      setMessage(result.message || 'FEC 2024 généré avec succès.');
+
+      // Rafraîchir la liste des entreprises pour récupérer le bon ID de Société Test
+      const freshCompanies = await getCompanies();
+      setCompanies(freshCompanies);
+
+      // Trouver "Société Test" dans la liste rafraîchie
+      const testCompany = freshCompanies.find((c: { name: string }) =>
+        c.name.toLowerCase().includes('test'),
+      ) ?? freshCompanies[0];
+
+      // Rafraîchir les exercices de cette entreprise (ajoute Exercice 2024 au store)
+      if (testCompany) {
+        const freshFy = await getFiscalYears(testCompany.id);
+        // Si l'entreprise sélectionnée est la même, mettre à jour ses exercices
+        if (!selectedCompany || selectedCompany.id === testCompany.id) {
+          setFiscalYears(freshFy);
+        }
+      }
+
+      setMessage(`${result.message} — Exercice 2024 maintenant disponible dans le sélecteur.`);
       setMessageType('success');
     } catch (err: any) {
       const apiError = err?.response?.data?.error;
