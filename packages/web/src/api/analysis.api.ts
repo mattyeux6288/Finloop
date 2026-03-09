@@ -30,6 +30,15 @@ export async function uploadFile(fyId: string, file: File) {
   return data;
 }
 
+export async function uploadFileAutoDetect(companyId: string, file: File) {
+  const formData = new FormData();
+  formData.append('file', file);
+  const { data } = await api.post(`/companies/${companyId}/import`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return data;
+}
+
 export interface ImportRecord {
   id: string;
   fiscal_year_id: string;

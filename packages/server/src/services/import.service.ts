@@ -5,6 +5,7 @@ import { db } from '../config/database';
 import { parseFec, validateFecEntries } from '@finthesis/engine';
 import { getCompteClasse, getCompteRacine, parseFecDate } from '@finthesis/shared';
 import type { FecEntry } from '@finthesis/shared';
+import { findOrCreateFiscalYear } from './company.service';
 
 export async function processImport(
   fiscalYearId: string,
@@ -131,6 +132,106 @@ async function insertEcritures(
     }));
 
     await db('ecritures').insert(rows);
+  }
+}
+
+/**
+ * Import FEC avec auto-détection de l'exercice fiscal.
+ * Parse le fichier → détecte les dates → find/create FY → importe les écritures.
+ */
+export async function processImportAutoDetect(
+  companyId: string,
+  filePath: string,
+  filename: string,
+) {
+  const ext = path.extname(filename).toLowerCase();
+  const fileType = ext === '.xlsx' || ext === '.xls' ? 'xlsx' : 'fec';
+
+  try {
+    // 1. Lire et parser le fichier
+    const content = fs.readFileSync(filePath, 'utf-8');
+    const parseResult = parseFec(content);
+
+    if (parseResult.errors.filter((e) => e.severity === 'error').length > 0) {
+      return {
+        importId: null,
+        fiscalYear: null,
+        status: 'failed',
+        errors: parseResult.errors,
+        warnings: parseResult.warnings,
+        stats: null,
+      };
+    }
+
+    // 2. Valider les écritures (extrait dateRange)
+    const validation = validateFecEntries(parseResult.entries);
+
+    if (!validation.isValid) {
+      return {
+        importId: null,
+        fiscalYear: null,
+        status: 'failed',
+        errors: validation.errors,
+        warnings: validation.warnings,
+        stats: validation.stats,
+      };
+    }
+
+    // 3. Extraire la plage de dates et convertir YYYYMMDD → YYYY-MM-DD
+    if (!validation.stats.dateRange) {
+      return {
+        importId: null,
+        fiscalYear: null,
+        status: 'failed',
+        errors: [{ line: 0, column: '', message: 'Aucune date trouvée dans le fichier FEC.', severity: 'error' as const }],
+        warnings: [],
+        stats: null,
+      };
+    }
+
+    const { start, end } = validation.stats.dateRange;
+    const startDate = `${start.substring(0, 4)}-${start.substring(4, 6)}-${start.substring(6, 8)}`;
+    const endDate = `${end.substring(0, 4)}-${end.substring(4, 6)}-${end.substring(6, 8)}`;
+
+    // 4. Trouver ou créer l'exercice fiscal
+    const fiscalYear = await findOrCreateFiscalYear(companyId, startDate, endDate);
+
+    // 5. Créer l'entrée d'import
+    const importId = uuid();
+    await db('imports').insert({
+      id: importId,
+      fiscal_year_id: fiscalYear.id,
+      filename,
+      file_type: fileType,
+      status: 'processing',
+    });
+
+    // 6. Insérer les écritures
+    await insertEcritures(importId, fiscalYear.id, parseResult.entries);
+
+    // 7. Invalider le cache des rapports
+    await db('computed_reports').where({ fiscal_year_id: fiscalYear.id }).del();
+
+    // 8. Mettre à jour le statut
+    await db('imports').where({ id: importId }).update({
+      status: 'completed',
+      row_count: parseResult.entries.length,
+    });
+
+    return {
+      importId,
+      fiscalYear,
+      status: 'completed',
+      errors: [],
+      warnings: [...parseResult.warnings, ...validation.warnings.map((w) => w.message)],
+      stats: validation.stats,
+    };
+  } catch (err) {
+    throw err;
+  } finally {
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
   }
 }
 

@@ -110,6 +110,37 @@ export async function updateFiscalYear(fyId: string, data: {
   return db('fiscal_years').where({ id: fyId }).first();
 }
 
+export async function findOrCreateFiscalYear(
+  companyId: string,
+  startDate: string,
+  endDate: string,
+) {
+  // Chercher un exercice existant avec dates identiques
+  const existing = await db('fiscal_years')
+    .where({ company_id: companyId, start_date: startDate, end_date: endDate })
+    .first();
+
+  if (existing) {
+    return { ...existing, created: false };
+  }
+
+  // Générer le label : "Exercice YYYY" (année de fin)
+  const endYear = parseInt(endDate.substring(0, 4), 10);
+  const label = `Exercice ${endYear}`;
+
+  const id = uuid();
+  await db('fiscal_years').insert({
+    id,
+    company_id: companyId,
+    label,
+    start_date: startDate,
+    end_date: endDate,
+  });
+
+  const created = await db('fiscal_years').where({ id }).first();
+  return { ...created, created: true };
+}
+
 export async function deleteFiscalYear(fyId: string) {
   const fy = await db('fiscal_years').where({ id: fyId }).first();
   if (!fy) throw new Error('Exercice fiscal introuvable.');

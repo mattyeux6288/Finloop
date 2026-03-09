@@ -1,13 +1,29 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useCompanyStore } from '@/store/companyStore';
-import { uploadFile, getImports, deleteImport, type ImportRecord } from '@/api/analysis.api';
-import { Upload, CheckCircle, XCircle, FileText, Trash2, X, Clock, AlertTriangle } from 'lucide-react';
+import { uploadFileAutoDetect, getImports, deleteImport, type ImportRecord } from '@/api/analysis.api';
+import { getFiscalYears } from '@/api/company.api';
+import { Upload, CheckCircle, XCircle, FileText, Trash2, X, Clock, AlertTriangle, CalendarCheck } from 'lucide-react';
+
+interface ImportResult {
+  status: string;
+  importId?: string | null;
+  fiscalYear?: {
+    id: string;
+    label: string;
+    start_date: string;
+    end_date: string;
+    created: boolean;
+  } | null;
+  stats?: Record<string, unknown>;
+  errors?: unknown[];
+  warnings?: string[];
+}
 
 export function ImportPage() {
-  const { selectedFiscalYear } = useCompanyStore();
+  const { selectedCompany, selectedFiscalYear, setFiscalYears, selectFiscalYear } = useCompanyStore();
   const [uploading, setUploading] = useState(false);
-  const [result, setResult] = useState<{ status: string; stats?: Record<string, unknown>; errors?: unknown[] } | null>(null);
+  const [result, setResult] = useState<ImportResult | null>(null);
 
   // Import history
   const [imports, setImports] = useState<ImportRecord[]>([]);
@@ -39,24 +55,32 @@ export function ImportPage() {
   }
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    if (!selectedFiscalYear || acceptedFiles.length === 0) return;
+    if (!selectedCompany || acceptedFiles.length === 0) return;
 
     const file = acceptedFiles[0];
     setUploading(true);
     setResult(null);
 
     try {
-      const response = await uploadFile(selectedFiscalYear.id, file);
+      const response = await uploadFileAutoDetect(selectedCompany.id, file);
       setResult(response.data);
-      // Rafraîchir la liste après un import réussi
-      await loadImports();
+
+      // Auto-sélectionner l'exercice créé/détecté
+      if (response.data?.fiscalYear) {
+        const fys = await getFiscalYears(selectedCompany.id);
+        setFiscalYears(fys);
+        const matchedFy = fys.find((fy: { id: string }) => fy.id === response.data.fiscalYear.id);
+        if (matchedFy) {
+          selectFiscalYear(matchedFy);
+        }
+      }
     } catch (err) {
       setResult({ status: 'failed', errors: [{ message: err instanceof Error ? err.message : 'Erreur' }] });
     } finally {
       setUploading(false);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedFiscalYear]);
+  }, [selectedCompany]);
 
   const handleDeleteImport = async (importId: string) => {
     try {
@@ -79,7 +103,7 @@ export function ImportPage() {
       'application/vnd.ms-excel': ['.xls'],
     },
     maxFiles: 1,
-    disabled: !selectedFiscalYear || uploading,
+    disabled: !selectedCompany || uploading,
   });
 
   const formatDate = (d: string) => {
@@ -89,10 +113,16 @@ export function ImportPage() {
     });
   };
 
-  if (!selectedFiscalYear) {
+  const formatDateShort = (d: string) => {
+    return new Date(d).toLocaleDateString('fr-FR', {
+      day: '2-digit', month: '2-digit', year: 'numeric',
+    });
+  };
+
+  if (!selectedCompany) {
     return (
       <div className="flex items-center justify-center h-64 text-gray-500">
-        Sélectionnez un exercice fiscal pour importer des données.
+        Sélectionnez une entreprise pour importer des données.
       </div>
     );
   }
@@ -121,6 +151,9 @@ export function ImportPage() {
             <p className="text-sm text-gray-500 mt-1">
               ou cliquez pour sélectionner un fichier (.txt, .csv, .xlsx)
             </p>
+            <p className="text-xs text-gray-400 mt-2">
+              L'exercice fiscal sera détecté automatiquement à partir des dates du fichier.
+            </p>
           </>
         )}
       </div>
@@ -144,6 +177,19 @@ export function ImportPage() {
               {result.status === 'completed' ? 'Import réussi' : 'Import échoué'}
             </span>
           </div>
+
+          {/* Info exercice fiscal détecté/créé */}
+          {result.status === 'completed' && result.fiscalYear && (
+            <div className="flex items-center gap-2 mb-3 text-sm text-green-700 bg-green-100 rounded-lg px-3 py-2">
+              <CalendarCheck className="w-4 h-4 shrink-0" />
+              <span>
+                {result.fiscalYear.created
+                  ? `Exercice fiscal créé : ${result.fiscalYear.label} (${formatDateShort(result.fiscalYear.start_date)} – ${formatDateShort(result.fiscalYear.end_date)})`
+                  : `Exercice fiscal détecté : ${result.fiscalYear.label}`
+                }
+              </span>
+            </div>
+          )}
 
           {result.stats && (
             <div className="grid grid-cols-2 gap-2 text-sm">
@@ -183,7 +229,9 @@ export function ImportPage() {
           </div>
         )}
 
-        {importsLoading ? (
+        {!selectedFiscalYear ? (
+          <p className="text-sm text-gray-500 py-4">Importez un fichier FEC pour voir l'historique.</p>
+        ) : importsLoading ? (
           <div className="flex items-center gap-2 text-gray-500 text-sm py-4">
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400"></div>
             Chargement...
@@ -198,7 +246,7 @@ export function ImportPage() {
                   /* Mode confirmation suppression */
                   <div className="space-y-3">
                     <p className="text-sm text-red-700 font-medium">
-                      Supprimer "{imp.filename}" ? Toutes les écritures importées seront supprimées.
+                      Supprimer &quot;{imp.filename}&quot; ? Toutes les écritures importées seront supprimées.
                     </p>
                     <div className="flex gap-2">
                       <button

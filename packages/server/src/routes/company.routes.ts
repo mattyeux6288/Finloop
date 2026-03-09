@@ -1,5 +1,7 @@
 import { Router, Response } from 'express';
 import * as companyService from '../services/company.service';
+import * as importService from '../services/import.service';
+import { upload } from '../middleware/upload.middleware';
 import { authMiddleware, AuthRequest } from '../middleware/auth.middleware';
 
 const router = Router();
@@ -50,6 +52,33 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
     res.json({ success: true });
   } catch (err) {
     res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: (err as Error).message } });
+  }
+});
+
+// Import FEC avec auto-détection de l'exercice fiscal
+router.post('/:companyId/import', upload.single('file'), async (req: AuthRequest, res: Response) => {
+  try {
+    if (!req.file) {
+      res.status(400).json({
+        success: false,
+        error: { code: 'NO_FILE', message: 'Aucun fichier fourni.' },
+      });
+      return;
+    }
+
+    const result = await importService.processImportAutoDetect(
+      req.params.companyId as string,
+      req.file.path,
+      req.file.originalname,
+    );
+
+    const statusCode = result.status === 'completed' ? 200 : 400;
+    res.status(statusCode).json({ success: result.status === 'completed', data: result });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      error: { code: 'IMPORT_ERROR', message: (err as Error).message },
+    });
   }
 });
 
