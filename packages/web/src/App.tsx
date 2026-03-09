@@ -1,9 +1,9 @@
 import { RouterProvider } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { router } from './router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Company } from '@finthesis/shared';
-import { useCompanyStore } from './store/companyStore';
+import { useCompanyStore, getSavedCompanyId, getSavedFyId } from './store/companyStore';
 import { useAuthStore } from './store/authStore';
 import { getCompanies, getFiscalYears } from './api/company.api';
 import { getMe } from './api/auth.api';
@@ -22,39 +22,106 @@ const queryClient = new QueryClient({
   },
 });
 
-function AppInitializer() {
-  const { setCompanies, selectedCompany, setFiscalYears } = useCompanyStore();
+// ─── AppInitializer ────────────────────────────────────────────────────────────
+// Charge les companies et exercices, tente l'auto-sélection depuis localStorage.
+// Appelle setAutoSelectDone() pour libérer la machine à états dès que c'est résolu.
+
+interface AppInitializerProps {
+  onAutoSelectDone: () => void;
+}
+
+function AppInitializer({ onAutoSelectDone }: AppInitializerProps) {
+  const { setCompanies, selectCompany, selectedCompany, setFiscalYears, selectFiscalYear } =
+    useCompanyStore();
   const { isAuthenticated } = useAuthStore();
+  const autoSelectAttempted = useRef(false);
 
+  // 1. Chargement des companies + auto-sélection
   useEffect(() => {
-    if (isAuthenticated) {
-      getCompanies().then(setCompanies).catch(() => {});
-    }
-  }, [isAuthenticated, setCompanies]);
+    if (!isAuthenticated) return;
+    if (autoSelectAttempted.current) return;
+    autoSelectAttempted.current = true;
 
+    getCompanies()
+      .then((companies) => {
+        setCompanies(companies);
+
+        if (companies.length === 0) {
+          onAutoSelectDone();
+          return;
+        }
+
+        const savedId = getSavedCompanyId();
+        let companyToSelect: Company | undefined;
+
+        if (savedId) {
+          companyToSelect = companies.find((c) => c.id === savedId);
+        }
+
+        // Fallback : 1 seule company → auto-sélection systématique
+        if (!companyToSelect && companies.length === 1) {
+          companyToSelect = companies[0];
+        }
+
+        if (companyToSelect) {
+          // Sélection directe, sans setPendingGreet → pas d'animation de bienvenue
+          selectCompany(companyToSelect);
+          // Le useEffect suivant s'occupera des FY
+        } else {
+          // Plusieurs companies, aucune sauvegardée → WelcomePage
+          onAutoSelectDone();
+        }
+      })
+      .catch(() => {
+        onAutoSelectDone();
+      });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated]);
+
+  // 2. Chargement des exercices + auto-sélection FY
   useEffect(() => {
-    if (selectedCompany) {
-      getFiscalYears(selectedCompany.id).then(setFiscalYears).catch(() => {});
-    }
-  }, [selectedCompany, setFiscalYears]);
+    if (!selectedCompany) return;
+
+    getFiscalYears(selectedCompany.id)
+      .then((fys) => {
+        setFiscalYears(fys);
+
+        if (fys.length === 0) {
+          onAutoSelectDone();
+          return;
+        }
+
+        const savedFyId = getSavedFyId();
+        const fy = fys.find((f) => f.id === savedFyId) ?? fys[0];
+        selectFiscalYear(fy);
+        onAutoSelectDone();
+      })
+      .catch(() => {
+        onAutoSelectDone();
+      });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCompany?.id]);
 
   return null;
 }
 
+// ─── App ──────────────────────────────────────────────────────────────────────
+
 export default function App() {
   const [splashDone, setSplashDone] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
+  const [autoSelectDone, setAutoSelectDone] = useState(false);
   const [pendingGreet, setPendingGreet] = useState<Company | null>(null);
+
   const { selectedCompany, selectCompany, setCompanies } = useCompanyStore();
   const { isAuthenticated, user, setUser, setSession, setLoading } = useAuthStore();
+  const { clearSession } = useCompanyStore();
 
-  // Initialize Supabase auth session
+  // ── Initialisation session Supabase ──
   useEffect(() => {
-    // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       if (session) {
-        // Fetch custom profile data from backend
         getMe()
           .then((me) => {
             setUser({
@@ -65,39 +132,48 @@ export default function App() {
             });
           })
           .catch(() => {});
+      } else {
+        // Pas de session → pas d'auto-sélection à attendre
+        setAutoSelectDone(true);
       }
       setLoading(false);
       setAuthChecked(true);
     });
 
-    // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setSession(session);
-        if (session) {
-          getMe()
-            .then((me) => setUser({
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (session) {
+        getMe()
+          .then((me) =>
+            setUser({
               id: me.id,
               email: me.email,
               displayName: me.display_name,
               role: me.role,
-            }))
-            .catch(() => {});
-        }
+            }),
+          )
+          .catch(() => {});
+      } else {
+        // Déconnexion → nettoyer le store company
+        clearSession();
+        setAutoSelectDone(true);
       }
-    );
+    });
 
     return () => subscription.unsubscribe();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // ── Handlers ──
   const handleLoginSuccess = () => {
-    // Reload companies after login
+    setAutoSelectDone(false); // relance la machine à états pour l'auto-sélection post-login
     getCompanies().then(setCompanies).catch(() => {});
   };
 
   const handleCompanySelect = (company: Company) => {
-    setPendingGreet(company);
+    setPendingGreet(company); // sélection manuelle → affiche le greeting
   };
 
   const handleGreetDone = () => {
@@ -107,15 +183,22 @@ export default function App() {
     setPendingGreet(null);
   };
 
+  // ── Machine à états ──
   const showSplash    = !splashDone;
   const showLogin     = splashDone && authChecked && !isAuthenticated;
   const showGreeting  = splashDone && authChecked && isAuthenticated && pendingGreet !== null;
-  const showWelcome   = splashDone && authChecked && isAuthenticated && !pendingGreet && !selectedCompany;
-  const showApp       = splashDone && authChecked && isAuthenticated && !pendingGreet && !!selectedCompany;
+  // WelcomePage : uniquement quand l'auto-sélection est terminée ET qu'aucune company n'est choisie
+  const showWelcome   = splashDone && authChecked && isAuthenticated && autoSelectDone
+                        && !pendingGreet && !selectedCompany;
+  const showApp       = splashDone && authChecked && isAuthenticated
+                        && !pendingGreet && !!selectedCompany;
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AppInitializer />
+      {/* AppInitializer lance l'auto-sélection dès qu'on est authentifié */}
+      {authChecked && isAuthenticated && (
+        <AppInitializer onAutoSelectDone={() => setAutoSelectDone(true)} />
+      )}
 
       {showSplash && <SplashScreen onDone={() => setSplashDone(true)} />}
 
