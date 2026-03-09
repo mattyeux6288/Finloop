@@ -8,6 +8,7 @@ import {
   updateUser as apiUpdateUser,
   resetUserPassword,
   toggleUserActive as apiToggleUserActive,
+  seedFec2024 as apiSeedFec2024,
 } from '@/api/admin.api';
 import {
   Shield,
@@ -204,10 +205,8 @@ export function AdminPage() {
     setMessage('');
     setSeedLoading(true);
     try {
-      const { data } = await import('@/api/client').then(({ default: api }) =>
-        api.post<{ success: boolean; data: { message: string; rowsInserted: number } }>('/admin/seed-fec-2024'),
-      );
-      setMessage(data.data?.message || 'FEC 2024 généré avec succès.');
+      const result = await apiSeedFec2024();
+      setMessage(result.message || 'FEC 2024 généré avec succès.');
       setMessageType('success');
     } catch (err: any) {
       const apiError = err?.response?.data?.error;

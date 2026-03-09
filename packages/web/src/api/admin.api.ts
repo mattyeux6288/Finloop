@@ -39,3 +39,8 @@ export async function toggleUserActive(userId: string): Promise<AdminUser> {
 export async function assignCompany(companyId: string, userId: string): Promise<void> {
   await api.put(`/admin/companies/${companyId}/assign/${userId}`);
 }
+
+export async function seedFec2024(): Promise<{ fiscalYearId: string; rowsInserted: number; message: string }> {
+  const { data } = await api.post<ApiResponse<{ fiscalYearId: string; rowsInserted: number; message: string }>>('/admin/seed-fec-2024');
+  return data.data!;
+}
