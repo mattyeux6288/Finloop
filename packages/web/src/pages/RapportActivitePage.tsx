@@ -55,58 +55,77 @@ const CHARGE_COLORS: Record<string, string> = {
 // ════════════════════════════════════════════
 // Section : En-tête du rapport
 // ════════════════════════════════════════════
+function formatDateFr(raw: string): string {
+  const d = new Date(raw);
+  if (isNaN(d.getTime())) return raw;
+  return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
+function formatDateLong(raw: string): string {
+  const d = new Date(raw);
+  if (isNaN(d.getTime())) return raw;
+  return d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+}
+
 function RapportHeader({ data }: { data: RapportActiviteData }) {
-  const date = new Date(data.genereA);
-  const dateStr = date.toLocaleDateString('fr-FR', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-  });
+  const dateStr = formatDateLong(data.genereA);
+  const debut = formatDateFr(data.entreprise.dateDebut);
+  const fin = formatDateFr(data.entreprise.dateFin);
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm print:shadow-none print:border-0">
-      <div className="flex items-start justify-between">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
+    <div className="bg-white rounded-xl border border-gray-200 shadow-sm print:shadow-none print:border-0 overflow-hidden">
+      {/* Barre supérieure verte */}
+      <div className="h-1.5 bg-gradient-to-r from-primary-700 via-primary-500 to-accent-500" />
+
+      <div className="p-8">
+        {/* Ligne 1 : Logo + Imprimer */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-gradient-brand flex items-center justify-center print:bg-primary-800">
               <span className="text-white font-bold text-lg">RC</span>
             </div>
             <div>
-              <p className="text-xs text-gray-400 leading-tight">Raly Conseils</p>
-              <p className="text-xs text-gray-400 leading-tight">Rapport d'activité 2.0</p>
+              <p className="text-sm font-semibold text-primary-700 leading-tight">Raly Conseils</p>
+              <p className="text-[11px] text-gray-400 leading-tight">Rapport d'activité</p>
             </div>
           </div>
+          <button
+            onClick={() => window.print()}
+            className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm print:hidden"
+          >
+            <Printer className="w-4 h-4" />
+            Imprimer / PDF
+          </button>
         </div>
-        <button
-          onClick={() => window.print()}
-          className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm print:hidden"
-        >
-          <Printer className="w-4 h-4" />
-          Imprimer / PDF
-        </button>
-      </div>
 
-      <div className="mt-6">
-        <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-          <Building2 className="w-8 h-8 text-primary-600" />
-          {data.entreprise.nom}
-        </h1>
-        <div className="flex items-center gap-6 mt-3 text-sm text-gray-500">
+        {/* Ligne 2 : Nom entreprise */}
+        <h1 className="text-2xl font-bold text-gray-900">{data.entreprise.nom}</h1>
+
+        {/* Ligne 3 : Badges infos */}
+        <div className="flex flex-wrap items-center gap-3 mt-4">
           {data.entreprise.siren && (
-            <span>SIREN : {data.entreprise.siren}</span>
+            <span className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600 bg-gray-100 px-3 py-1.5 rounded-full">
+              <Building2 className="w-3.5 h-3.5 text-gray-400" />
+              SIREN {data.entreprise.siren}
+            </span>
           )}
-          <span className="flex items-center gap-1">
-            <Calendar className="w-4 h-4" />
-            {data.entreprise.exercice} ({data.entreprise.dateDebut} au {data.entreprise.dateFin})
+          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-primary-700 bg-primary-50 px-3 py-1.5 rounded-full">
+            <Calendar className="w-3.5 h-3.5" />
+            {data.entreprise.exercice}
           </span>
+          <span className="inline-flex items-center gap-1.5 text-xs text-gray-500 bg-gray-50 px-3 py-1.5 rounded-full">
+            Du {debut} au {fin}
+          </span>
+          {data.entreprise.nafCode && (
+            <span className="inline-flex items-center gap-1.5 text-xs text-gray-500 bg-gray-50 px-3 py-1.5 rounded-full">
+              NAF {data.entreprise.nafCode}
+              {data.entreprise.nafLibelle && ` — ${data.entreprise.nafLibelle}`}
+            </span>
+          )}
         </div>
-        {data.entreprise.nafCode && (
-          <p className="text-xs text-gray-400 mt-1">
-            Code APE/NAF : {data.entreprise.nafCode}
-            {data.entreprise.nafLibelle && ` — ${data.entreprise.nafLibelle}`}
-          </p>
-        )}
-        <p className="text-xs text-gray-400 mt-1">Rapport généré le {dateStr}</p>
+
+        {/* Ligne 4 : Date de génération */}
+        <p className="text-[11px] text-gray-400 mt-4">Rapport généré le {dateStr}</p>
       </div>
     </div>
   );
