@@ -9,7 +9,6 @@ import { getCompanies, getFiscalYears } from './api/company.api';
 import { getMe } from './api/auth.api';
 import { supabase } from './config/supabase';
 import { SplashScreen } from './components/SplashScreen';
-import { WelcomeGreeting } from './components/WelcomeGreeting';
 import { WelcomePage } from './pages/WelcomePage';
 import { LoginPage } from './pages/LoginPage';
 
@@ -21,6 +20,17 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+// ─── Flag localStorage : l'utilisateur a déjà été accueilli ──────────────────
+const ONBOARDED_KEY = 'finloop_onboarded';
+
+function isOnboarded(): boolean {
+  return localStorage.getItem(ONBOARDED_KEY) === '1';
+}
+
+function markOnboarded(): void {
+  localStorage.setItem(ONBOARDED_KEY, '1');
+}
 
 // ─── AppInitializer ────────────────────────────────────────────────────────────
 // Charge les companies et exercices, tente l'auto-sélection depuis localStorage.
@@ -58,17 +68,15 @@ function AppInitializer({ onAutoSelectDone }: AppInitializerProps) {
           companyToSelect = companies.find((c) => c.id === savedId);
         }
 
-        // Fallback : 1 seule company → auto-sélection systématique
-        if (!companyToSelect && companies.length === 1) {
+        // Fallback : auto-sélection de la première company disponible
+        if (!companyToSelect && companies.length > 0) {
           companyToSelect = companies[0];
         }
 
         if (companyToSelect) {
-          // Sélection directe, sans setPendingGreet → pas d'animation de bienvenue
           selectCompany(companyToSelect);
           // Le useEffect suivant s'occupera des FY
         } else {
-          // Plusieurs companies, aucune sauvegardée → WelcomePage
           onAutoSelectDone();
         }
       })
@@ -111,10 +119,10 @@ export default function App() {
   const [splashDone, setSplashDone] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
   const [autoSelectDone, setAutoSelectDone] = useState(false);
-  const [pendingGreet, setPendingGreet] = useState<Company | null>(null);
+  const [onboarded, setOnboarded] = useState(isOnboarded());
 
   const { selectedCompany, selectCompany, setCompanies } = useCompanyStore();
-  const { isAuthenticated, user, setUser, setSession, setLoading } = useAuthStore();
+  const { isAuthenticated, setUser, setSession, setLoading } = useAuthStore();
   const { clearSession } = useCompanyStore();
 
   // ── Initialisation session Supabase ──
@@ -172,26 +180,21 @@ export default function App() {
     getCompanies().then(setCompanies).catch(() => {});
   };
 
-  const handleCompanySelect = (company: Company) => {
-    setPendingGreet(company); // sélection manuelle → affiche le greeting
-  };
-
-  const handleGreetDone = () => {
-    if (pendingGreet) {
-      selectCompany(pendingGreet);
-    }
-    setPendingGreet(null);
+  const handleWelcomeSelect = (company: Company) => {
+    selectCompany(company);
+    markOnboarded();
+    setOnboarded(true);
   };
 
   // ── Machine à états ──
-  const showSplash    = !splashDone;
-  const showLogin     = splashDone && authChecked && !isAuthenticated;
-  const showGreeting  = splashDone && authChecked && isAuthenticated && pendingGreet !== null;
-  // WelcomePage : uniquement quand l'auto-sélection est terminée ET qu'aucune company n'est choisie
-  const showWelcome   = splashDone && authChecked && isAuthenticated && autoSelectDone
-                        && !pendingGreet && !selectedCompany;
-  const showApp       = splashDone && authChecked && isAuthenticated
-                        && !pendingGreet && !!selectedCompany;
+  const showSplash   = !splashDone;
+  const showLogin    = splashDone && authChecked && !isAuthenticated;
+  // WelcomePage : uniquement à la première connexion ET aucune company sélectionnée
+  const showWelcome  = splashDone && authChecked && isAuthenticated && autoSelectDone
+                       && !onboarded && !selectedCompany;
+  // App : dès qu'on est onboardé OU qu'une company est sélectionnée
+  const showApp      = splashDone && authChecked && isAuthenticated && autoSelectDone
+                       && (onboarded || !!selectedCompany);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -204,15 +207,7 @@ export default function App() {
 
       {showLogin && <LoginPage onLoginSuccess={handleLoginSuccess} />}
 
-      {showGreeting && user && (
-        <WelcomeGreeting
-          firstName={user.displayName.split(' ')[0] || user.displayName}
-          lastName={user.displayName.split(' ').slice(1).join(' ') || ''}
-          onDone={handleGreetDone}
-        />
-      )}
-
-      {showWelcome && <WelcomePage onSelect={handleCompanySelect} />}
+      {showWelcome && <WelcomePage onSelect={handleWelcomeSelect} />}
 
       {showApp && <RouterProvider router={router} />}
     </QueryClientProvider>
