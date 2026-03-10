@@ -573,10 +573,9 @@ export async function getRapportActivite(fiscalYearId: string): Promise<RapportA
     buildTresorerieMensuelle(fiscalYearId),
   ]);
 
-  // Infos entreprise + NAF + dirigeant
+  // Infos entreprise + NAF
   const fy = await db('fiscal_years').where({ id: fiscalYearId }).first();
   const company = fy ? await db('companies').where({ id: fy.company_id }).first() : null;
-  const owner = company ? await db('users').where({ id: company.user_id }).first() : null;
 
   // Benchmark sectoriel
   const { benchmark } = getBenchmarkByNaf(company?.naf_code);
@@ -623,7 +622,7 @@ export async function getRapportActivite(fiscalYearId: string): Promise<RapportA
       dateFin: fy?.end_date || '',
       nafCode: company?.naf_code || undefined,
       nafLibelle: benchmark.libelle,
-      dirigeant: owner?.display_name || undefined,
+      dirigeant: company?.dirigeant || undefined,
     },
     kpis: dashboard.kpis,
     revenueMonthly: dashboard.revenueMonthly,

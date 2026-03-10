@@ -14,6 +14,7 @@ import * as m008 from './migrations/008_fix_password_hash_nullable';
 import * as m009 from './migrations/009_drop_password_hash';
 import * as m010 from './migrations/010_create_krokmou_conversations';
 import * as m011 from './migrations/011_create_krokmou_documents';
+import * as m012 from './migrations/012_add_dirigeant_to_companies';
 
 interface MigrationModule {
   up: (knex: Knex) => Promise<void>;
@@ -32,6 +33,7 @@ const ALL_MIGRATIONS: { name: string; mod: MigrationModule }[] = [
   { name: '009_drop_password_hash.ts',            mod: m009 },
   { name: '010_create_krokmou_conversations.ts', mod: m010 },
   { name: '011_create_krokmou_documents.ts',     mod: m011 },
+  { name: '012_add_dirigeant_to_companies.ts',  mod: m012 },
 ];
 
 export const migrationSource: Knex.MigrationSource<{ name: string; mod: MigrationModule }> = {

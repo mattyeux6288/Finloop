@@ -17,6 +17,7 @@ export interface Company {
   siret: string | null;
   nafCode: string | null;
   address: string | null;
+  dirigeant: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -37,6 +38,7 @@ export interface CreateCompanyDto {
   siret?: string;
   nafCode?: string;
   address?: string;
+  dirigeant?: string;
 }
 
 export interface CreateFiscalYearDto {

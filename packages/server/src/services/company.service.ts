@@ -23,6 +23,7 @@ export async function createCompany(userId: string, data: {
   siret?: string;
   nafCode?: string;
   address?: string;
+  dirigeant?: string;
 }) {
   const id = uuid();
   await db('companies').insert({
@@ -33,6 +34,7 @@ export async function createCompany(userId: string, data: {
     siret: data.siret || null,
     naf_code: data.nafCode || null,
     address: data.address || null,
+    dirigeant: data.dirigeant || null,
   });
   return db('companies').where({ id }).first();
 }
@@ -43,6 +45,7 @@ export async function updateCompany(companyId: string, data: {
   siret?: string;
   nafCode?: string;
   address?: string;
+  dirigeant?: string;
 }) {
   const updateData: Record<string, unknown> = { updated_at: new Date().toISOString() };
   if (data.name !== undefined) updateData.name = data.name;
@@ -50,6 +53,7 @@ export async function updateCompany(companyId: string, data: {
   if (data.siret !== undefined) updateData.siret = data.siret;
   if (data.nafCode !== undefined) updateData.naf_code = data.nafCode;
   if (data.address !== undefined) updateData.address = data.address;
+  if (data.dirigeant !== undefined) updateData.dirigeant = data.dirigeant;
 
   const count = await db('companies')
     .where({ id: companyId })

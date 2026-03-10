@@ -63,12 +63,17 @@ export function Header() {
     if (!newName.trim()) return;
     setCompanyLoading(true);
     try {
+      const firstDirigeant = sirenInfo?.dirigeants?.[0];
+      const dirigeant = firstDirigeant
+        ? [firstDirigeant.prenom, firstDirigeant.nom].filter(Boolean).join(' ').toUpperCase()
+        : undefined;
       const company = await createCompany({
         name: newName.trim(),
         siren: newSiren.trim() || undefined,
         siret: sirenInfo?.siret || undefined,
         nafCode: sirenInfo?.nafCode || undefined,
         address: sirenInfo?.adresse || undefined,
+        dirigeant,
       });
       setCompanies([...companies, company]);
       selectCompany(company);

@@ -66,12 +66,17 @@ export function WelcomePage({ onSelect }: Props) {
     if (!newName.trim()) return;
     setCreating(true);
     try {
+      const firstDirigeant = sirenInfo?.dirigeants?.[0];
+      const dirigeant = firstDirigeant
+        ? [firstDirigeant.prenom, firstDirigeant.nom].filter(Boolean).join(' ').toUpperCase()
+        : undefined;
       const company = await createCompany({
         name: newName.trim(),
         siren: newSiren || undefined,
         siret: sirenInfo?.siret,
         nafCode: sirenInfo?.nafCode,
         address: sirenInfo?.adresse,
+        dirigeant,
       });
       setCompanies([...companies, company]);
       onSelect(company);
