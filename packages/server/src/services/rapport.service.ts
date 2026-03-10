@@ -103,6 +103,8 @@ function buildRatios(
     return `Moyenne secteur : ${formatted}`;
   }
 
+  // ── Ratios SIG ──
+
   // 1. Taux de marge brute
   ratios.push({
     label: 'Taux de marge brute',
@@ -113,90 +115,10 @@ function buildRatios(
     secteurMoyenne: B.tauxMargeBrute,
     secteurLibelle: secteurLabel,
     formule: `Marge brute (${formatK(kpis.margeBrute)}) / CA (${formatK(kpis.chiffreAffaires)}) × 100`,
+    categorie: 'sig',
   });
 
-  // 2. Rentabilité nette
-  ratios.push({
-    label: 'Rentabilité nette',
-    valeur: kpis.ratioRentabilite,
-    unite: '%',
-    interpretation: interp(kpis.ratioRentabilite, B.rentabiliteNette, true),
-    seuil: seuilStr(B.rentabiliteNette, '%'),
-    secteurMoyenne: B.rentabiliteNette,
-    secteurLibelle: secteurLabel,
-    formule: `Résultat net (${formatK(kpis.resultatNet)}) / CA (${formatK(kpis.chiffreAffaires)}) × 100`,
-  });
-
-  // 3. Ratio d'endettement
-  const cp = bilan.passif.capitauxPropres.total;
-  const dettesFinancieres = bilan.passif.dettesFinancieres.total;
-  const ratioEndettement = cp !== 0 ? Math.round((dettesFinancieres / cp) * 10000) / 100 : 0;
-  ratios.push({
-    label: "Ratio d'endettement",
-    valeur: ratioEndettement,
-    unite: '%',
-    interpretation: interp(ratioEndettement, B.endettement, false), // moins = mieux
-    seuil: seuilStr(B.endettement, '%'),
-    secteurMoyenne: B.endettement,
-    secteurLibelle: secteurLabel,
-    formule: `Dettes financières (${formatK(dettesFinancieres)}) / Capitaux propres (${formatK(cp)}) × 100`,
-  });
-
-  // 4. Autonomie financière
-  const autonomie = bilan.passif.totalPassif !== 0
-    ? Math.round((cp / bilan.passif.totalPassif) * 10000) / 100
-    : 0;
-  ratios.push({
-    label: 'Autonomie financière',
-    valeur: autonomie,
-    unite: '%',
-    interpretation: interp(autonomie, B.autonomieFinanciere, true),
-    seuil: seuilStr(B.autonomieFinanciere, '%'),
-    secteurMoyenne: B.autonomieFinanciere,
-    secteurLibelle: secteurLabel,
-    formule: `Capitaux propres (${formatK(cp)}) / Total passif (${formatK(bilan.passif.totalPassif)}) × 100`,
-  });
-
-  // 5. BFR en jours de CA
-  const bfrJours = kpis.chiffreAffaires > 0
-    ? Math.round((kpis.bfr / kpis.chiffreAffaires) * 365)
-    : 0;
-  ratios.push({
-    label: 'BFR en jours de CA',
-    valeur: bfrJours,
-    unite: 'jours',
-    interpretation: interp(bfrJours, B.bfrJours, false), // moins = mieux
-    seuil: seuilStr(B.bfrJours, 'jours'),
-    secteurMoyenne: B.bfrJours,
-    secteurLibelle: secteurLabel,
-    formule: `BFR (${formatK(kpis.bfr)}) / CA (${formatK(kpis.chiffreAffaires)}) × 365`,
-  });
-
-  // 6. Délai client moyen
-  ratios.push({
-    label: 'Délai client moyen',
-    valeur: kpis.delaiClientMoyen,
-    unite: 'jours',
-    interpretation: interp(kpis.delaiClientMoyen, B.delaiClient, false),
-    seuil: seuilStr(B.delaiClient, 'jours'),
-    secteurMoyenne: B.delaiClient,
-    secteurLibelle: secteurLabel,
-    formule: `Créances clients / CA TTC × 365`,
-  });
-
-  // 7. Délai fournisseur moyen
-  ratios.push({
-    label: 'Délai fournisseur moyen',
-    valeur: kpis.delaiFournisseurMoyen,
-    unite: 'jours',
-    interpretation: kpis.delaiFournisseurMoyen >= B.delaiFournisseur * 0.5 && kpis.delaiFournisseurMoyen <= B.delaiFournisseur * 1.5 ? 'bon' : 'attention',
-    seuil: seuilStr(B.delaiFournisseur, 'jours'),
-    secteurMoyenne: B.delaiFournisseur,
-    secteurLibelle: secteurLabel,
-    formule: `Dettes fournisseurs / Achats TTC × 365`,
-  });
-
-  // 8. Taux de valeur ajoutée
+  // 2. Taux de valeur ajoutée
   const va = sig.valeurAjoutee.montant;
   const tauxVA = kpis.chiffreAffaires > 0
     ? Math.round((va / kpis.chiffreAffaires) * 10000) / 100
@@ -210,6 +132,112 @@ function buildRatios(
     secteurMoyenne: B.tauxVA,
     secteurLibelle: secteurLabel,
     formule: `Valeur ajoutée (${formatK(va)}) / CA (${formatK(kpis.chiffreAffaires)}) × 100`,
+    categorie: 'sig',
+  });
+
+  // 3. Taux d'EBE (nouveau)
+  const tauxEBE = kpis.chiffreAffaires > 0
+    ? Math.round((sig.ebe.montant / kpis.chiffreAffaires) * 10000) / 100
+    : 0;
+  ratios.push({
+    label: "Taux d'EBE",
+    valeur: tauxEBE,
+    unite: '%',
+    interpretation: interp(tauxEBE, B.tauxEBE, true),
+    seuil: seuilStr(B.tauxEBE, '%'),
+    secteurMoyenne: B.tauxEBE,
+    secteurLibelle: secteurLabel,
+    formule: `EBE (${formatK(sig.ebe.montant)}) / CA (${formatK(kpis.chiffreAffaires)}) × 100`,
+    categorie: 'sig',
+  });
+
+  // 4. Rentabilité nette
+  ratios.push({
+    label: 'Rentabilité nette',
+    valeur: kpis.ratioRentabilite,
+    unite: '%',
+    interpretation: interp(kpis.ratioRentabilite, B.rentabiliteNette, true),
+    seuil: seuilStr(B.rentabiliteNette, '%'),
+    secteurMoyenne: B.rentabiliteNette,
+    secteurLibelle: secteurLabel,
+    formule: `Résultat net (${formatK(kpis.resultatNet)}) / CA (${formatK(kpis.chiffreAffaires)}) × 100`,
+    categorie: 'sig',
+  });
+
+  // ── Ratios Bilan ──
+
+  // 5. Ratio d'endettement
+  const cp = bilan.passif.capitauxPropres.total;
+  const dettesFinancieres = bilan.passif.dettesFinancieres.total;
+  const ratioEndettement = cp !== 0 ? Math.round((dettesFinancieres / cp) * 10000) / 100 : 0;
+  ratios.push({
+    label: "Ratio d'endettement",
+    valeur: ratioEndettement,
+    unite: '%',
+    interpretation: interp(ratioEndettement, B.endettement, false), // moins = mieux
+    seuil: seuilStr(B.endettement, '%'),
+    secteurMoyenne: B.endettement,
+    secteurLibelle: secteurLabel,
+    formule: `Dettes financières (${formatK(dettesFinancieres)}) / Capitaux propres (${formatK(cp)}) × 100`,
+    categorie: 'bilan',
+  });
+
+  // 6. Autonomie financière
+  const autonomie = bilan.passif.totalPassif !== 0
+    ? Math.round((cp / bilan.passif.totalPassif) * 10000) / 100
+    : 0;
+  ratios.push({
+    label: 'Autonomie financière',
+    valeur: autonomie,
+    unite: '%',
+    interpretation: interp(autonomie, B.autonomieFinanciere, true),
+    seuil: seuilStr(B.autonomieFinanciere, '%'),
+    secteurMoyenne: B.autonomieFinanciere,
+    secteurLibelle: secteurLabel,
+    formule: `Capitaux propres (${formatK(cp)}) / Total passif (${formatK(bilan.passif.totalPassif)}) × 100`,
+    categorie: 'bilan',
+  });
+
+  // 7. BFR en jours de CA
+  const bfrJours = kpis.chiffreAffaires > 0
+    ? Math.round((kpis.bfr / kpis.chiffreAffaires) * 365)
+    : 0;
+  ratios.push({
+    label: 'BFR en jours de CA',
+    valeur: bfrJours,
+    unite: 'jours',
+    interpretation: interp(bfrJours, B.bfrJours, false), // moins = mieux
+    seuil: seuilStr(B.bfrJours, 'jours'),
+    secteurMoyenne: B.bfrJours,
+    secteurLibelle: secteurLabel,
+    formule: `BFR (${formatK(kpis.bfr)}) / CA (${formatK(kpis.chiffreAffaires)}) × 365`,
+    categorie: 'bilan',
+  });
+
+  // 8. Délai client moyen
+  ratios.push({
+    label: 'Délai client moyen',
+    valeur: kpis.delaiClientMoyen,
+    unite: 'jours',
+    interpretation: interp(kpis.delaiClientMoyen, B.delaiClient, false),
+    seuil: seuilStr(B.delaiClient, 'jours'),
+    secteurMoyenne: B.delaiClient,
+    secteurLibelle: secteurLabel,
+    formule: `Créances clients / CA TTC × 365`,
+    categorie: 'bilan',
+  });
+
+  // 9. Délai fournisseur moyen
+  ratios.push({
+    label: 'Délai fournisseur moyen',
+    valeur: kpis.delaiFournisseurMoyen,
+    unite: 'jours',
+    interpretation: kpis.delaiFournisseurMoyen >= B.delaiFournisseur * 0.5 && kpis.delaiFournisseurMoyen <= B.delaiFournisseur * 1.5 ? 'bon' : 'attention',
+    seuil: seuilStr(B.delaiFournisseur, 'jours'),
+    secteurMoyenne: B.delaiFournisseur,
+    secteurLibelle: secteurLabel,
+    formule: `Dettes fournisseurs / Achats TTC × 365`,
+    categorie: 'bilan',
   });
 
   return ratios;

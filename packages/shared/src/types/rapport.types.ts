@@ -31,6 +31,7 @@ export interface RatioFinancier {
   secteurMoyenne?: number;  // Moyenne sectorielle (NAF)
   secteurLibelle?: string;  // ex: "Moyenne Conseil informatique"
   formule?: string;          // ex: "Marge brute (45 k€) / CA (120 k€) × 100"
+  categorie?: 'sig' | 'bilan'; // Pour filtrage frontend SIG vs Bilan
 }
 
 // ---- POINTS DE DISCUSSION ----

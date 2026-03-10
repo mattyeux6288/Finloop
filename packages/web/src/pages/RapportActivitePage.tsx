@@ -2,41 +2,29 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useCompanyStore } from '@/store/companyStore';
 import { getRapportActivite } from '@/api/analysis.api';
-import { KpiCard } from '@/components/dashboard/KpiCard';
-import { RevenueBarChart } from '@/components/charts/RevenueBarChart';
-import { TresorerieChart } from '@/components/charts/TresorerieChart';
 import { formatPercent } from '@finthesis/shared';
 import { useCurrencyFormat } from '@/hooks/useCurrencyFormat';
 import type {
-  ChargeClassDetail,
   RatioFinancier,
-  PointDiscussion,
-  EquilibreFinancier,
   Bilan,
+  BilanSection,
+  BilanItem,
   Sig,
+  SigLevel,
+  ChargeClassDetail,
   RapportActiviteData,
 } from '@finthesis/shared';
 import {
   Printer,
   ChevronDown,
   ChevronRight,
-  CheckCircle2,
-  AlertTriangle,
-  AlertCircle,
   TrendingUp,
   Building2,
   Calendar,
   BarChart3,
-  Wallet,
-  Scale,
+  Info,
+  ArrowRight,
 } from 'lucide-react';
-
-// ── Couleurs SIG waterfall ──
-const SIG_COLORS: Record<string, string> = {
-  positive: '#6DC28A',
-  negative: '#ef4444',
-  neutral: '#94a3b8',
-};
 
 // ── Couleurs charges par classe ──
 const CHARGE_COLORS: Record<string, string> = {
@@ -53,8 +41,9 @@ const CHARGE_COLORS: Record<string, string> = {
 };
 
 // ════════════════════════════════════════════
-// Section : En-tête du rapport
+// Utilitaires
 // ════════════════════════════════════════════
+
 function formatDateFr(raw: string): string {
   const d = new Date(raw);
   if (isNaN(d.getTime())) return raw;
@@ -67,6 +56,97 @@ function formatDateLong(raw: string): string {
   return d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
 }
 
+// ════════════════════════════════════════════
+// Composant : Infobulle Expert
+// ════════════════════════════════════════════
+
+function ExpertTooltip({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="relative group/tip inline-flex ml-2 print:hidden">
+      <span className="w-5 h-5 rounded-full bg-accent-100 text-accent-600 text-[10px] flex items-center justify-center cursor-help font-bold shrink-0">
+        <Info className="w-3 h-3" />
+      </span>
+      <div className="absolute left-full top-1/2 -translate-y-1/2 ml-3 w-72 bg-gray-900 text-white text-xs rounded-lg p-3 shadow-xl opacity-0 group-hover/tip:opacity-100 transition-opacity pointer-events-none z-50 leading-relaxed">
+        {children}
+        <div className="absolute right-full top-1/2 -translate-y-1/2 w-0 h-0 border-t-4 border-b-4 border-r-4 border-transparent border-r-gray-900" />
+      </div>
+    </div>
+  );
+}
+
+// ════════════════════════════════════════════
+// Composant : Carte Ratio (réutilisable)
+// ════════════════════════════════════════════
+
+function RatioCard({ ratio }: { ratio: RatioFinancier }) {
+  const interpretationStyles = {
+    bon: { bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-700', dot: 'bg-green-500', bar: '#6DC28A' },
+    attention: { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', dot: 'bg-amber-500', bar: '#f59e0b' },
+    alerte: { bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-700', dot: 'bg-red-500', bar: '#ef4444' },
+  };
+
+  const formatVal = (valeur: number, unite: string) =>
+    unite === '%'
+      ? formatPercent(valeur)
+      : unite === 'jours'
+        ? `${Math.round(valeur)} j`
+        : valeur.toFixed(2);
+
+  const style = interpretationStyles[ratio.interpretation];
+  const formattedValue = formatVal(ratio.valeur, ratio.unite);
+  const hasSecteur = ratio.secteurMoyenne !== undefined;
+
+  let barPct = 100;
+  let secteurPct = 100;
+  if (hasSecteur && ratio.secteurMoyenne! > 0 && ratio.valeur > 0) {
+    const max = Math.max(ratio.valeur, ratio.secteurMoyenne!);
+    barPct = Math.round((ratio.valeur / max) * 100);
+    secteurPct = Math.round((ratio.secteurMoyenne! / max) * 100);
+  }
+
+  return (
+    <div className={`rounded-xl border p-4 ${style.bg} ${style.border} print:bg-white relative group`}>
+      <div className="flex items-center gap-2 mb-2">
+        <div className={`w-2.5 h-2.5 rounded-full ${style.dot}`} />
+        <span className="text-xs font-medium text-gray-600 leading-tight">{ratio.label}</span>
+      </div>
+      <p className={`text-lg font-bold ${style.text} leading-snug`}>{formattedValue}</p>
+
+      {hasSecteur && (
+        <div className="mt-2 space-y-1">
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-gray-400 w-14 shrink-0">Société</span>
+            <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div className="h-full rounded-full" style={{ width: `${barPct}%`, backgroundColor: style.bar }} />
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-gray-400 w-14 shrink-0">Secteur</span>
+            <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div className="h-full bg-gray-400 rounded-full" style={{ width: `${secteurPct}%` }} />
+            </div>
+            <span className="text-xs text-gray-400 ml-1">
+              {formatVal(ratio.secteurMoyenne!, ratio.unite)}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {ratio.formule && (
+        <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 w-72 text-center print:hidden">
+          <p className="font-medium mb-0.5">Formule :</p>
+          <p className="text-gray-300">{ratio.formule}</p>
+          <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900" />
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ════════════════════════════════════════════
+// En-tête du rapport
+// ════════════════════════════════════════════
+
 function RapportHeader({ data }: { data: RapportActiviteData }) {
   const dateStr = formatDateLong(data.genereA);
   const debut = formatDateFr(data.entreprise.dateDebut);
@@ -74,11 +154,9 @@ function RapportHeader({ data }: { data: RapportActiviteData }) {
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm print:shadow-none print:border-0 overflow-hidden">
-      {/* Barre supérieure verte */}
       <div className="h-1.5 bg-gradient-to-r from-primary-700 via-primary-500 to-accent-500" />
 
       <div className="p-8">
-        {/* Ligne 1 : Logo Raly Conseils + Imprimer */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <img
@@ -100,10 +178,8 @@ function RapportHeader({ data }: { data: RapportActiviteData }) {
           </button>
         </div>
 
-        {/* Ligne 2 : Nom entreprise */}
         <h1 className="text-2xl font-bold text-gray-900">{data.entreprise.nom}</h1>
 
-        {/* Ligne 3 : Badges infos */}
         <div className="flex flex-wrap items-center gap-3 mt-4">
           {data.entreprise.siren && (
             <span className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600 bg-gray-100 px-3 py-1.5 rounded-full">
@@ -131,7 +207,6 @@ function RapportHeader({ data }: { data: RapportActiviteData }) {
           )}
         </div>
 
-        {/* Ligne 4 : Date de génération */}
         <p className="text-[11px] text-gray-400 mt-4">Rapport généré le {dateStr}</p>
       </div>
     </div>
@@ -139,198 +214,82 @@ function RapportHeader({ data }: { data: RapportActiviteData }) {
 }
 
 // ════════════════════════════════════════════
-// Section : Synthèse exécutive (KPIs)
+// Dictionnaires d'infobulles expert-comptable
 // ════════════════════════════════════════════
-function SyntheseExecutive({ data }: { data: RapportActiviteData }) {
-  const { kpis } = data;
-  const { caf, frng } = data.equilibreFinancier;
-  return (
-    <section className="print:break-before-auto">
-      <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-        <BarChart3 className="w-5 h-5 text-accent-500" />
-        Synthèse exécutive
-      </h2>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <KpiCard label="Chiffre d'affaires" value={kpis.chiffreAffaires} />
-        <KpiCard label="Marge brute" value={kpis.margeBrute} />
-        <KpiCard label="Taux de marge" value={kpis.tauxMargeBrute} format="percent" />
-        <KpiCard label="EBE" value={kpis.ebe} />
-        <KpiCard label="Résultat net" value={kpis.resultatNet} />
-        <KpiCard label="Trésorerie" value={kpis.tresorerieNette} />
-      </div>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mt-4">
-        <KpiCard label="BFR" value={kpis.bfr} />
-        <KpiCard label="FRNG" value={frng} />
-        <KpiCard label="CAF" value={caf} />
-        <KpiCard label="Rentabilité nette" value={kpis.ratioRentabilite} format="percent" />
-        <KpiCard label="Délai client" value={kpis.delaiClientMoyen} format="days" />
-        <KpiCard label="Délai fournisseur" value={kpis.delaiFournisseurMoyen} format="days" />
-      </div>
-    </section>
-  );
-}
+
+const SIG_TOOLTIPS: Record<string, string> = {
+  'Marge commerciale':
+    "Reflète le pouvoir de négociation achats et le positionnement prix. Une marge en baisse peut signaler une pression concurrentielle ou une hausse des coûts d'approvisionnement. Point de discussion : renégocier les conditions fournisseurs.",
+  'Production de l\'exercice':
+    "Inclut la production vendue, stockée et immobilisée. Une production stockée élevée mérite attention : est-ce volontaire (constitution de stocks) ou subi (mévente) ?",
+  'Valeur ajoutée':
+    "C'est la richesse réellement créée par l'entreprise. Elle rémunère le personnel, l'État (impôts), les prêteurs (intérêts) et les actionnaires (dividendes). Un taux de VA élevé traduit une forte création de valeur interne.",
+  'EBE':
+    "L'EBE est l'indicateur roi de la performance opérationnelle. Il mesure la rentabilité du cycle d'exploitation, hors politique d'investissement et de financement. Un EBE négatif signale une activité structurellement déficitaire.",
+  'Résultat d\'exploitation':
+    "Intègre les dotations aux amortissements et provisions. Un écart significatif avec l'EBE révèle un poids important des investissements (amortissements) ou des risques provisionnés.",
+  'RCAI':
+    "Le Résultat Courant Avant Impôts intègre le coût de la dette. Un RCAI très inférieur au résultat d'exploitation signale un endettement coûteux. Point de discussion : renégocier les conditions bancaires.",
+  'Résultat exceptionnel':
+    "Les éléments exceptionnels (cessions, pénalités, subventions) ne sont pas récurrents. Un résultat net fortement impacté par l'exceptionnel doit être relativisé pour juger la performance réelle.",
+  'Résultat net':
+    "Bénéfice ou perte de l'exercice après impôts. C'est le solde disponible pour les réserves et les dividendes. Attention : un résultat net positif peut masquer des difficultés opérationnelles si gonflé par l'exceptionnel.",
+  'Plus ou moins-values de cession':
+    "Les cessions d'actifs impactent le résultat exceptionnel. Des plus-values récurrentes peuvent indiquer une stratégie de cession d'actifs pour maintenir artificiellement la rentabilité.",
+};
+
+const BILAN_ACTIF_TOOLTIPS: Record<string, string> = {
+  'Immobilisations':
+    "Vérifier la vétusté du parc (taux d'amortissement). Des immobilisations fortement amorties peuvent nécessiter des investissements de renouvellement. Point de discussion : plan d'investissement à moyen terme.",
+  'Stocks':
+    "Un stock élevé immobilise de la trésorerie. Évaluer la rotation des stocks et identifier les éventuels stocks obsolètes ou à déprécier. Objectif : optimiser le niveau de stock sans rupture.",
+  'Créances':
+    "Un encours clients important impacte directement la trésorerie. Analyser l'ancienneté des créances et identifier les retards de paiement. Point de discussion : procédures de relance et conditions de règlement.",
+  'Trésorerie':
+    "La trésorerie active (banques + caisse). Un excédent prolongé peut être placé. Un déficit chronique nécessite une ligne de crédit ou un ajustement du BFR.",
+};
+
+const BILAN_PASSIF_TOOLTIPS: Record<string, string> = {
+  'Capitaux propres':
+    "Le matelas de sécurité de l'entreprise. Des capitaux propres solides rassurent les partenaires financiers et offrent une capacité d'endettement. En dessous de 50% du total passif, l'autonomie financière est fragile.",
+  'Dettes financières':
+    "Les emprunts bancaires et dettes à moyen/long terme. Vérifier la capacité de remboursement (CAF/dettes) et le calendrier des échéances. Point de discussion : possibilité de refinancement.",
+  'Dettes fournisseurs':
+    "Le crédit fournisseur est un financement gratuit du cycle d'exploitation. Des délais trop courts pénalisent la trésorerie, mais des délais trop longs peuvent détériorer la relation commerciale.",
+  'Dettes fiscales et sociales':
+    "Les dettes envers l'État et les organismes sociaux. Des retards de paiement peuvent entraîner des pénalités et signalent une tension de trésorerie.",
+};
 
 // ════════════════════════════════════════════
-// Section : Évolution du CA
+// Section SIG
 // ════════════════════════════════════════════
-function EvolutionCA({ data }: { data: RapportActiviteData }) {
-  return (
-    <section className="print:break-before-page">
-      <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-        <TrendingUp className="w-5 h-5 text-accent-500" />
-        Évolution du chiffre d'affaires
-      </h2>
-      <RevenueBarChart data={data.revenueMonthly} dataN1={data.revenueMonthlyN1} />
-    </section>
-  );
-}
 
-// ════════════════════════════════════════════
-// Section : Trésorerie & Équilibre financier
-// ════════════════════════════════════════════
-function TresorerieSection({ data }: { data: RapportActiviteData }) {
-  return (
-    <section className="print:break-before-page">
-      <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-        <Wallet className="w-5 h-5 text-accent-500" />
-        Évolution de la trésorerie
-      </h2>
-      <TresorerieChart data={data.tresorerieMensuelle} />
-    </section>
-  );
-}
-
-function EquilibreFinancierSection({ equilibre }: { equilibre: EquilibreFinancier }) {
+function SIGSection({
+  sig,
+  ratios,
+  chargesDetaillees,
+  nafLibelle,
+}: {
+  sig: Sig;
+  ratios: RatioFinancier[];
+  chargesDetaillees: ChargeClassDetail[];
+  nafLibelle?: string;
+}) {
   const { formatCurrency } = useCurrencyFormat();
-  const { frng, bfr, tresorerieNette, caf, joursCA } = equilibre;
+  const [openLevels, setOpenLevels] = useState<Set<string>>(new Set());
+  const [openChargeClasses, setOpenChargeClasses] = useState<Set<string>>(new Set());
 
-  // Pour la visualisation de l'équation FRNG = BFR + Trésorerie
-  const maxVal = Math.max(Math.abs(frng), Math.abs(bfr) + Math.abs(tresorerieNette), 1);
-
-  const interpretFrng = frng > 0
-    ? (frng >= bfr ? 'bon' : 'attention')
-    : 'alerte';
-
-  const interpretCaf = caf > 0
-    ? (caf / Math.max(Math.abs(tresorerieNette), 1) >= 0.5 ? 'bon' : 'attention')
-    : 'alerte';
-
-  const styles = {
-    bon: 'bg-green-50 border-green-200 text-green-700',
-    attention: 'bg-amber-50 border-amber-200 text-amber-700',
-    alerte: 'bg-red-50 border-red-200 text-red-700',
+  const toggleLevel = (label: string) => {
+    setOpenLevels((prev) => {
+      const next = new Set(prev);
+      if (next.has(label)) next.delete(label);
+      else next.add(label);
+      return next;
+    });
   };
 
-  return (
-    <section className="print:break-before-auto">
-      <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-        <Scale className="w-5 h-5 text-accent-500" />
-        Équilibre financier
-      </h2>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Carte FRNG */}
-        <div className={`rounded-xl border p-5 ${styles[interpretFrng]} print:bg-white`}>
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <p className="text-xs font-medium opacity-75">Fonds de Roulement Net Global</p>
-              <p className="text-2xl font-bold mt-1">{formatCurrency(frng)}</p>
-            </div>
-            <div className="text-right text-xs opacity-75 space-y-0.5">
-              <p>Capitaux permanents − Immobilisations</p>
-            </div>
-          </div>
-
-          {/* Visualisation de l'équation FRNG = BFR + Trésorerie */}
-          <div className="mt-3 pt-3 border-t border-current/10">
-            <p className="text-xs font-semibold mb-2 opacity-80">FRNG = BFR + Trésorerie nette</p>
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-2">
-                <span className="text-xs w-24 shrink-0 opacity-70">FRNG</span>
-                <div className="flex-1 h-3 bg-white/50 rounded-full overflow-hidden">
-                  <div
-                    className="h-full rounded-full"
-                    style={{
-                      width: `${Math.max(2, (Math.abs(frng) / maxVal) * 100)}%`,
-                      backgroundColor: '#2D5A3D',
-                    }}
-                  />
-                </div>
-                <span className="text-xs font-semibold w-20 text-right">{formatCurrency(frng)}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs w-24 shrink-0 opacity-70">BFR</span>
-                <div className="flex-1 h-3 bg-white/50 rounded-full overflow-hidden">
-                  <div
-                    className="h-full rounded-full"
-                    style={{
-                      width: `${Math.max(2, (Math.abs(bfr) / maxVal) * 100)}%`,
-                      backgroundColor: '#E8621A',
-                    }}
-                  />
-                </div>
-                <span className="text-xs font-semibold w-20 text-right">{formatCurrency(bfr)}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs w-24 shrink-0 opacity-70">Trésorerie</span>
-                <div className="flex-1 h-3 bg-white/50 rounded-full overflow-hidden">
-                  <div
-                    className="h-full rounded-full"
-                    style={{
-                      width: `${Math.max(2, (Math.abs(tresorerieNette) / maxVal) * 100)}%`,
-                      backgroundColor: tresorerieNette >= 0 ? '#6DC28A' : '#ef4444',
-                    }}
-                  />
-                </div>
-                <span className="text-xs font-semibold w-20 text-right">{formatCurrency(tresorerieNette)}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Carte CAF */}
-        <div className={`rounded-xl border p-5 ${styles[interpretCaf]} print:bg-white`}>
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <p className="text-xs font-medium opacity-75">Capacité d'Autofinancement</p>
-              <p className="text-2xl font-bold mt-1">{formatCurrency(caf)}</p>
-            </div>
-            <div className="text-right text-xs opacity-75 space-y-0.5">
-              <p>Résultat net + Dotations</p>
-              <p>− Reprises ± Cessions</p>
-            </div>
-          </div>
-
-          <div className="mt-3 pt-3 border-t border-current/10 space-y-2">
-            <div className="flex items-center justify-between text-xs">
-              <span className="opacity-70">Autonomie de trésorerie</span>
-              <span className="font-bold text-base">{joursCA} jours de CA</span>
-            </div>
-            <p className="text-xs opacity-60">
-              {joursCA >= 90
-                ? 'Réserve confortable (> 3 mois de CA)'
-                : joursCA >= 30
-                  ? 'Réserve correcte (1-3 mois de CA)'
-                  : joursCA >= 0
-                    ? 'Réserve limitée (< 1 mois de CA)'
-                    : 'Trésorerie négative — situation critique'}
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ════════════════════════════════════════════
-// Section : Détail des charges
-// ════════════════════════════════════════════
-function ChargesDetailSection({ charges }: { charges: ChargeClassDetail[] }) {
-  const { formatCurrency } = useCurrencyFormat();
-  const [openClasses, setOpenClasses] = useState<Set<string>>(new Set());
-
-  const toggleClass = (code: string) => {
-    setOpenClasses((prev) => {
+  const toggleChargeClass = (code: string) => {
+    setOpenChargeClasses((prev) => {
       const next = new Set(prev);
       if (next.has(code)) next.delete(code);
       else next.add(code);
@@ -338,32 +297,59 @@ function ChargesDetailSection({ charges }: { charges: ChargeClassDetail[] }) {
     });
   };
 
-  const totalCharges = charges.reduce((sum, c) => sum + c.montant, 0);
+  // Niveaux SIG dans l'ordre classique
+  const sigSteps: { key: string; level: SigLevel }[] = [
+    { key: 'Marge commerciale', level: sig.margeCommerciale },
+    { key: 'Production de l\'exercice', level: sig.productionExercice },
+    { key: 'Valeur ajoutée', level: sig.valeurAjoutee },
+    { key: 'EBE', level: sig.ebe },
+    { key: 'Résultat d\'exploitation', level: sig.resultatExploitation },
+    { key: 'RCAI', level: sig.rcai },
+    { key: 'Résultat exceptionnel', level: sig.resultatExceptionnel },
+    { key: 'Résultat net', level: sig.resultatNet },
+    { key: 'Plus ou moins-values de cession', level: sig.plusMoinsValuesCessions },
+  ];
+
+  // Identifier les 3 plus gros postes (en valeur absolue) parmi tous les niveaux SIG
+  const allMontants = sigSteps
+    .filter(s => s.key !== 'Résultat net' && s.key !== 'Plus ou moins-values de cession')
+    .map(s => ({ key: s.key, montant: Math.abs(s.level.montant) }));
+  allMontants.sort((a, b) => b.montant - a.montant);
+  const top3Keys = new Set(allMontants.slice(0, 3).map(a => a.key));
+
+  // Le CA est la référence pour les barres proportionnelles
+  const maxAbsMontant = Math.max(...sigSteps.map(s => Math.abs(s.level.montant)), 1);
+
+  // Filtrer les ratios SIG
+  const sigRatios = ratios.filter(r => r.categorie === 'sig');
 
   return (
     <section className="print:break-before-page">
-      <h2 className="text-xl font-bold text-gray-900 mb-2 flex items-center gap-2">
-        <BarChart3 className="w-5 h-5 text-accent-500" />
-        Analyse détaillée des charges
+      <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+        <TrendingUp className="w-5 h-5 text-accent-500" />
+        Soldes Intermédiaires de Gestion (SIG)
       </h2>
-      <p className="text-sm text-gray-500 mb-4">
-        Total des charges : <span className="font-semibold text-gray-700">{formatCurrency(totalCharges)}</span>
-      </p>
 
-      <div className="space-y-3">
-        {charges.map((classe) => {
-          const isOpen = openClasses.has(classe.classeCode);
-          const barColor = CHARGE_COLORS[classe.classeCode] || '#6DC28A';
-          const barWidth = totalCharges > 0 ? Math.max(2, (classe.montant / totalCharges) * 100) : 0;
+      {/* Cascade SIG */}
+      <div className="space-y-2 mb-8">
+        {sigSteps.map(({ key, level }) => {
+          const isOpen = openLevels.has(key);
+          const isPositive = level.montant >= 0;
+          const isTop3 = top3Keys.has(key);
+          const isResultatNet = key === 'Résultat net';
+          const pct = (Math.abs(level.montant) / maxAbsMontant) * 100;
+          const tooltip = SIG_TOOLTIPS[key];
 
           return (
             <div
-              key={classe.classeCode}
-              className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden print:shadow-none"
+              key={key}
+              className={`bg-white rounded-xl border overflow-hidden shadow-sm print:shadow-none ${
+                isTop3 ? 'border-accent-300 ring-1 ring-accent-100' : 'border-gray-200'
+              } ${isResultatNet ? 'mt-4' : ''}`}
             >
-              {/* En-tête de classe */}
+              {/* En-tête du niveau SIG */}
               <button
-                onClick={() => toggleClass(classe.classeCode)}
+                onClick={() => toggleLevel(key)}
                 className="w-full px-5 py-4 flex items-center gap-3 hover:bg-gray-50 transition-colors text-left print:hover:bg-white"
               >
                 <span className="print:hidden">
@@ -373,51 +359,69 @@ function ChargesDetailSection({ charges }: { charges: ChargeClassDetail[] }) {
                     <ChevronRight className="w-4 h-4 text-gray-400" />
                   )}
                 </span>
-                <span
-                  className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold shrink-0"
-                  style={{ backgroundColor: barColor }}
-                >
-                  {classe.classeCode}
-                </span>
+
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-semibold text-gray-900 truncate">
-                      {classe.classeLabel}
-                    </span>
-                    <div className="flex items-center gap-3 shrink-0 ml-4">
-                      <span className="text-sm font-bold text-gray-900">{formatCurrency(classe.montant)}</span>
-                      <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
-                        {classe.pourcentage.toFixed(1)}%
+                  <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex items-center gap-1">
+                      <span className={`text-sm font-semibold ${
+                        isResultatNet ? 'text-gray-900 text-base' : 'text-gray-700'
+                      }`}>
+                        {level.label}
                       </span>
+                      {isTop3 && (
+                        <span className="text-[10px] bg-accent-100 text-accent-700 px-1.5 py-0.5 rounded-full font-medium ml-1">
+                          TOP 3
+                        </span>
+                      )}
+                      {tooltip && isTop3 && (
+                        <ExpertTooltip>
+                          <p className="font-medium text-accent-300 mb-1">{key}</p>
+                          <p>{tooltip}</p>
+                        </ExpertTooltip>
+                      )}
                     </div>
+                    <span className={`text-sm font-bold shrink-0 ml-4 ${
+                      isResultatNet
+                        ? (isPositive ? 'text-green-700 text-base' : 'text-red-600 text-base')
+                        : (isPositive ? 'text-gray-900' : 'text-red-600')
+                    }`}>
+                      {formatCurrency(level.montant)}
+                    </span>
                   </div>
+
                   {/* Barre proportionnelle */}
                   <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all duration-500"
-                      style={{ width: `${barWidth}%`, backgroundColor: barColor }}
+                      style={{
+                        width: `${Math.max(pct, 2)}%`,
+                        backgroundColor: isResultatNet
+                          ? (isPositive ? '#E8621A' : '#ef4444')
+                          : isTop3
+                            ? '#E8621A'
+                            : (isPositive ? '#6DC28A' : '#ef4444'),
+                      }}
                     />
                   </div>
                 </div>
               </button>
 
-              {/* Sous-comptes (dépliable) */}
-              {(isOpen || false) && classe.sousComptes.length > 0 && (
+              {/* Détails dépliables */}
+              {isOpen && level.details.length > 0 && (
                 <div className="border-t border-gray-100 px-5 py-3 bg-gray-50 print:bg-white">
                   <table className="w-full text-sm">
-                    <thead>
-                      <tr className="text-gray-400 text-xs">
-                        <th className="text-left pb-2 font-medium">Compte</th>
-                        <th className="text-left pb-2 font-medium">Libellé</th>
-                        <th className="text-right pb-2 font-medium">Montant</th>
-                      </tr>
-                    </thead>
                     <tbody>
-                      {classe.sousComptes.map((sc) => (
-                        <tr key={sc.compteNum} className="border-t border-gray-100">
-                          <td className="py-1.5 text-gray-500 font-mono text-xs">{sc.compteNum}</td>
-                          <td className="py-1.5 text-gray-700">{sc.label}</td>
-                          <td className="py-1.5 text-right font-medium text-gray-900">{formatCurrency(sc.montant)}</td>
+                      {level.details.map((d, i) => (
+                        <tr key={i} className="border-t border-gray-100 first:border-t-0">
+                          <td className="py-1.5 text-gray-600 flex items-center gap-1.5">
+                            <ArrowRight className="w-3 h-3 text-gray-300" />
+                            {d.label}
+                          </td>
+                          <td className={`py-1.5 text-right font-medium ${
+                            d.montant >= 0 ? 'text-gray-900' : 'text-red-600'
+                          }`}>
+                            {formatCurrency(d.montant)}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -425,341 +429,389 @@ function ChargesDetailSection({ charges }: { charges: ChargeClassDetail[] }) {
                 </div>
               )}
 
-              {/* En mode print, toujours afficher les sous-comptes */}
-              <div className="hidden print:block border-t border-gray-100 px-5 py-3">
-                {classe.sousComptes.length > 0 && (
+              {/* En mode print, toujours afficher les détails */}
+              {level.details.length > 0 && (
+                <div className="hidden print:block border-t border-gray-100 px-5 py-3">
                   <table className="w-full text-sm">
                     <tbody>
-                      {classe.sousComptes.map((sc) => (
-                        <tr key={sc.compteNum} className="border-t border-gray-100">
-                          <td className="py-1 text-gray-500 font-mono text-xs">{sc.compteNum}</td>
-                          <td className="py-1 text-gray-700">{sc.label}</td>
-                          <td className="py-1 text-right font-medium text-gray-900">{formatCurrency(sc.montant)}</td>
+                      {level.details.map((d, i) => (
+                        <tr key={i} className="border-t border-gray-100 first:border-t-0">
+                          <td className="py-1 text-gray-600">{d.label}</td>
+                          <td className="py-1 text-right font-medium text-gray-900">{formatCurrency(d.montant)}</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           );
         })}
+      </div>
+
+      {/* Détail des charges par classe PCG */}
+      {chargesDetaillees.length > 0 && (
+        <div className="mb-8">
+          <h3 className="text-base font-semibold text-gray-800 mb-3 flex items-center gap-2">
+            <BarChart3 className="w-4 h-4 text-gray-400" />
+            Détail des charges par classe
+          </h3>
+          <div className="space-y-2">
+            {chargesDetaillees.map((classe) => {
+              const isOpen = openChargeClasses.has(classe.classeCode);
+              const barColor = CHARGE_COLORS[classe.classeCode] || '#6DC28A';
+              const totalCharges = chargesDetaillees.reduce((sum, c) => sum + c.montant, 0);
+              const barWidth = totalCharges > 0 ? Math.max(2, (classe.montant / totalCharges) * 100) : 0;
+
+              return (
+                <div
+                  key={classe.classeCode}
+                  className="bg-white rounded-lg border border-gray-200 overflow-hidden"
+                >
+                  <button
+                    onClick={() => toggleChargeClass(classe.classeCode)}
+                    className="w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 transition-colors text-left"
+                  >
+                    <span className="print:hidden">
+                      {isOpen ? (
+                        <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
+                      ) : (
+                        <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                      )}
+                    </span>
+                    <span
+                      className="w-7 h-7 rounded-md flex items-center justify-center text-white text-xs font-bold shrink-0"
+                      style={{ backgroundColor: barColor }}
+                    >
+                      {classe.classeCode}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-medium text-gray-700 truncate">
+                          {classe.classeLabel}
+                        </span>
+                        <div className="flex items-center gap-2 shrink-0 ml-3">
+                          <span className="text-sm font-semibold text-gray-900">{formatCurrency(classe.montant)}</span>
+                          <span className="text-xs text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full">
+                            {classe.pourcentage.toFixed(1)}%
+                          </span>
+                        </div>
+                      </div>
+                      <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all duration-500"
+                          style={{ width: `${barWidth}%`, backgroundColor: barColor }}
+                        />
+                      </div>
+                    </div>
+                  </button>
+
+                  {isOpen && classe.sousComptes.length > 0 && (
+                    <div className="border-t border-gray-100 px-4 py-2 bg-gray-50">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="text-gray-400 text-xs">
+                            <th className="text-left pb-1.5 font-medium">Compte</th>
+                            <th className="text-left pb-1.5 font-medium">Libellé</th>
+                            <th className="text-right pb-1.5 font-medium">Montant</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {classe.sousComptes.map((sc) => (
+                            <tr key={sc.compteNum} className="border-t border-gray-100">
+                              <td className="py-1 text-gray-500 font-mono text-xs">{sc.compteNum}</td>
+                              <td className="py-1 text-gray-700">{sc.label}</td>
+                              <td className="py-1 text-right font-medium text-gray-900">{formatCurrency(sc.montant)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+
+                  {/* Print : toujours affiché */}
+                  {classe.sousComptes.length > 0 && (
+                    <div className="hidden print:block border-t border-gray-100 px-4 py-2">
+                      <table className="w-full text-sm">
+                        <tbody>
+                          {classe.sousComptes.map((sc) => (
+                            <tr key={sc.compteNum} className="border-t border-gray-100">
+                              <td className="py-1 text-gray-500 font-mono text-xs">{sc.compteNum}</td>
+                              <td className="py-1 text-gray-700">{sc.label}</td>
+                              <td className="py-1 text-right font-medium text-gray-900">{formatCurrency(sc.montant)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Ratios SIG */}
+      {sigRatios.length > 0 && (
+        <div>
+          <div className="flex items-start justify-between mb-3">
+            <h3 className="text-base font-semibold text-gray-800 flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 text-gray-400" />
+              Ratios liés au SIG
+            </h3>
+            {nafLibelle && (
+              <span className="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded-full">
+                Réf. : {nafLibelle}
+              </span>
+            )}
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {sigRatios.map((ratio, i) => (
+              <RatioCard key={i} ratio={ratio} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Encart Résultat Net final */}
+      <div className={`mt-6 rounded-xl border-2 p-5 ${
+        sig.resultatNet.montant >= 0
+          ? 'border-green-300 bg-green-50'
+          : 'border-red-300 bg-red-50'
+      } print:bg-white`}>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className={`text-lg font-bold ${
+              sig.resultatNet.montant >= 0 ? 'text-green-800' : 'text-red-800'
+            }`}>
+              Résultat net de l'exercice
+            </span>
+            <ExpertTooltip>
+              <p className="font-medium text-accent-300 mb-1">Résultat net</p>
+              <p>{SIG_TOOLTIPS['Résultat net']}</p>
+            </ExpertTooltip>
+          </div>
+          <span className={`text-2xl font-bold ${
+            sig.resultatNet.montant >= 0 ? 'text-green-700' : 'text-red-600'
+          }`}>
+            {formatCurrency(sig.resultatNet.montant)}
+          </span>
+        </div>
       </div>
     </section>
   );
 }
 
 // ════════════════════════════════════════════
-// Section : Bilan visuel
+// Section Bilan
 // ════════════════════════════════════════════
-function BilanVisualSection({ bilan }: { bilan: Bilan }) {
+
+function BilanSide({
+  title,
+  sections,
+  total,
+  tooltips,
+  top3Items,
+}: {
+  title: string;
+  sections: BilanSection[];
+  total: number;
+  tooltips: Record<string, string>;
+  top3Items: Set<string>;
+}) {
   const { formatCurrency } = useCurrencyFormat();
-  const actifItems = [
-    { label: 'Immobilisations', value: bilan.actif.immobilisations.total, color: '#1E3A30' },
-    { label: 'Stocks', value: bilan.actif.stocks.total, color: '#2D6B48' },
-    { label: 'Créances', value: bilan.actif.creances.total, color: '#6DC28A' },
-    { label: 'Trésorerie', value: bilan.actif.tresorerie.total, color: '#84caaa' },
-  ];
+  const [openSections, setOpenSections] = useState<Set<string>>(new Set());
 
-  const passifItems = [
-    { label: 'Capitaux propres', value: bilan.passif.capitauxPropres.total, color: '#1E3A30' },
-    { label: 'Dettes financières', value: bilan.passif.dettesFinancieres.total, color: '#E8621A' },
-    { label: 'Fournisseurs', value: bilan.passif.dettesFournisseurs.total, color: '#c94f0e' },
-    { label: 'Dettes fiscales', value: bilan.passif.dettesFiscales.total, color: '#f77c2e' },
-  ];
+  const toggleSection = (label: string) => {
+    setOpenSections((prev) => {
+      const next = new Set(prev);
+      if (next.has(label)) next.delete(label);
+      else next.add(label);
+      return next;
+    });
+  };
 
-  const renderBar = (items: typeof actifItems, total: number) => (
-    <div className="space-y-2">
-      <div className="flex h-10 rounded-lg overflow-hidden">
-        {items.map((item, i) => {
-          const pct = total > 0 ? (Math.abs(item.value) / total) * 100 : 0;
-          if (pct < 0.5) return null;
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm print:shadow-none">
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">
+        {title} <span className="text-sm font-normal text-gray-500">— {formatCurrency(total)}</span>
+      </h3>
+
+      <div className="space-y-3">
+        {sections.map((section) => {
+          const isOpen = openSections.has(section.label);
+          const isTop3 = top3Items.has(section.label);
+          const tooltip = tooltips[section.label];
+
           return (
             <div
-              key={i}
-              className="flex items-center justify-center text-white text-xs font-medium transition-all"
-              style={{ width: `${pct}%`, backgroundColor: item.color, minWidth: pct > 3 ? 'auto' : '0' }}
-              title={`${item.label}: ${formatCurrency(item.value)}`}
+              key={section.label}
+              className={`rounded-lg border overflow-hidden ${
+                isTop3 ? 'border-accent-300 bg-accent-50/30' : 'border-gray-100'
+              }`}
             >
-              {pct > 8 && `${Math.round(pct)}%`}
+              {/* En-tête de section bilan */}
+              <button
+                onClick={() => toggleSection(section.label)}
+                className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 transition-colors text-left"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="print:hidden">
+                    {isOpen ? (
+                      <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
+                    ) : (
+                      <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                    )}
+                  </span>
+                  <span className={`text-sm font-medium ${isTop3 ? 'text-accent-800' : 'text-gray-700'}`}>
+                    {section.label}
+                  </span>
+                  {isTop3 && (
+                    <span className="text-[10px] bg-accent-100 text-accent-700 px-1.5 py-0.5 rounded-full font-medium">
+                      TOP 3
+                    </span>
+                  )}
+                  {tooltip && isTop3 && (
+                    <ExpertTooltip>
+                      <p className="font-medium text-accent-300 mb-1">{section.label}</p>
+                      <p>{tooltip}</p>
+                    </ExpertTooltip>
+                  )}
+                </div>
+                <span className="text-sm font-bold text-gray-900 shrink-0 ml-3">
+                  {formatCurrency(section.total)}
+                </span>
+              </button>
+
+              {/* Items détaillés */}
+              {isOpen && section.items.length > 0 && (
+                <div className="border-t border-gray-100 px-4 py-2 bg-gray-50">
+                  <table className="w-full text-sm">
+                    <tbody>
+                      {section.items.map((item, i) => (
+                        <tr key={i} className="border-t border-gray-100 first:border-t-0">
+                          <td className="py-1 text-gray-500 font-mono text-xs w-16">{item.compteRacine}</td>
+                          <td className="py-1 text-gray-700">{item.label}</td>
+                          <td className={`py-1 text-right font-medium ${
+                            item.montant >= 0 ? 'text-gray-900' : 'text-red-600'
+                          }`}>
+                            {formatCurrency(item.montant)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {/* Print : toujours affiché */}
+              {section.items.length > 0 && (
+                <div className="hidden print:block border-t border-gray-100 px-4 py-2">
+                  <table className="w-full text-sm">
+                    <tbody>
+                      {section.items.map((item, i) => (
+                        <tr key={i} className="border-t border-gray-100 first:border-t-0">
+                          <td className="py-1 text-gray-500 font-mono text-xs w-16">{item.compteRacine}</td>
+                          <td className="py-1 text-gray-700">{item.label}</td>
+                          <td className="py-1 text-right font-medium text-gray-900">{formatCurrency(item.montant)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           );
         })}
       </div>
-      <div className="space-y-1">
-        {items.map((item, i) => (
-          <div key={i} className="flex items-center justify-between text-sm">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: item.color }} />
-              <span className="text-gray-700">{item.label}</span>
-            </div>
-            <span className="font-medium text-gray-900">{formatCurrency(item.value)}</span>
-          </div>
-        ))}
+
+      {/* Total */}
+      <div className="mt-4 pt-3 border-t-2 border-gray-300 flex items-center justify-between">
+        <span className="text-sm font-bold text-gray-900">Total {title.toLowerCase()}</span>
+        <span className="text-lg font-bold text-gray-900">{formatCurrency(total)}</span>
       </div>
     </div>
   );
+}
+
+function BilanDetailSection({
+  bilan,
+  ratios,
+  nafLibelle,
+}: {
+  bilan: Bilan;
+  ratios: RatioFinancier[];
+  nafLibelle?: string;
+}) {
+  // Identifier les 3 plus gros postes actif et passif
+  const actifSections: BilanSection[] = [
+    bilan.actif.immobilisations,
+    bilan.actif.stocks,
+    bilan.actif.creances,
+    bilan.actif.tresorerie,
+  ];
+
+  const passifSections: BilanSection[] = [
+    bilan.passif.capitauxPropres,
+    bilan.passif.dettesFinancieres,
+    bilan.passif.dettesFournisseurs,
+    bilan.passif.dettesFiscales,
+  ];
+
+  const sortedActif = [...actifSections].sort((a, b) => Math.abs(b.total) - Math.abs(a.total));
+  const top3Actif = new Set(sortedActif.slice(0, 3).map(s => s.label));
+
+  const sortedPassif = [...passifSections].sort((a, b) => Math.abs(b.total) - Math.abs(a.total));
+  const top3Passif = new Set(sortedPassif.slice(0, 3).map(s => s.label));
+
+  const bilanRatios = ratios.filter(r => r.categorie === 'bilan');
 
   return (
     <section className="print:break-before-page">
-      <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+      <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
         <BarChart3 className="w-5 h-5 text-accent-500" />
-        Structure du bilan
+        Bilan détaillé
       </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm print:shadow-none">
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">
-            Actif <span className="text-sm font-normal text-gray-500">— {formatCurrency(bilan.actif.totalActif)}</span>
-          </h3>
-          {renderBar(actifItems, bilan.actif.totalActif)}
-        </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm print:shadow-none">
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">
-            Passif <span className="text-sm font-normal text-gray-500">— {formatCurrency(bilan.passif.totalPassif)}</span>
-          </h3>
-          {renderBar(passifItems, bilan.passif.totalPassif)}
-        </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <BilanSide
+          title="Actif"
+          sections={actifSections}
+          total={bilan.actif.totalActif}
+          tooltips={BILAN_ACTIF_TOOLTIPS}
+          top3Items={top3Actif}
+        />
+        <BilanSide
+          title="Passif"
+          sections={passifSections}
+          total={bilan.passif.totalPassif}
+          tooltips={BILAN_PASSIF_TOOLTIPS}
+          top3Items={top3Passif}
+        />
       </div>
-    </section>
-  );
-}
 
-// ════════════════════════════════════════════
-// Section : Cascade SIG
-// ════════════════════════════════════════════
-function SigCascadeSection({ sig }: { sig: Sig }) {
-  const { formatCurrency } = useCurrencyFormat();
-  const steps = [
-    { label: 'Marge commerciale', value: sig.margeCommerciale.montant },
-    { label: 'Production', value: sig.productionExercice.montant },
-    { label: 'Valeur ajoutée', value: sig.valeurAjoutee.montant },
-    { label: 'EBE', value: sig.ebe.montant },
-    { label: "Résultat d'exploitation", value: sig.resultatExploitation.montant },
-    { label: 'RCAI', value: sig.rcai.montant },
-    { label: 'Résultat net', value: sig.resultatNet.montant },
-  ];
-
-  const maxAbs = Math.max(...steps.map((s) => Math.abs(s.value)), 1);
-
-  return (
-    <section className="print:break-before-page">
-      <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-        <TrendingUp className="w-5 h-5 text-accent-500" />
-        Cascade des Soldes Intermédiaires de Gestion
-      </h2>
-      <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm print:shadow-none">
-        <div className="space-y-3">
-          {steps.map((step, i) => {
-            const pct = (Math.abs(step.value) / maxAbs) * 100;
-            const isPositive = step.value >= 0;
-            const isLast = i === steps.length - 1;
-
-            return (
-              <div key={i} className="flex items-center gap-4">
-                <div className="w-48 shrink-0 text-right">
-                  <span className={`text-sm ${isLast ? 'font-bold text-gray-900' : 'text-gray-700'}`}>
-                    {step.label}
-                  </span>
-                </div>
-                <div className="flex-1 flex items-center gap-3">
-                  <div className="flex-1 h-8 relative">
-                    <div
-                      className="h-full rounded-md transition-all duration-500"
-                      style={{
-                        width: `${Math.max(pct, 2)}%`,
-                        backgroundColor: isLast
-                          ? (isPositive ? '#E8621A' : '#ef4444')
-                          : (isPositive ? SIG_COLORS.positive : SIG_COLORS.negative),
-                      }}
-                    />
-                  </div>
-                  <span className={`text-sm font-semibold w-36 shrink-0 text-right ${
-                    isPositive ? 'text-gray-900' : 'text-red-600'
-                  }`}>
-                    {formatCurrency(step.value)}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ════════════════════════════════════════════
-// Section : Ratios clés
-// ════════════════════════════════════════════
-function RatiosSection({ ratios, nafLibelle }: { ratios: RatioFinancier[]; nafLibelle?: string }) {
-  const interpretationStyles = {
-    bon: { bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-700', dot: 'bg-green-500', bar: '#6DC28A' },
-    attention: { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', dot: 'bg-amber-500', bar: '#f59e0b' },
-    alerte: { bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-700', dot: 'bg-red-500', bar: '#ef4444' },
-  };
-
-  const formatVal = (valeur: number, unite: string) =>
-    unite === '%'
-      ? formatPercent(valeur)
-      : unite === 'jours'
-        ? `${Math.round(valeur)} j`
-        : valeur.toFixed(2);
-
-  return (
-    <section className="print:break-before-page">
-      <div className="flex items-start justify-between mb-4">
-        <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-          <BarChart3 className="w-5 h-5 text-accent-500" />
-          Ratios et indicateurs clés
-        </h2>
-        {nafLibelle && (
-          <span className="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded-full">
-            Référence : {nafLibelle}
-          </span>
-        )}
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {ratios.map((ratio, i) => {
-          const style = interpretationStyles[ratio.interpretation];
-          const formattedValue = formatVal(ratio.valeur, ratio.unite);
-          const hasSecteur = ratio.secteurMoyenne !== undefined;
-
-          // Largeur de la barre comparée (valeur entreprise vs secteur)
-          let barPct = 100;
-          let secteurPct = 100;
-          if (hasSecteur && ratio.secteurMoyenne! > 0 && ratio.valeur > 0) {
-            const max = Math.max(ratio.valeur, ratio.secteurMoyenne!);
-            barPct = Math.round((ratio.valeur / max) * 100);
-            secteurPct = Math.round((ratio.secteurMoyenne! / max) * 100);
-          }
-
-          return (
-            <div
-              key={i}
-              className={`rounded-xl border p-4 ${style.bg} ${style.border} print:bg-white relative group`}
-            >
-              <div className="flex items-center gap-2 mb-2">
-                <div className={`w-2.5 h-2.5 rounded-full ${style.dot}`} />
-                <span className="text-xs font-medium text-gray-600 leading-tight">{ratio.label}</span>
-              </div>
-              <p className={`text-lg font-bold ${style.text} leading-snug`}>{formattedValue}</p>
-
-              {hasSecteur && (
-                <div className="mt-2 space-y-1">
-                  {/* Barre entreprise */}
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs text-gray-400 w-14 shrink-0">Société</span>
-                    <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-                      <div className="h-full rounded-full" style={{ width: `${barPct}%`, backgroundColor: style.bar }} />
-                    </div>
-                  </div>
-                  {/* Barre secteur */}
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs text-gray-400 w-14 shrink-0">Secteur</span>
-                    <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-                      <div className="h-full bg-gray-400 rounded-full" style={{ width: `${secteurPct}%` }} />
-                    </div>
-                    <span className="text-xs text-gray-400 ml-1">
-                      {formatVal(ratio.secteurMoyenne!, ratio.unite)}
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              {/* Tooltip formule au survol */}
-              {ratio.formule && (
-                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 w-72 text-center print:hidden">
-                  <p className="font-medium mb-0.5">Formule :</p>
-                  <p className="text-gray-300">{ratio.formule}</p>
-                  <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900" />
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-    </section>
-  );
-}
-
-// ════════════════════════════════════════════
-// Section : Points de discussion
-// ════════════════════════════════════════════
-function PointsDiscussionSection({ points }: { points: PointDiscussion[] }) {
-  const forces = points.filter((p) => p.type === 'force');
-  const vigilances = points.filter((p) => p.type === 'vigilance');
-  const actions = points.filter((p) => p.type === 'action');
-
-  const columns = [
-    {
-      title: 'Points forts',
-      icon: CheckCircle2,
-      items: forces,
-      bg: 'bg-green-50',
-      border: 'border-green-200',
-      iconColor: 'text-green-600',
-      titleColor: 'text-green-800',
-    },
-    {
-      title: 'Points de vigilance',
-      icon: AlertTriangle,
-      items: vigilances,
-      bg: 'bg-amber-50',
-      border: 'border-amber-200',
-      iconColor: 'text-amber-600',
-      titleColor: 'text-amber-800',
-    },
-    {
-      title: 'Actions recommandées',
-      icon: AlertCircle,
-      items: actions,
-      bg: 'bg-red-50',
-      border: 'border-red-200',
-      iconColor: 'text-red-600',
-      titleColor: 'text-red-800',
-    },
-  ];
-
-  return (
-    <section className="print:break-before-page">
-      <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-        <AlertTriangle className="w-5 h-5 text-accent-500" />
-        Pistes de réflexion et points de discussion
-      </h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {columns.map((col) => (
-          <div
-            key={col.title}
-            className={`rounded-xl border p-5 ${col.bg} ${col.border} print:bg-white`}
-          >
-            <h3 className={`text-sm font-semibold ${col.titleColor} flex items-center gap-2 mb-4`}>
-              <col.icon className={`w-5 h-5 ${col.iconColor}`} />
-              {col.title}
+      {/* Ratios Bilan */}
+      {bilanRatios.length > 0 && (
+        <div>
+          <div className="flex items-start justify-between mb-3">
+            <h3 className="text-base font-semibold text-gray-800 flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 text-gray-400" />
+              Ratios liés au bilan
             </h3>
-            {col.items.length === 0 ? (
-              <p className="text-sm text-gray-400 italic">Aucun point identifié</p>
-            ) : (
-              <ul className="space-y-3">
-                {col.items.map((item, i) => (
-                  <li key={i} className="relative group/point">
-                    <p className="text-sm font-semibold text-gray-900">{item.titre}</p>
-                    <p className="text-sm text-gray-600 mt-0.5">{item.description}</p>
-
-                    {/* Tooltip formule au survol */}
-                    {item.formule && (
-                      <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg shadow-lg opacity-0 group-hover/point:opacity-100 transition-opacity pointer-events-none z-50 w-72 text-center print:hidden">
-                        <p className="font-medium mb-0.5">Calcul :</p>
-                        <p className="text-gray-300">{item.formule}</p>
-                        <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900" />
-                      </div>
-                    )}
-                  </li>
-                ))}
-              </ul>
+            {nafLibelle && (
+              <span className="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded-full">
+                Réf. : {nafLibelle}
+              </span>
             )}
           </div>
-        ))}
-      </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            {bilanRatios.map((ratio, i) => (
+              <RatioCard key={i} ratio={ratio} />
+            ))}
+          </div>
+        </div>
+      )}
     </section>
   );
 }
@@ -767,6 +819,7 @@ function PointsDiscussionSection({ points }: { points: PointDiscussion[] }) {
 // ════════════════════════════════════════════
 // Page principale
 // ════════════════════════════════════════════
+
 export function RapportActivitePage() {
   const { selectedFiscalYear } = useCompanyStore();
 
@@ -804,15 +857,19 @@ export function RapportActivitePage() {
   return (
     <div className="max-w-5xl mx-auto space-y-8 pb-12 rapport-activite-container">
       <RapportHeader data={data} />
-      <SyntheseExecutive data={data} />
-      <EvolutionCA data={data} />
-      <TresorerieSection data={data} />
-      <EquilibreFinancierSection equilibre={data.equilibreFinancier} />
-      <ChargesDetailSection charges={data.chargesDetaillees} />
-      <BilanVisualSection bilan={data.bilan} />
-      <SigCascadeSection sig={data.sig} />
-      <RatiosSection ratios={data.ratios} nafLibelle={data.entreprise.nafLibelle} />
-      <PointsDiscussionSection points={data.pointsDiscussion} />
+
+      <SIGSection
+        sig={data.sig}
+        ratios={data.ratios}
+        chargesDetaillees={data.chargesDetaillees}
+        nafLibelle={data.entreprise.nafLibelle}
+      />
+
+      <BilanDetailSection
+        bilan={data.bilan}
+        ratios={data.ratios}
+        nafLibelle={data.entreprise.nafLibelle}
+      />
 
       {/* Footer print */}
       <div className="hidden print:block text-center text-xs text-gray-400 mt-8 pt-4 border-t border-gray-200">
