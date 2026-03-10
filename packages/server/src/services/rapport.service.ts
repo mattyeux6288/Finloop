@@ -575,7 +575,27 @@ export async function getRapportActivite(fiscalYearId: string): Promise<RapportA
 
   // Infos entreprise + NAF
   const fy = await db('fiscal_years').where({ id: fiscalYearId }).first();
-  const company = fy ? await db('companies').where({ id: fy.company_id }).first() : null;
+  let company = fy ? await db('companies').where({ id: fy.company_id }).first() : null;
+
+  // Dirigeant : lookup SIREN à la volée si absent en DB (sociétés créées avant la feature)
+  if (company && !company.dirigeant && company.siren) {
+    try {
+      const resp = await fetch(
+        `https://recherche-entreprises.api.gouv.fr/search?q=${company.siren}&page=1&per_page=1`,
+        { signal: AbortSignal.timeout(4000) }
+      );
+      if (resp.ok) {
+        const json = await resp.json() as Record<string, any>;
+        const firstDirigeant = json?.results?.[0]?.dirigeants?.[0];
+        if (firstDirigeant) {
+          const dirigeant = [firstDirigeant.prenoms, firstDirigeant.nom]
+            .filter(Boolean).join(' ').toUpperCase();
+          await db('companies').where({ id: company.id }).update({ dirigeant });
+          company = { ...company, dirigeant };
+        }
+      }
+    } catch { /* silencieux — le rapport reste valide sans dirigeant */ }
+  }
 
   // Benchmark sectoriel
   const { benchmark } = getBenchmarkByNaf(company?.naf_code);
