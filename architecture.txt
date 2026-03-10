@@ -1,0 +1,638 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    FINLOOP — ARCHITECTURE CIBLE                            ║
+║               Reorganisation francophone du monorepo                       ║
+║                        Raly Conseils — 2026                                ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  SOMMAIRE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  1.  Principes directeurs
+  2.  Vue d'ensemble du monorepo
+  3.  Package NOYAU   (types, constantes, utilitaires partagés)
+  4.  Package MOTEUR  (parseurs, analyseurs, validateurs financiers)
+  5.  Package API     (serveur Express, routes, services, base de données)
+  6.  Package INTERFACE (frontend React, vues, état, composants)
+  7.  Point d'entrée Vercel
+  8.  Base de données (schéma complet)
+  9.  Flux de données (de bout en bout)
+  10. Correspondance ancienne → nouvelle nomenclature
+  11. Conventions de nommage
+  12. Dépendances entre packages
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  1. PRINCIPES DIRECTEURS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ▸ Tout ce qui est lisible par un humain (noms de fichiers, dossiers, variables
+    métier) est en FRANÇAIS. Le code technique (React, Tailwind, Knex, etc.)
+    conserve ses termes anglais car ce sont des noms propres.
+
+  ▸ Un dossier = une responsabilité unique. On ne mélange jamais les couches.
+
+  ▸ Les fichiers sont nommés selon ce qu'ils FONT, pas selon leur type technique.
+    Exemple : "analyses.service.ts" dit clairement "je fournis des analyses",
+    pas juste "service.ts" ou "analysisService.ts".
+
+  ▸ Ordre de lecture naturel : de gauche à droite dans l'arborescence, on va
+    du plus général (configuration, types) au plus spécifique (vues, services).
+
+  ▸ Règle d'or : un développeur junior doit comprendre où se trouve n'importe
+    quel fichier en moins de 10 secondes.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  2. VUE D'ENSEMBLE DU MONOREPO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  finloop/
+  ├── packages/
+  │   ├── noyau/          ← Types, constantes, utilitaires (partagé par tous)
+  │   ├── moteur/         ← Calculs financiers (parseurs, analyseurs, validateurs)
+  │   ├── api/            ← Serveur HTTP (routes, services, base de données)
+  │   └── interface/      ← Frontend React (vues, composants, état)
+  │
+  ├── api/                ← Point d'entrée Vercel serverless
+  │   ├── [[...route]].ts ← Entrée unique, décore l'app Express
+  │   └── sante.ts        ← Endpoint de vérification (/api/sante)
+  │
+  ├── architecture.txt    ← CE FICHIER
+  ├── package.json        ← Configuration workspace npm
+  ├── tsconfig.base.json  ← TypeScript commun à tous les packages
+  └── vercel.json         ← Déploiement Vercel
+
+  Ordre de build obligatoire : noyau → moteur → api → interface
+  (chaque package dépend du précédent)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  3. PACKAGE NOYAU  (actuellement : packages/shared)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Rôle : Socle commun. Tout ce qui est partagé entre api/ et interface/.
+         Ne dépend d'aucun autre package Finloop.
+
+  packages/noyau/src/
+  │
+  ├── index.ts                        ← Réexporte tout
+  │
+  ├── types/
+  │   ├── index.ts                    ← Réexporte tous les types
+  │   ├── comptabilite.types.ts       ← Ecriture, CompteAggregate, PcgAccount
+  │   ├── entreprise.types.ts         ← Company, FiscalYear, CreateCompanyDto
+  │   ├── fec.types.ts                ← FecLine, FecImportResult, FecDateRange
+  │   ├── financier.types.ts          ← BilanData, ResultatData, SigData, KpiData
+  │   ├── rapport.types.ts            ← RapportActiviteData, RatioFinancier, ...
+  │   ├── administration.types.ts     ← AdminUser, AdminStats
+  │   └── api.types.ts                ← ApiResponse<T>, ErrorResponse
+  │
+  ├── constantes/
+  │   ├── index.ts
+  │   ├── pcg.constantes.ts           ← Plan Comptable Général (comptes 1 à 7)
+  │   ├── fec.constantes.ts           ← Colonnes FEC, séparateurs, formats
+  │   └── sig.constantes.ts           ← Définitions SIG (VA, EBE, Rex, Rnet)
+  │
+  └── utilitaires/
+      ├── index.ts
+      ├── comptabilite.utils.ts       ← Agrégation de comptes, totaux
+      ├── monnaie.utils.ts            ← Formatage €, k€, arrondi
+      └── dates.utils.ts             ← Parsing dates FEC (YYYYMMDD → Date)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  4. PACKAGE MOTEUR  (actuellement : packages/engine)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Rôle : Toute la logique de calcul financier, indépendante de la base de
+         données et du HTTP. Peut être testée unitairement en isolation totale.
+
+  Dépend de : noyau
+
+  packages/moteur/src/
+  │
+  ├── index.ts
+  │
+  ├── parseurs/
+  │   ├── fec.parseur.ts              ← Transforme fichier FEC → Ecriture[]
+  │   ├── csv.parseur.ts              ← Parse CSV générique → lignes
+  │   └── excel.parseur.ts           ← Parse fichier .xlsx → lignes
+  │
+  ├── validateurs/
+  │   └── fec.validateur.ts          ← Vérifie conformité FEC (colonnes, dates,
+  │                                     équilibre débit/crédit, dateRange)
+  │
+  ├── analyseurs/
+  │   ├── bilan.analyseur.ts          ← Ecriture[] → Bilan (Actif / Passif)
+  │   ├── resultat.analyseur.ts       ← Ecriture[] → Compte de Résultat
+  │   ├── sig.analyseur.ts            ← Ecriture[] → Soldes Intermédiaires de
+  │   │                                  Gestion (VA, MB, EBE, Rex, Rnet)
+  │   ├── indicateurs.analyseur.ts    ← Bilan + SIG → KPI (ratios, marges)
+  │   └── tresorerie.analyseur.ts     ← Ecriture[] → Flux de trésorerie mensuel
+  │
+  └── comparateurs/
+      └── annuel.comparateur.ts       ← Compare exercice N vs exercice N-1
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  5. PACKAGE API  (actuellement : packages/server)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Rôle : Serveur HTTP Express. Reçoit les requêtes, appelle les services,
+         persiste en base de données. Pas de logique de calcul (c'est le
+         rôle du moteur).
+
+  Dépend de : noyau, moteur
+
+  packages/api/src/
+  │
+  ├── application.ts                  ← Crée l'app Express, branche les routes
+  ├── serveur.ts                      ← Lance le serveur HTTP en dev local
+  │
+  ├── configuration/
+  │   ├── environnement.ts            ← Variables d'env (PORT, DB, Supabase...)
+  │   ├── base-de-donnees.ts          ← Connexion Knex (PostgreSQL / SQLite)
+  │   └── supabase.ts                 ← Client Supabase (auth, admin)
+  │
+  ├── filtres/                        ← (= middleware)
+  │   ├── authentification.ts         ← Vérifie JWT Supabase, popule req.userId
+  │   ├── administration.ts           ← Vérifie rôle admin (app_metadata.role)
+  │   └── telechargement.ts           ← Multer : upload fichiers FEC en /tmp
+  │
+  ├── routes/
+  │   ├── index.ts                    ← Branche toutes les routes sur /api/v1
+  │   ├── authentification.routes.ts  ← POST /connexion, GET /moi
+  │   ├── entreprises.routes.ts       ← CRUD /entreprises + exercices fiscaux
+  │   │                                  + POST /entreprises/:id/importer
+  │   ├── analyses.routes.ts          ← GET /exercices/:id/bilan
+  │   │                                  GET /exercices/:id/compte-resultat
+  │   │                                  GET /exercices/:id/sig
+  │   │                                  GET /exercices/:id/rapport-activite
+  │   └── administration.routes.ts    ← Routes admin (users, stats, sociétés)
+  │
+  ├── services/
+  │   ├── authentification.service.ts ← Valide token, récupère profil utilisateur
+  │   ├── entreprises.service.ts      ← CRUD entreprises + exercices fiscaux
+  │   │                                  + findOrCreateFiscalYear()
+  │   ├── imports.service.ts          ← Importe FEC, crée écritures, MAJ stats
+  │   ├── analyses.service.ts         ← Orchestre moteur + cache base de données
+  │   ├── rapport.service.ts          ← Assemble Rapport d'Activité complet
+  │   │                                  (KPI, ratios, benchmark NAF, points)
+  │   └── administration.service.ts   ← Stats admin, gestion utilisateurs
+  │
+  ├── base-de-donnees/
+  │   ├── source-migrations.ts        ← Liste statique des migrations (Vercel)
+  │   ├── migrations/
+  │   │   ├── 001_creation_utilisateurs.ts
+  │   │   ├── 002_creation_entreprises.ts
+  │   │   ├── 003_creation_exercices_fiscaux.ts
+  │   │   ├── 004_creation_imports.ts
+  │   │   ├── 005_creation_ecritures.ts
+  │   │   ├── 006_creation_cache_analyses.ts
+  │   │   ├── 007_ajout_role_admin.ts
+  │   │   ├── 008_correction_hash_nullable.ts
+  │   │   ├── 009_suppression_hash_mdp.ts
+  │   │   ├── 010_historique_krokmou_conv.ts
+  │   │   ├── 011_historique_krokmou_docs.ts
+  │   │   └── 012_dirigeant_entreprise.ts
+  │   └── initialisation/
+  │       └── donnees-test.ts         ← Seed : comptes de démo, FEC exemple
+  │
+  └── donnees/
+      └── benchmarks-naf.ts           ← Référentiel 244 codes NAF + ratios
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  6. PACKAGE INTERFACE  (actuellement : packages/web)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Rôle : Application React. Affiche les données, gère les interactions
+         utilisateur. Ne contient aucune logique de calcul financier.
+
+  Dépend de : noyau
+
+  packages/interface/src/
+  │
+  ├── Application.tsx                 ← Composant racine : machine à états
+  │                                     (EcranDemarrage → Connexion → App)
+  │                                     + AppInitialiseur (auto-sélection)
+  ├── principal.tsx                   ← Point d'entrée Vite
+  │
+  ├── styles/
+  │   └── globaux.css                 ← Tailwind + variables charte Raly Conseils
+  │
+  ├── configuration/
+  │   └── supabase.ts                 ← Client Supabase (authentification front)
+  │
+  ├── appels-api/                     ← Couche HTTP vers le backend
+  │   ├── client.ts                   ← Instance Axios + inject token JWT
+  │   ├── authentification.api.ts     ← login(), signup(), moi()
+  │   ├── entreprises.api.ts          ← getEntreprises(), getExercices(),
+  │   │                                  creerEntreprise(), importerFEC()
+  │   ├── analyses.api.ts             ← getBilan(), getResultat(), getSIG(),
+  │   │                                  getRapportActivite()
+  │   ├── administration.api.ts       ← getStats(), getUtilisateurs()...
+  │   └── siren.api.ts                ← Lookup INSEE (API externe gratuite)
+  │
+  ├── etat/                           ← Stores Zustand (état global)
+  │   ├── authentification.store.ts   ← user, session, isConnecte, deconnecter()
+  │   ├── entreprise.store.ts         ← entreprises[], entrepriseSelectionnee,
+  │   │                                  exercices[], exerciceSelectionne
+  │   ├── administration.store.ts     ← statsAdmin, utilisateurs[]
+  │   └── affichage.store.ts          ← modeMonnaire (€/k€), preferences UI
+  │
+  ├── composants/
+  │   ├── LogoFinloop.tsx             ← Logo SVG Finloop
+  │   ├── EcranDemarrage.tsx          ← Splash screen (1.6s, animé)
+  │   │
+  │   ├── mise-en-page/
+  │   │   ├── MiseEnPage.tsx          ← Layout principal : Sidebar + Entete + Contenu
+  │   │   ├── MenuLateral.tsx         ← Navigation : liens vers les vues
+  │   │   └── Entete.tsx              ← Sélecteurs entreprise/exercice, toggle €/k€
+  │   │
+  │   ├── graphiques/
+  │   │   ├── GraphiqueCA.tsx         ← Histogramme CA mensuel (Recharts)
+  │   │   ├── GraphiqueCharges.tsx    ← Camembert répartition charges
+  │   │   └── GraphiqueTresorerie.tsx ← Courbe trésorerie mensuelle
+  │   │
+  │   └── tableau-de-bord/
+  │       └── CarteIndicateur.tsx     ← Carte KPI (valeur + tendance + icone)
+  │
+  ├── vues/                           ← Pages (une vue = une URL)
+  │   ├── Connexion.tsx               ← Formulaire login (email + mdp Supabase)
+  │   ├── Accueil.tsx                 ← Tableau de bord : KPI + graphiques
+  │   ├── ImportFEC.tsx               ← Dropzone FEC, progression, résultats
+  │   ├── Bilan.tsx                   ← Bilan Actif / Passif
+  │   ├── CompteDeResultat.tsx        ← Compte de Résultat (produits / charges)
+  │   ├── SIG.tsx                     ← Soldes Intermédiaires de Gestion
+  │   ├── RapportActivite.tsx         ← Rapport d'activité complet (PDF)
+  │   ├── Parametres.tsx              ← Paramétrage entreprise, exercices
+  │   └── Administration.tsx          ← Console admin (utilisateurs, sociétés)
+  │
+  └── routeur/
+      ├── index.tsx                   ← Définit les routes React Router
+      └── RouteProtegeee.tsx          ← Garde : redirige si non connecté
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  7. POINT D'ENTRÉE VERCEL  (actuellement : api/)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  api/
+  ├── [[...route]].ts     ← Capte TOUTES les requêtes /api/**
+  │                          1. Exécute les migrations DB au 1er démarrage
+  │                          2. Crée les comptes de démonstration (seed)
+  │                          3. Passe la requête à l'app Express (packages/api)
+  └── sante.ts            ← GET /api/sante → { ok: true, version, timestamp }
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  8. BASE DE DONNÉES — SCHÉMA COMPLET
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  TABLE utilisateurs
+  ┌─────────────────┬────────────────┬───────────────────────────────────────┐
+  │ id              │ UUID (PK)      │ Identifiant unique Supabase           │
+  │ email           │ VARCHAR(255)   │ Unique                                │
+  │ nom_affiche     │ VARCHAR(100)   │ Prénom + Nom (issu de Supabase)       │
+  │ role            │ VARCHAR(20)    │ 'admin' ou 'user'                     │
+  │ cree_le         │ TIMESTAMP      │                                       │
+  │ modifie_le      │ TIMESTAMP      │                                       │
+  └─────────────────┴────────────────┴───────────────────────────────────────┘
+
+  TABLE entreprises
+  ┌─────────────────┬────────────────┬───────────────────────────────────────┐
+  │ id              │ UUID (PK)      │                                       │
+  │ utilisateur_id  │ UUID (FK)      │ → utilisateurs.id                     │
+  │ nom             │ VARCHAR(255)   │ Nom commercial                        │
+  │ siren           │ CHAR(9)        │ Numéro SIREN (INSEE)                  │
+  │ siret           │ CHAR(14)       │ Numéro SIRET (établissement principal)│
+  │ code_naf        │ VARCHAR(6)     │ Code NAF rev.2 (ex: 6622Z)            │
+  │ adresse         │ TEXT           │                                       │
+  │ dirigeant       │ VARCHAR(255)   │ Nom dirigeant (source: INSEE SIREN)   │
+  │ cree_le         │ TIMESTAMP      │                                       │
+  │ modifie_le      │ TIMESTAMP      │                                       │
+  └─────────────────┴────────────────┴───────────────────────────────────────┘
+
+  TABLE exercices_fiscaux
+  ┌─────────────────┬────────────────┬───────────────────────────────────────┐
+  │ id              │ UUID (PK)      │                                       │
+  │ entreprise_id   │ UUID (FK)      │ → entreprises.id                      │
+  │ libelle         │ VARCHAR(100)   │ Ex: "Exercice 2025"                   │
+  │ date_debut      │ DATE           │                                       │
+  │ date_fin        │ DATE           │                                       │
+  │ est_clos        │ BOOLEAN        │ Exercice archivé                      │
+  │ cree_le         │ TIMESTAMP      │                                       │
+  └─────────────────┴────────────────┴───────────────────────────────────────┘
+
+  TABLE imports
+  ┌─────────────────┬────────────────┬───────────────────────────────────────┐
+  │ id              │ UUID (PK)      │                                       │
+  │ exercice_id     │ UUID (FK)      │ → exercices_fiscaux.id                │
+  │ nom_fichier     │ VARCHAR(255)   │ Nom du FEC importé                    │
+  │ statut          │ VARCHAR(20)    │ 'succes', 'erreur', 'en_cours'        │
+  │ nb_ecritures    │ INTEGER        │ Nombre de lignes importées            │
+  │ erreurs         │ JSONB          │ Tableau des erreurs de validation     │
+  │ avertissements  │ JSONB          │ Tableau des avertissements            │
+  │ cree_le         │ TIMESTAMP      │                                       │
+  └─────────────────┴────────────────┴───────────────────────────────────────┘
+
+  TABLE ecritures   (cœur de la comptabilité — peut contenir des millions de lignes)
+  ┌─────────────────┬────────────────┬───────────────────────────────────────┐
+  │ id              │ UUID (PK)      │                                       │
+  │ import_id       │ UUID (FK)      │ → imports.id                          │
+  │ exercice_id     │ UUID (FK)      │ → exercices_fiscaux.id (index)        │
+  │ code_journal    │ VARCHAR(10)    │ Ex: "VTE", "ACH", "BQ"               │
+  │ date_ecriture   │ DATE           │                                       │
+  │ numero_compte   │ VARCHAR(20)    │ Numéro de compte PCG (ex: 411000)    │
+  │ libelle_compte  │ VARCHAR(255)   │                                       │
+  │ piece_ref       │ VARCHAR(50)    │ Numéro de pièce justificative         │
+  │ libelle         │ VARCHAR(500)   │ Description de l'opération            │
+  │ debit           │ DECIMAL(15,2)  │ Montant au débit                      │
+  │ credit          │ DECIMAL(15,2)  │ Montant au crédit                     │
+  └─────────────────┴────────────────┴───────────────────────────────────────┘
+
+  TABLE cache_analyses  (évite de recalculer les états à chaque requête)
+  ┌─────────────────┬────────────────┬───────────────────────────────────────┐
+  │ id              │ UUID (PK)      │                                       │
+  │ exercice_id     │ UUID (FK)      │ → exercices_fiscaux.id                │
+  │ type_rapport    │ VARCHAR(50)    │ 'bilan', 'resultat', 'sig', 'kpi'     │
+  │ donnees         │ JSONB          │ Résultat sérialisé                    │
+  │ calcule_le      │ TIMESTAMP      │ Invalidé à chaque nouvel import       │
+  └─────────────────┴────────────────┴───────────────────────────────────────┘
+
+  NOTE : Les tables krokmou_conversations, krokmou_messages, krokmou_documents
+         existent en base mais ne sont plus utilisées (fonctionnalité supprimée).
+         Elles peuvent être supprimées via une migration future.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  9. FLUX DE DONNÉES — DE BOUT EN BOUT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ┌─────────────────────────────────────────────────────────────────────────┐
+  │  CAS 1 : L'utilisateur importe un FEC                                   │
+  └─────────────────────────────────────────────────────────────────────────┘
+
+  [Interface] ImportFEC.tsx
+      │  dépose fichier .txt
+      ▼
+  [appels-api] entreprises.api.ts → POST /api/v1/entreprises/:id/importer
+      │  multipart/form-data
+      ▼
+  [API] filtres/telechargement.ts → sauvegarde en /tmp
+      │
+      ▼
+  [API] routes/entreprises.routes.ts → services/imports.service.ts
+      │
+      ├─→ [Moteur] parseurs/fec.parseur.ts      → Ecriture[]
+      ├─→ [Moteur] validateurs/fec.validateur.ts → erreurs, avertissements, dateRange
+      ├─→ [API] services/entreprises.service.ts  → findOrCreateFiscalYear()
+      ├─→ [DB] INSERT INTO imports (statut, nb_ecritures...)
+      ├─→ [DB] INSERT INTO ecritures (en batch)
+      └─→ [DB] DELETE FROM cache_analyses WHERE exercice_id = ?  (invalide le cache)
+      │
+      ▼
+  [Interface] Affiche : exercice créé/détecté + nb écritures + avertissements
+
+
+  ┌─────────────────────────────────────────────────────────────────────────┐
+  │  CAS 2 : L'utilisateur consulte le Rapport d'Activité                  │
+  └─────────────────────────────────────────────────────────────────────────┘
+
+  [Interface] RapportActivite.tsx
+      │  montage du composant
+      ▼
+  [appels-api] analyses.api.ts → GET /api/v1/exercices/:id/rapport-activite
+      ▼
+  [API] routes/analyses.routes.ts → services/rapport.service.ts
+      │
+      ├─→ [API] services/analyses.service.ts (bilan, sig, dashboard, trésorerie)
+      │       └─→ [DB] SELECT écritures WHERE exercice_id = ?
+      │       └─→ [Moteur] analyseurs/* → données financières calculées
+      │
+      ├─→ [DB] SELECT entreprises + exercices_fiscaux → infos société
+      ├─→ [API] données/benchmarks-naf.ts → ratios sectoriels (code NAF)
+      ├─→ [API externe] api.gouv.fr/SIREN → dirigeant (si absent en DB)
+      │
+      ├─→ buildChargesDetaillees()   → répartition charges par classe PCG
+      ├─→ buildEquilibreFinancier()  → FRNG, BFR, CAF, trésorerie nette
+      ├─→ buildRatios()              → 8 ratios vs benchmark sectoriel
+      └─→ buildPointsDiscussion()    → forces, vigilances, actions
+      │
+      ▼
+  [Interface] Affiche rapport : en-tête société + KPI + graphiques + ratios
+
+
+  ┌─────────────────────────────────────────────────────────────────────────┐
+  │  CAS 3 : Démarrage de l'application (refresh navigateur)               │
+  └─────────────────────────────────────────────────────────────────────────┘
+
+  [Interface] Application.tsx
+      │
+      ├─1→ EcranDemarrage (1.6 secondes, logo animé)
+      │
+      ├─2→ Vérification session Supabase (getSession)
+      │       └─ si pas de session → vue Connexion.tsx
+      │
+      ├─3→ AppInitialiseur : charge entreprises + auto-sélection
+      │       └─ [DB] getEntreprises() → utilise localStorage (finloop_company_id)
+      │       └─ si première visite (pas de finloop_onboarded) → WelcomePage
+      │       └─ sinon : auto-sélectionne la première entreprise
+      │
+      ├─4→ Charge exercices + auto-sélection (finloop_fy_id)
+      │
+      └─5→ RouterProvider → vue Accueil.tsx (Tableau de bord)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  10. CORRESPONDANCE ANCIENNE → NOUVELLE NOMENCLATURE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  PACKAGES
+  packages/shared/          →  packages/noyau/
+  packages/engine/          →  packages/moteur/
+  packages/server/          →  packages/api/
+  packages/web/             →  packages/interface/
+
+  DOSSIERS — BACKEND (packages/api)
+  src/config/               →  configuration/
+  src/middleware/           →  filtres/
+  src/routes/               →  routes/               (inchangé)
+  src/services/             →  services/             (inchangé)
+  src/db/migrations/        →  base-de-donnees/migrations/
+  src/db/migrationSource.ts →  base-de-donnees/source-migrations.ts
+  src/db/seeds/             →  base-de-donnees/initialisation/
+  src/data/                 →  donnees/
+
+  DOSSIERS — FRONTEND (packages/interface)
+  src/api/                  →  appels-api/
+  src/store/                →  etat/
+  src/components/           →  composants/
+  src/components/layout/    →  composants/mise-en-page/
+  src/components/charts/    →  composants/graphiques/
+  src/components/dashboard/ →  composants/tableau-de-bord/
+  src/pages/                →  vues/
+  src/router/               →  routeur/
+
+  FICHIERS — BACKEND
+  src/app.ts                →  application.ts
+  src/index.ts              →  serveur.ts
+  middleware/auth.middleware.ts      →  filtres/authentification.ts
+  middleware/admin.middleware.ts     →  filtres/administration.ts
+  middleware/upload.middleware.ts    →  filtres/telechargement.ts
+  routes/auth.routes.ts              →  routes/authentification.routes.ts
+  routes/company.routes.ts           →  routes/entreprises.routes.ts
+  routes/import.routes.ts            →  (fusionné dans entreprises.routes.ts)
+  routes/analysis.routes.ts          →  routes/analyses.routes.ts
+  routes/admin.routes.ts             →  routes/administration.routes.ts
+  services/auth.service.ts           →  services/authentification.service.ts
+  services/company.service.ts        →  services/entreprises.service.ts
+  services/import.service.ts         →  services/imports.service.ts
+  services/analysis.service.ts       →  services/analyses.service.ts
+  services/admin.service.ts          →  services/administration.service.ts
+  services/admin.seed.service.ts     →  base-de-donnees/initialisation/donnees-test.ts
+  data/naf-benchmarks.ts             →  donnees/benchmarks-naf.ts
+
+  FICHIERS — FRONTEND
+  App.tsx                            →  Application.tsx
+  main.tsx                           →  principal.tsx
+  styles/globals.css                 →  styles/globaux.css
+  api/client.ts                      →  appels-api/client.ts
+  api/auth.api.ts                    →  appels-api/authentification.api.ts
+  api/company.api.ts                 →  appels-api/entreprises.api.ts
+  api/analysis.api.ts                →  appels-api/analyses.api.ts
+  api/admin.api.ts                   →  appels-api/administration.api.ts
+  store/authStore.ts                 →  etat/authentification.store.ts
+  store/companyStore.ts              →  etat/entreprise.store.ts
+  store/adminStore.ts                →  etat/administration.store.ts
+  store/displayStore.ts              →  etat/affichage.store.ts
+  components/SplashScreen.tsx        →  composants/EcranDemarrage.tsx
+  components/layout/AppLayout.tsx    →  composants/mise-en-page/MiseEnPage.tsx
+  components/layout/Header.tsx       →  composants/mise-en-page/Entete.tsx
+  components/layout/Sidebar.tsx      →  composants/mise-en-page/MenuLateral.tsx
+  components/charts/RevenueBarChart.tsx    →  composants/graphiques/GraphiqueCA.tsx
+  components/charts/ExpensePieChart.tsx    →  composants/graphiques/GraphiqueCharges.tsx
+  components/charts/TresorerieChart.tsx    →  composants/graphiques/GraphiqueTresorerie.tsx
+  components/dashboard/KpiCard.tsx         →  composants/tableau-de-bord/CarteIndicateur.tsx
+  pages/LoginPage.tsx                →  vues/Connexion.tsx
+  pages/DashboardPage.tsx            →  vues/Accueil.tsx
+  pages/ImportPage.tsx               →  vues/ImportFEC.tsx
+  pages/BilanPage.tsx                →  vues/Bilan.tsx
+  pages/CompteResultatPage.tsx       →  vues/CompteDeResultat.tsx
+  pages/SigPage.tsx                  →  vues/SIG.tsx
+  pages/RapportActivitePage.tsx      →  vues/RapportActivite.tsx
+  pages/SettingsPage.tsx             →  vues/Parametres.tsx
+  pages/AdminPage.tsx                →  vues/Administration.tsx
+  router/ProtectedRoute.tsx          →  routeur/RouteProtegee.tsx
+
+  FICHIERS — PARTAGÉS (packages/noyau)
+  types/accounting.types.ts          →  types/comptabilite.types.ts
+  types/company.types.ts             →  types/entreprise.types.ts
+  types/financial.types.ts           →  types/financier.types.ts
+  types/admin.types.ts               →  types/administration.types.ts
+  constants/pcg.constants.ts         →  constantes/pcg.constantes.ts
+  constants/fec.constants.ts         →  constantes/fec.constantes.ts
+  constants/sig.constants.ts         →  constantes/sig.constantes.ts
+  utils/accounting.utils.ts          →  utilitaires/comptabilite.utils.ts
+  utils/currency.utils.ts            →  utilitaires/monnaie.utils.ts
+  utils/date.utils.ts                →  utilitaires/dates.utils.ts
+
+  FICHIERS — MOTEUR (packages/moteur)
+  parsers/fec.parser.ts              →  parseurs/fec.parseur.ts
+  parsers/csv.parser.ts              →  parseurs/csv.parseur.ts
+  parsers/excel.parser.ts            →  parseurs/excel.parseur.ts
+  validators/fec.validator.ts        →  validateurs/fec.validateur.ts
+  analyzers/bilan.analyzer.ts        →  analyseurs/bilan.analyseur.ts
+  analyzers/resultat.analyzer.ts     →  analyseurs/resultat.analyseur.ts
+  analyzers/sig.analyzer.ts          →  analyseurs/sig.analyseur.ts
+  analyzers/kpi.analyzer.ts          →  analyseurs/indicateurs.analyseur.ts
+  analyzers/tresorerie.analyzer.ts   →  analyseurs/tresorerie.analyseur.ts
+  comparators/yearly.comparator.ts   →  comparateurs/annuel.comparateur.ts
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  11. CONVENTIONS DE NOMMAGE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  FICHIERS
+  ┌──────────────────────────────┬────────────────────────────────────────────┐
+  │ Type de fichier              │ Convention                                 │
+  ├──────────────────────────────┼────────────────────────────────────────────┤
+  │ Route HTTP                   │ [domaine].routes.ts                        │
+  │ Service métier               │ [domaine].service.ts                       │
+  │ Store Zustand                │ [domaine].store.ts                         │
+  │ Appel API (axios)            │ [domaine].api.ts                           │
+  │ Composant React              │ NomEnPascalCase.tsx                        │
+  │ Types partagés               │ [domaine].types.ts                         │
+  │ Constantes                   │ [domaine].constantes.ts                    │
+  │ Utilitaires                  │ [domaine].utils.ts     (exception: anglais)│
+  │ Migration DB                 │ 001_[action]_[table].ts                    │
+  └──────────────────────────────┴────────────────────────────────────────────┘
+
+  VARIABLES ET FONCTIONS (dans le code)
+  ┌──────────────────────────────┬────────────────────────────────────────────┐
+  │ Contexte                     │ Langue                                     │
+  ├──────────────────────────────┼────────────────────────────────────────────┤
+  │ Noms de variables métier     │ Français : entreprise, exercice, ecriture  │
+  │ Noms de variables techniques │ Anglais : id, index, ref, callback, props  │
+  │ Commentaires                 │ Français toujours                          │
+  │ Messages d'erreur UI         │ Français toujours                          │
+  │ Noms de routes HTTP          │ Français : /entreprises, /exercices        │
+  │ Noms de colonnes DB          │ Français : entreprise_id, nom_affiche      │
+  │ Noms de tables DB            │ Français : entreprises, ecritures          │
+  └──────────────────────────────┴────────────────────────────────────────────┘
+
+  COMPOSANTS REACT
+  - Nommés par ce qu'ils SONT, pas par leur type : "Entete" et non "HeaderComponent"
+  - Un composant = un fichier = une responsabilité
+  - Les composants de page (vues/) ne contiennent pas de logique UI complexe :
+    la logique est dans les hooks ou les services
+
+  ROUTES HTTP (cible)
+  ┌────────────────────────────────────┬─────────────────────────────────────┐
+  │ Actuel                             │ Cible                               │
+  ├────────────────────────────────────┼─────────────────────────────────────┤
+  │ /api/v1/companies                  │ /api/v1/entreprises                 │
+  │ /api/v1/companies/:id/fiscal-years │ /api/v1/entreprises/:id/exercices   │
+  │ /api/v1/companies/:id/import       │ /api/v1/entreprises/:id/importer    │
+  │ /api/v1/fiscal-years/:id/bilan     │ /api/v1/exercices/:id/bilan         │
+  │ /api/v1/fiscal-years/:id/rapport   │ /api/v1/exercices/:id/rapport       │
+  └────────────────────────────────────┴─────────────────────────────────────┘
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  12. DÉPENDANCES ENTRE PACKAGES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  noyau                   ← aucune dépendance interne
+    ↓
+  moteur                  ← dépend de : noyau
+    ↓
+  api                     ← dépend de : noyau, moteur
+    ↓
+  interface               ← dépend de : noyau uniquement
+                             (ne jamais importer depuis api ou moteur)
+
+  RÈGLE ABSOLUE :
+  L'interface ne connait pas le moteur. Elle ne fait que des appels HTTP
+  vers l'api. Toute la logique de calcul reste côté serveur.
+
+  ┌──────────┐     ┌──────────┐     ┌──────────┐
+  │interface │────▶│  api     │────▶│  moteur  │
+  │ (React)  │     │(Express) │     │ (calculs)│
+  └──────────┘     └──────────┘     └──────────┘
+       │                │                │
+       └────────────────┴────────────────┘
+                        ▼
+                  ┌──────────┐
+                  │  noyau   │
+                  │ (types)  │
+                  └──────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  FIN DU DOCUMENT
+  Ce fichier est la référence architecturale de Finloop.
+  Toute évolution significative de la structure doit être reflétée ici.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
