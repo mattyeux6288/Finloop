@@ -8,8 +8,8 @@ export function SplashScreen({ onDone }: Props) {
   const [fading, setFading] = useState(false);
 
   useEffect(() => {
-    const t1 = setTimeout(() => setFading(true), 2500);
-    const t2 = setTimeout(onDone, 3100);
+    const t1 = setTimeout(() => setFading(true), 1200);
+    const t2 = setTimeout(onDone, 1600);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [onDone]);
 
@@ -17,7 +17,7 @@ export function SplashScreen({ onDone }: Props) {
     <div
       className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-brand-gradient"
       style={{
-        transition: 'opacity 0.6s ease',
+        transition: 'opacity 0.4s ease',
         opacity: fading ? 0 : 1,
         pointerEvents: fading ? 'none' : 'auto',
       }}
