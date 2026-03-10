@@ -78,15 +78,17 @@ function RapportHeader({ data }: { data: RapportActiviteData }) {
       <div className="h-1.5 bg-gradient-to-r from-primary-700 via-primary-500 to-accent-500" />
 
       <div className="p-8">
-        {/* Ligne 1 : Logo + Imprimer */}
+        {/* Ligne 1 : Logo Raly Conseils + Imprimer */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-gradient-brand flex items-center justify-center print:bg-primary-800">
-              <span className="text-white font-bold text-lg">RC</span>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-primary-700 leading-tight">Raly Conseils</p>
-              <p className="text-[11px] text-gray-400 leading-tight">Rapport d'activité</p>
+            <img
+              src="/logo-rc.jpg"
+              alt="Raly Conseils"
+              className="w-10 h-10 rounded-lg object-cover shadow-sm flex-shrink-0"
+            />
+            <div className="flex flex-col justify-center leading-none">
+              <p className="text-sm font-semibold text-primary-700">Raly Conseils</p>
+              <p className="text-[11px] text-gray-400 mt-0.5">Rapport d'activité</p>
             </div>
           </div>
           <button
@@ -107,6 +109,11 @@ function RapportHeader({ data }: { data: RapportActiviteData }) {
             <span className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600 bg-gray-100 px-3 py-1.5 rounded-full">
               <Building2 className="w-3.5 h-3.5 text-gray-400" />
               SIREN {data.entreprise.siren}
+            </span>
+          )}
+          {data.entreprise.dirigeant && (
+            <span className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600 bg-gray-100 px-3 py-1.5 rounded-full">
+              {data.entreprise.dirigeant}
             </span>
           )}
           <span className="inline-flex items-center gap-1.5 text-xs font-medium text-primary-700 bg-primary-50 px-3 py-1.5 rounded-full">

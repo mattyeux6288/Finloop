@@ -52,6 +52,7 @@ export interface RapportEntreprise {
   dateFin: string;
   nafCode?: string;
   nafLibelle?: string;
+  dirigeant?: string;
 }
 
 // ---- TRÉSORERIE & ÉQUILIBRE FINANCIER ----
