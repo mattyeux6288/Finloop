@@ -1,0 +1,933 @@
+JournalCode|JournalLib|EcritureNum|EcritureDate|CompteNum|CompteLib|CompteAuxNum|CompteAuxLib|PieceRef|PieceDate|EcritureLib|Debit|Credit|EcritureLet|DateLet|ValidDate|MontantDevise|Idevise
+AN|A Nouveaux|EC000001|20250101|211000|Terrains|||OD000000|20250101|A nouveau - Terrains|75000,00|0,00|||20250101||
+AN|A Nouveaux|EC000001|20250101|215000|Installations techniques|||OD000000|20250101|A nouveau - Installations techniques|45000,00|0,00|||20250101||
+AN|A Nouveaux|EC000001|20250101|218300|Matériel de bureau|||OD000000|20250101|A nouveau - Matériel de bureau|12000,00|0,00|||20250101||
+AN|A Nouveaux|EC000001|20250101|218400|Matériel informatique|||OD000000|20250101|A nouveau - Matériel informatique|85000,00|0,00|||20250101||
+AN|A Nouveaux|EC000001|20250101|310000|Stocks de matières|||OD000000|20250101|A nouveau - Stocks matières|8500,00|0,00|||20250101||
+AN|A Nouveaux|EC000001|20250101|411001|Clients - ACME Corp|ACME01|ACME Corp|OD000000|20250101|A nouveau - Client ACME Corp|28000,00|0,00|||20250101||
+AN|A Nouveaux|EC000001|20250101|411002|Clients - BioTech SA|BIOT01|BioTech SA|OD000000|20250101|A nouveau - Client BioTech SA|15600,00|0,00|||20250101||
+AN|A Nouveaux|EC000001|20250101|411003|Clients - MétalPro|META01|MétalPro|OD000000|20250101|A nouveau - Client MétalPro|9800,00|0,00|||20250101||
+AN|A Nouveaux|EC000001|20250101|512000|Banque Société Générale|||OD000000|20250101|A nouveau - Banque|42350,00|0,00|||20250101||
+AN|A Nouveaux|EC000001|20250101|530000|Caisse|||OD000000|20250101|A nouveau - Caisse|1200,00|0,00|||20250101||
+AN|A Nouveaux|EC000001|20250101|281500|Amort. installations techniques|||OD000000|20250101|A nouveau - Amort. installations|0,00|18000,00|||20250101||
+AN|A Nouveaux|EC000001|20250101|281830|Amort. matériel de bureau|||OD000000|20250101|A nouveau - Amort. matériel bureau|0,00|4800,00|||20250101||
+AN|A Nouveaux|EC000001|20250101|281840|Amort. matériel informatique|||OD000000|20250101|A nouveau - Amort. matériel info|0,00|34000,00|||20250101||
+AN|A Nouveaux|EC000001|20250101|101000|Capital social|||OD000000|20250101|A nouveau - Capital social|0,00|100000,00|||20250101||
+AN|A Nouveaux|EC000001|20250101|106000|Réserves|||OD000000|20250101|A nouveau - Réserves|0,00|35000,00|||20250101||
+AN|A Nouveaux|EC000001|20250101|110000|Report à nouveau|||OD000000|20250101|A nouveau - Report à nouveau|0,00|25250,00|||20250101||
+AN|A Nouveaux|EC000001|20250101|164000|Emprunt bancaire|||OD000000|20250101|A nouveau - Emprunt bancaire|0,00|65000,00|||20250101||
+AN|A Nouveaux|EC000001|20250101|401001|Fournisseurs - Informatique+|INFO01|Informatique+|OD000000|20250101|A nouveau - Fournisseur Informatique+|0,00|14200,00|||20250101||
+AN|A Nouveaux|EC000001|20250101|401002|Fournisseurs - LogiServ|LOGI01|LogiServ|OD000000|20250101|A nouveau - Fournisseur LogiServ|0,00|8400,00|||20250101||
+AN|A Nouveaux|EC000001|20250101|431000|Sécurité sociale|||OD000000|20250101|A nouveau - Sécurité sociale|0,00|12800,00|||20250101||
+AN|A Nouveaux|EC000001|20250101|437000|Autres organismes sociaux|||OD000000|20250101|A nouveau - Autres organismes sociaux|0,00|5000,00|||20250101||
+VE|Ventes|EC000002|20250105|411001|Clients - ACME Corp|ACME01|ACME Corp|FA000001|20250105|Mission conseil infrastructure ACME - Janvier|22200,00|0,00|AA001||20250105||
+VE|Ventes|EC000002|20250105|706000|Prestations de services|||FA000001|20250105|Mission conseil infrastructure ACME - Janvier|0,00|18500,00|||20250105||
+VE|Ventes|EC000002|20250105|445710|TVA collectée|||FA000001|20250105|Mission conseil infrastructure ACME - Janvier - TVA|0,00|3700,00|||20250105||
+VE|Ventes|EC000003|20250112|411002|Clients - BioTech SA|BIOT01|BioTech SA|FA000002|20250112|Développement application BioTech - Janvier|15360,00|0,00|AA002||20250112||
+VE|Ventes|EC000003|20250112|706000|Prestations de services|||FA000002|20250112|Développement application BioTech - Janvier|0,00|12800,00|||20250112||
+VE|Ventes|EC000003|20250112|445710|TVA collectée|||FA000002|20250112|Développement application BioTech - Janvier - TVA|0,00|2560,00|||20250112||
+VE|Ventes|EC000004|20250119|411004|Clients - DataFlow|DATA01|DataFlow|FA000003|20250119|Vente licences logiciel DataFlow|6240,00|0,00|AA003||20250119||
+VE|Ventes|EC000004|20250119|707000|Ventes de marchandises|||FA000003|20250119|Vente licences logiciel DataFlow|0,00|5200,00|||20250119||
+VE|Ventes|EC000004|20250119|445710|TVA collectée|||FA000003|20250119|Vente licences logiciel DataFlow - TVA|0,00|1040,00|||20250119||
+VE|Ventes|EC000005|20250205|411001|Clients - ACME Corp|ACME01|ACME Corp|FA000004|20250205|Mission conseil sécurité ACME - Février|18000,00|0,00|AA004||20250205||
+VE|Ventes|EC000005|20250205|706000|Prestations de services|||FA000004|20250205|Mission conseil sécurité ACME - Février|0,00|15000,00|||20250205||
+VE|Ventes|EC000005|20250205|445710|TVA collectée|||FA000004|20250205|Mission conseil sécurité ACME - Février - TVA|0,00|3000,00|||20250205||
+VE|Ventes|EC000006|20250212|411003|Clients - MétalPro|META01|MétalPro|FA000005|20250212|Audit SI MétalPro - Février|11400,00|0,00|AA005||20250212||
+VE|Ventes|EC000006|20250212|706000|Prestations de services|||FA000005|20250212|Audit SI MétalPro - Février|0,00|9500,00|||20250212||
+VE|Ventes|EC000006|20250212|445710|TVA collectée|||FA000005|20250212|Audit SI MétalPro - Février - TVA|0,00|1900,00|||20250212||
+VE|Ventes|EC000007|20250219|411005|Clients - GreenEnergy|GREEN01|GreenEnergy|FA000006|20250219|Vente matériel réseau GreenEnergy|10080,00|0,00|AA006||20250219||
+VE|Ventes|EC000007|20250219|707000|Ventes de marchandises|||FA000006|20250219|Vente matériel réseau GreenEnergy|0,00|8400,00|||20250219||
+VE|Ventes|EC000007|20250219|445710|TVA collectée|||FA000006|20250219|Vente matériel réseau GreenEnergy - TVA|0,00|1680,00|||20250219||
+VE|Ventes|EC000008|20250226|411002|Clients - BioTech SA|BIOT01|BioTech SA|FA000007|20250226|Refacturation déplacements BioTech|2220,00|0,00|AA007||20250226||
+VE|Ventes|EC000008|20250226|708500|Refacturation de frais|||FA000007|20250226|Refacturation déplacements BioTech|0,00|1850,00|||20250226||
+VE|Ventes|EC000008|20250226|445710|TVA collectée|||FA000007|20250226|Refacturation déplacements BioTech - TVA|0,00|370,00|||20250226||
+VE|Ventes|EC000009|20250305|411001|Clients - ACME Corp|ACME01|ACME Corp|FA000008|20250305|Migration cloud ACME - Mars|26400,00|0,00|AA008||20250305||
+VE|Ventes|EC000009|20250305|706000|Prestations de services|||FA000008|20250305|Migration cloud ACME - Mars|0,00|22000,00|||20250305||
+VE|Ventes|EC000009|20250305|445710|TVA collectée|||FA000008|20250305|Migration cloud ACME - Mars - TVA|0,00|4400,00|||20250305||
+VE|Ventes|EC000010|20250312|411004|Clients - DataFlow|DATA01|DataFlow|FA000009|20250312|Formation équipe DataFlow - Mars|8160,00|0,00|AA009||20250312||
+VE|Ventes|EC000010|20250312|706000|Prestations de services|||FA000009|20250312|Formation équipe DataFlow - Mars|0,00|6800,00|||20250312||
+VE|Ventes|EC000010|20250312|445710|TVA collectée|||FA000009|20250312|Formation équipe DataFlow - Mars - TVA|0,00|1360,00|||20250312||
+VE|Ventes|EC000011|20250319|411003|Clients - MétalPro|META01|MétalPro|FA000010|20250319|Vente serveurs MétalPro|15000,00|0,00|AA010||20250319||
+VE|Ventes|EC000011|20250319|707000|Ventes de marchandises|||FA000010|20250319|Vente serveurs MétalPro|0,00|12500,00|||20250319||
+VE|Ventes|EC000011|20250319|445710|TVA collectée|||FA000010|20250319|Vente serveurs MétalPro - TVA|0,00|2500,00|||20250319||
+VE|Ventes|EC000012|20250326|411003|Clients - MétalPro|META01|MétalPro|AV000001|20250326|AVOIR - Remise commerciale MétalPro|0,00|3000,00|AA011||20250326||
+VE|Ventes|EC000012|20250326|706000|Prestations de services|||AV000001|20250326|AVOIR - Remise commerciale MétalPro|2500,00|0,00|||20250326||
+VE|Ventes|EC000012|20250326|445710|TVA collectée|||AV000001|20250326|AVOIR - Remise commerciale MétalPro - TVA|500,00|0,00|||20250326||
+VE|Ventes|EC000013|20250405|411002|Clients - BioTech SA|BIOT01|BioTech SA|FA000011|20250405|Développement module RH BioTech - Avril|19440,00|0,00|AA012||20250405||
+VE|Ventes|EC000013|20250405|706000|Prestations de services|||FA000011|20250405|Développement module RH BioTech - Avril|0,00|16200,00|||20250405||
+VE|Ventes|EC000013|20250405|445710|TVA collectée|||FA000011|20250405|Développement module RH BioTech - Avril - TVA|0,00|3240,00|||20250405||
+VE|Ventes|EC000014|20250412|411005|Clients - GreenEnergy|GREEN01|GreenEnergy|FA000012|20250412|Conseil transition énergétique SI GreenEnergy|13800,00|0,00|AA013||20250412||
+VE|Ventes|EC000014|20250412|706000|Prestations de services|||FA000012|20250412|Conseil transition énergétique SI GreenEnergy|0,00|11500,00|||20250412||
+VE|Ventes|EC000014|20250412|445710|TVA collectée|||FA000012|20250412|Conseil transition énergétique SI GreenEnergy - TVA|0,00|2300,00|||20250412||
+VE|Ventes|EC000015|20250419|411001|Clients - ACME Corp|ACME01|ACME Corp|FA000013|20250419|Refacturation hébergement ACME|3840,00|0,00|AA014||20250419||
+VE|Ventes|EC000015|20250419|708500|Refacturation de frais|||FA000013|20250419|Refacturation hébergement ACME|0,00|3200,00|||20250419||
+VE|Ventes|EC000015|20250419|445710|TVA collectée|||FA000013|20250419|Refacturation hébergement ACME - TVA|0,00|640,00|||20250419||
+VE|Ventes|EC000016|20250505|411001|Clients - ACME Corp|ACME01|ACME Corp|FA000014|20250505|Maintenance évolutive ACME - Mai|23760,00|0,00|AA015||20250505||
+VE|Ventes|EC000016|20250505|706000|Prestations de services|||FA000014|20250505|Maintenance évolutive ACME - Mai|0,00|19800,00|||20250505||
+VE|Ventes|EC000016|20250505|445710|TVA collectée|||FA000014|20250505|Maintenance évolutive ACME - Mai - TVA|0,00|3960,00|||20250505||
+VE|Ventes|EC000017|20250512|411003|Clients - MétalPro|META01|MétalPro|FA000015|20250512|Déploiement ERP MétalPro - Mai|17040,00|0,00|AA016||20250512||
+VE|Ventes|EC000017|20250512|706000|Prestations de services|||FA000015|20250512|Déploiement ERP MétalPro - Mai|0,00|14200,00|||20250512||
+VE|Ventes|EC000017|20250512|445710|TVA collectée|||FA000015|20250512|Déploiement ERP MétalPro - Mai - TVA|0,00|2840,00|||20250512||
+VE|Ventes|EC000018|20250519|411004|Clients - DataFlow|DATA01|DataFlow|FA000016|20250519|Vente postes de travail DataFlow|11520,00|0,00|AA017||20250519||
+VE|Ventes|EC000018|20250519|707000|Ventes de marchandises|||FA000016|20250519|Vente postes de travail DataFlow|0,00|9600,00|||20250519||
+VE|Ventes|EC000018|20250519|445710|TVA collectée|||FA000016|20250519|Vente postes de travail DataFlow - TVA|0,00|1920,00|||20250519||
+VE|Ventes|EC000019|20250605|411002|Clients - BioTech SA|BIOT01|BioTech SA|FA000017|20250605|Tests intégration BioTech - Juin|16200,00|0,00|AA018||20250605||
+VE|Ventes|EC000019|20250605|706000|Prestations de services|||FA000017|20250605|Tests intégration BioTech - Juin|0,00|13500,00|||20250605||
+VE|Ventes|EC000019|20250605|445710|TVA collectée|||FA000017|20250605|Tests intégration BioTech - Juin - TVA|0,00|2700,00|||20250605||
+VE|Ventes|EC000020|20250612|411005|Clients - GreenEnergy|GREEN01|GreenEnergy|FA000018|20250612|Monitoring SI GreenEnergy - Juin|10680,00|0,00|AA019||20250612||
+VE|Ventes|EC000020|20250612|706000|Prestations de services|||FA000018|20250612|Monitoring SI GreenEnergy - Juin|0,00|8900,00|||20250612||
+VE|Ventes|EC000020|20250612|445710|TVA collectée|||FA000018|20250612|Monitoring SI GreenEnergy - Juin - TVA|0,00|1780,00|||20250612||
+VE|Ventes|EC000021|20250619|411001|Clients - ACME Corp|ACME01|ACME Corp|FA000019|20250619|Vente équipements ACME|8640,00|0,00|AA020||20250619||
+VE|Ventes|EC000021|20250619|707000|Ventes de marchandises|||FA000019|20250619|Vente équipements ACME|0,00|7200,00|||20250619||
+VE|Ventes|EC000021|20250619|445710|TVA collectée|||FA000019|20250619|Vente équipements ACME - TVA|0,00|1440,00|||20250619||
+VE|Ventes|EC000022|20250626|411004|Clients - DataFlow|DATA01|DataFlow|FA000020|20250626|Refacturation licences DataFlow|2880,00|0,00|AA021||20250626||
+VE|Ventes|EC000022|20250626|708500|Refacturation de frais|||FA000020|20250626|Refacturation licences DataFlow|0,00|2400,00|||20250626||
+VE|Ventes|EC000022|20250626|445710|TVA collectée|||FA000020|20250626|Refacturation licences DataFlow - TVA|0,00|480,00|||20250626||
+VE|Ventes|EC000023|20250705|411001|Clients - ACME Corp|ACME01|ACME Corp|FA000021|20250705|Support estival ACME - Juillet|15000,00|0,00|AA022||20250705||
+VE|Ventes|EC000023|20250705|706000|Prestations de services|||FA000021|20250705|Support estival ACME - Juillet|0,00|12500,00|||20250705||
+VE|Ventes|EC000023|20250705|445710|TVA collectée|||FA000021|20250705|Support estival ACME - Juillet - TVA|0,00|2500,00|||20250705||
+VE|Ventes|EC000024|20250712|411002|Clients - BioTech SA|BIOT01|BioTech SA|FA000022|20250712|Maintenance BioTech - Juillet|10560,00|0,00|AA023||20250712||
+VE|Ventes|EC000024|20250712|706000|Prestations de services|||FA000022|20250712|Maintenance BioTech - Juillet|0,00|8800,00|||20250712||
+VE|Ventes|EC000024|20250712|445710|TVA collectée|||FA000022|20250712|Maintenance BioTech - Juillet - TVA|0,00|1760,00|||20250712||
+VE|Ventes|EC000025|20250805|411003|Clients - MétalPro|META01|MétalPro|FA000023|20250805|Assistance technique MétalPro - Août|12240,00|0,00|AA024||20250805||
+VE|Ventes|EC000025|20250805|706000|Prestations de services|||FA000023|20250805|Assistance technique MétalPro - Août|0,00|10200,00|||20250805||
+VE|Ventes|EC000025|20250805|445710|TVA collectée|||FA000023|20250805|Assistance technique MétalPro - Août - TVA|0,00|2040,00|||20250805||
+VE|Ventes|EC000026|20250812|411005|Clients - GreenEnergy|GREEN01|GreenEnergy|FA000024|20250812|Vente câblage GreenEnergy|5400,00|0,00|AA025||20250812||
+VE|Ventes|EC000026|20250812|707000|Ventes de marchandises|||FA000024|20250812|Vente câblage GreenEnergy|0,00|4500,00|||20250812||
+VE|Ventes|EC000026|20250812|445710|TVA collectée|||FA000024|20250812|Vente câblage GreenEnergy - TVA|0,00|900,00|||20250812||
+VE|Ventes|EC000027|20250819|411004|Clients - DataFlow|DATA01|DataFlow|FA000025|20250819|Support DataFlow - Août|9360,00|0,00|AA026||20250819||
+VE|Ventes|EC000027|20250819|706000|Prestations de services|||FA000025|20250819|Support DataFlow - Août|0,00|7800,00|||20250819||
+VE|Ventes|EC000027|20250819|445710|TVA collectée|||FA000025|20250819|Support DataFlow - Août - TVA|0,00|1560,00|||20250819||
+VE|Ventes|EC000028|20250905|411001|Clients - ACME Corp|ACME01|ACME Corp|FA000026|20250905|Reprise projets ACME - Septembre|25200,00|0,00|AA027||20250905||
+VE|Ventes|EC000028|20250905|706000|Prestations de services|||FA000026|20250905|Reprise projets ACME - Septembre|0,00|21000,00|||20250905||
+VE|Ventes|EC000028|20250905|445710|TVA collectée|||FA000026|20250905|Reprise projets ACME - Septembre - TVA|0,00|4200,00|||20250905||
+VE|Ventes|EC000029|20250912|411002|Clients - BioTech SA|BIOT01|BioTech SA|FA000027|20250912|Phase 2 développement BioTech - Septembre|17760,00|0,00|AA028||20250912||
+VE|Ventes|EC000029|20250912|706000|Prestations de services|||FA000027|20250912|Phase 2 développement BioTech - Septembre|0,00|14800,00|||20250912||
+VE|Ventes|EC000029|20250912|445710|TVA collectée|||FA000027|20250912|Phase 2 développement BioTech - Septembre - TVA|0,00|2960,00|||20250912||
+VE|Ventes|EC000030|20250919|411003|Clients - MétalPro|META01|MétalPro|FA000028|20250919|Vente switches MétalPro|7560,00|0,00|AA029||20250919||
+VE|Ventes|EC000030|20250919|707000|Ventes de marchandises|||FA000028|20250919|Vente switches MétalPro|0,00|6300,00|||20250919||
+VE|Ventes|EC000030|20250919|445710|TVA collectée|||FA000028|20250919|Vente switches MétalPro - TVA|0,00|1260,00|||20250919||
+VE|Ventes|EC000031|20250926|411001|Clients - ACME Corp|ACME01|ACME Corp|AV000002|20250926|AVOIR - Ajustement facturation ACME Sept|0,00|3840,00|AA030||20250926||
+VE|Ventes|EC000031|20250926|706000|Prestations de services|||AV000002|20250926|AVOIR - Ajustement facturation ACME Sept|3200,00|0,00|||20250926||
+VE|Ventes|EC000031|20250926|445710|TVA collectée|||AV000002|20250926|AVOIR - Ajustement facturation ACME Sept - TVA|640,00|0,00|||20250926||
+VE|Ventes|EC000032|20251005|411004|Clients - DataFlow|DATA01|DataFlow|FA000029|20251005|Projet BI DataFlow - Octobre|22320,00|0,00|AA031||20251005||
+VE|Ventes|EC000032|20251005|706000|Prestations de services|||FA000029|20251005|Projet BI DataFlow - Octobre|0,00|18600,00|||20251005||
+VE|Ventes|EC000032|20251005|445710|TVA collectée|||FA000029|20251005|Projet BI DataFlow - Octobre - TVA|0,00|3720,00|||20251005||
+VE|Ventes|EC000033|20251012|411005|Clients - GreenEnergy|GREEN01|GreenEnergy|FA000030|20251012|Audit cybersécurité GreenEnergy - Octobre|15840,00|0,00|AA032||20251012||
+VE|Ventes|EC000033|20251012|706000|Prestations de services|||FA000030|20251012|Audit cybersécurité GreenEnergy - Octobre|0,00|13200,00|||20251012||
+VE|Ventes|EC000033|20251012|445710|TVA collectée|||FA000030|20251012|Audit cybersécurité GreenEnergy - Octobre - TVA|0,00|2640,00|||20251012||
+VE|Ventes|EC000034|20251019|411001|Clients - ACME Corp|ACME01|ACME Corp|FA000031|20251019|Vente firewall ACME|10200,00|0,00|AA033||20251019||
+VE|Ventes|EC000034|20251019|707000|Ventes de marchandises|||FA000031|20251019|Vente firewall ACME|0,00|8500,00|||20251019||
+VE|Ventes|EC000034|20251019|445710|TVA collectée|||FA000031|20251019|Vente firewall ACME - TVA|0,00|1700,00|||20251019||
+VE|Ventes|EC000035|20251026|411002|Clients - BioTech SA|BIOT01|BioTech SA|FA000032|20251026|Refacturation transports BioTech|2280,00|0,00|AA034||20251026||
+VE|Ventes|EC000035|20251026|708500|Refacturation de frais|||FA000032|20251026|Refacturation transports BioTech|0,00|1900,00|||20251026||
+VE|Ventes|EC000035|20251026|445710|TVA collectée|||FA000032|20251026|Refacturation transports BioTech - TVA|0,00|380,00|||20251026||
+VE|Ventes|EC000036|20251105|411001|Clients - ACME Corp|ACME01|ACME Corp|FA000033|20251105|Projet transformation digitale ACME - Nov|34200,00|0,00|AA035||20251105||
+VE|Ventes|EC000036|20251105|706000|Prestations de services|||FA000033|20251105|Projet transformation digitale ACME - Nov|0,00|28500,00|||20251105||
+VE|Ventes|EC000036|20251105|445710|TVA collectée|||FA000033|20251105|Projet transformation digitale ACME - Nov - TVA|0,00|5700,00|||20251105||
+VE|Ventes|EC000037|20251112|411003|Clients - MétalPro|META01|MétalPro|FA000034|20251112|Infogérance MétalPro - Novembre|20160,00|0,00|AA036||20251112||
+VE|Ventes|EC000037|20251112|706000|Prestations de services|||FA000034|20251112|Infogérance MétalPro - Novembre|0,00|16800,00|||20251112||
+VE|Ventes|EC000037|20251112|445710|TVA collectée|||FA000034|20251112|Infogérance MétalPro - Novembre - TVA|0,00|3360,00|||20251112||
+VE|Ventes|EC000038|20251119|411002|Clients - BioTech SA|BIOT01|BioTech SA|FA000035|20251119|Vente licences ERP BioTech|13440,00|0,00|AA037||20251119||
+VE|Ventes|EC000038|20251119|707000|Ventes de marchandises|||FA000035|20251119|Vente licences ERP BioTech|0,00|11200,00|||20251119||
+VE|Ventes|EC000038|20251119|445710|TVA collectée|||FA000035|20251119|Vente licences ERP BioTech - TVA|0,00|2240,00|||20251119||
+VE|Ventes|EC000039|20251126|411005|Clients - GreenEnergy|GREEN01|GreenEnergy|FA000036|20251126|Optimisation réseau GreenEnergy - Nov|11400,00|0,00|AA038||20251126||
+VE|Ventes|EC000039|20251126|706000|Prestations de services|||FA000036|20251126|Optimisation réseau GreenEnergy - Nov|0,00|9500,00|||20251126||
+VE|Ventes|EC000039|20251126|445710|TVA collectée|||FA000036|20251126|Optimisation réseau GreenEnergy - Nov - TVA|0,00|1900,00|||20251126||
+VE|Ventes|EC000040|20251205|411001|Clients - ACME Corp|ACME01|ACME Corp|FA000037|20251205|Clôture projet ACME - Décembre|28800,00|0,00|AA039||20251205||
+VE|Ventes|EC000040|20251205|706000|Prestations de services|||FA000037|20251205|Clôture projet ACME - Décembre|0,00|24000,00|||20251205||
+VE|Ventes|EC000040|20251205|445710|TVA collectée|||FA000037|20251205|Clôture projet ACME - Décembre - TVA|0,00|4800,00|||20251205||
+VE|Ventes|EC000041|20251212|411004|Clients - DataFlow|DATA01|DataFlow|FA000038|20251212|Finalisation BI DataFlow - Décembre|23400,00|0,00|AA040||20251212||
+VE|Ventes|EC000041|20251212|706000|Prestations de services|||FA000038|20251212|Finalisation BI DataFlow - Décembre|0,00|19500,00|||20251212||
+VE|Ventes|EC000041|20251212|445710|TVA collectée|||FA000038|20251212|Finalisation BI DataFlow - Décembre - TVA|0,00|3900,00|||20251212||
+VE|Ventes|EC000042|20251219|411002|Clients - BioTech SA|BIOT01|BioTech SA|FA000039|20251219|Recette finale BioTech - Décembre|18960,00|0,00|AA041||20251219||
+VE|Ventes|EC000042|20251219|706000|Prestations de services|||FA000039|20251219|Recette finale BioTech - Décembre|0,00|15800,00|||20251219||
+VE|Ventes|EC000042|20251219|445710|TVA collectée|||FA000039|20251219|Recette finale BioTech - Décembre - TVA|0,00|3160,00|||20251219||
+VE|Ventes|EC000043|20251226|411005|Clients - GreenEnergy|GREEN01|GreenEnergy|FA000040|20251226|Vente équipements GreenEnergy fin année|14880,00|0,00|AA042||20251226||
+VE|Ventes|EC000043|20251226|707000|Ventes de marchandises|||FA000040|20251226|Vente équipements GreenEnergy fin année|0,00|12400,00|||20251226||
+VE|Ventes|EC000043|20251226|445710|TVA collectée|||FA000040|20251226|Vente équipements GreenEnergy fin année - TVA|0,00|2480,00|||20251226||
+AC|Achats|EC000044|20250108|401001|Fournisseurs - Informatique+|INFO01|Informatique+|FA000041|20250108|Facture Informatique+ - 01/2025|0,00|14160,00|AA043||20250108||
+AC|Achats|EC000044|20250108|601000|Achats matières premières|||FA000041|20250108|Achats composants informatiques - 01/2025|3200,00|0,00|||20250108||
+AC|Achats|EC000044|20250108|604000|Achats sous-traitance|||FA000041|20250108|Sous-traitance développement - 01/2025|5500,00|0,00|||20250108||
+AC|Achats|EC000044|20250108|607000|Achats de marchandises|||FA000041|20250108|Achat marchandises pour revente - 01/2025|3100,00|0,00|||20250108||
+AC|Achats|EC000044|20250108|445660|TVA déductible sur ABS|||FA000041|20250108|TVA déductible Informatique+ - 01/2025|2360,00|0,00|||20250108||
+AC|Achats|EC000045|20250108|401003|Fournisseurs - BureauPlus|BURE01|BureauPlus|FA000042|20250108|Facture BureauPlus - 01/2025|0,00|996,00|AA044||20250108||
+AC|Achats|EC000045|20250108|606100|Énergie|||FA000042|20250108|Électricité et gaz - 01/2025|480,00|0,00|||20250108||
+AC|Achats|EC000045|20250108|606400|Fournitures de bureau|||FA000042|20250108|Fournitures bureau - 01/2025|350,00|0,00|||20250108||
+AC|Achats|EC000045|20250108|445660|TVA déductible sur ABS|||FA000042|20250108|TVA déductible BureauPlus - 01/2025|166,00|0,00|||20250108||
+AC|Achats|EC000046|20250108|401002|Fournisseurs - LogiServ|LOGI01|LogiServ|FA000043|20250108|Facture LogiServ - 01/2025|0,00|4380,00|AA045||20250108||
+AC|Achats|EC000046|20250108|611000|Sous-traitance générale|||FA000043|20250108|Sous-traitance générale - 01/2025|3200,00|0,00|||20250108||
+AC|Achats|EC000046|20250108|618000|Documentation et abonnements|||FA000043|20250108|Abonnements professionnels - 01/2025|450,00|0,00|||20250108||
+AC|Achats|EC000046|20250108|445660|TVA déductible sur ABS|||FA000043|20250108|TVA déductible LogiServ - 01/2025|730,00|0,00|||20250108||
+AC|Achats|EC000047|20250108|401005|Fournisseurs - AssurTech|ASSU01|AssurTech|FA000044|20250108|Facture AssurTech - 01/2025|0,00|4656,00|AA046||20250108||
+AC|Achats|EC000047|20250108|613000|Locations|||FA000044|20250108|Loyer bureaux - 01/2025|3200,00|0,00|||20250108||
+AC|Achats|EC000047|20250108|616000|Assurances|||FA000044|20250108|Prime assurance - 01/2025|680,00|0,00|||20250108||
+AC|Achats|EC000047|20250108|445660|TVA déductible sur ABS|||FA000044|20250108|TVA déductible AssurTech - 01/2025|776,00|0,00|||20250108||
+AC|Achats|EC000048|20250108|401004|Fournisseurs - TélécomPro|TELE01|TélécomPro|FA000045|20250108|Facture TélécomPro - 01/2025|0,00|4308,00|AA047||20250108||
+AC|Achats|EC000048|20250108|623000|Publicité et marketing|||FA000045|20250108|Campagne marketing - 01/2025|1200,00|0,00|||20250108||
+AC|Achats|EC000048|20250108|625000|Déplacements et missions|||FA000045|20250108|Frais déplacements - 01/2025|1500,00|0,00|||20250108||
+AC|Achats|EC000048|20250108|626000|Télécommunications|||FA000045|20250108|Abonnements télécom - 01/2025|890,00|0,00|||20250108||
+AC|Achats|EC000048|20250108|445660|TVA déductible sur ABS|||FA000045|20250108|TVA déductible TélécomPro - 01/2025|718,00|0,00|||20250108||
+BQ|Banque|EC000049|20250125|627000|Services bancaires|||BQ000001|20250125|Frais bancaires - 01/2025|120,00|0,00|||20250125||
+BQ|Banque|EC000049|20250125|512000|Banque Société Générale|||BQ000001|20250125|Frais bancaires - 01/2025|0,00|120,00|||20250125||
+AC|Achats|EC000050|20250208|401001|Fournisseurs - Informatique+|INFO01|Informatique+|FA000046|20250208|Facture Informatique+ - 02/2025|0,00|9360,00|AA048||20250208||
+AC|Achats|EC000050|20250208|601000|Achats matières premières|||FA000046|20250208|Achats composants informatiques - 02/2025|2800,00|0,00|||20250208||
+AC|Achats|EC000050|20250208|607000|Achats de marchandises|||FA000046|20250208|Achat marchandises pour revente - 02/2025|5000,00|0,00|||20250208||
+AC|Achats|EC000050|20250208|445660|TVA déductible sur ABS|||FA000046|20250208|TVA déductible Informatique+ - 02/2025|1560,00|0,00|||20250208||
+AC|Achats|EC000051|20250208|401003|Fournisseurs - BureauPlus|BURE01|BureauPlus|FA000047|20250208|Facture BureauPlus - 02/2025|0,00|876,00|AA049||20250208||
+AC|Achats|EC000051|20250208|606100|Énergie|||FA000047|20250208|Électricité et gaz - 02/2025|450,00|0,00|||20250208||
+AC|Achats|EC000051|20250208|606400|Fournitures de bureau|||FA000047|20250208|Fournitures bureau - 02/2025|280,00|0,00|||20250208||
+AC|Achats|EC000051|20250208|445660|TVA déductible sur ABS|||FA000047|20250208|TVA déductible BureauPlus - 02/2025|146,00|0,00|||20250208||
+AC|Achats|EC000052|20250208|401002|Fournisseurs - LogiServ|LOGI01|LogiServ|FA000048|20250208|Facture LogiServ - 02/2025|0,00|3900,00|AA050||20250208||
+AC|Achats|EC000052|20250208|611000|Sous-traitance générale|||FA000048|20250208|Sous-traitance générale - 02/2025|2800,00|0,00|||20250208||
+AC|Achats|EC000052|20250208|618000|Documentation et abonnements|||FA000048|20250208|Abonnements professionnels - 02/2025|450,00|0,00|||20250208||
+AC|Achats|EC000052|20250208|445660|TVA déductible sur ABS|||FA000048|20250208|TVA déductible LogiServ - 02/2025|650,00|0,00|||20250208||
+AC|Achats|EC000053|20250208|401005|Fournisseurs - AssurTech|ASSU01|AssurTech|FA000049|20250208|Facture AssurTech - 02/2025|0,00|4656,00|AA051||20250208||
+AC|Achats|EC000053|20250208|613000|Locations|||FA000049|20250208|Loyer bureaux - 02/2025|3200,00|0,00|||20250208||
+AC|Achats|EC000053|20250208|616000|Assurances|||FA000049|20250208|Prime assurance - 02/2025|680,00|0,00|||20250208||
+AC|Achats|EC000053|20250208|445660|TVA déductible sur ABS|||FA000049|20250208|TVA déductible AssurTech - 02/2025|776,00|0,00|||20250208||
+AC|Achats|EC000054|20250208|401004|Fournisseurs - TélécomPro|TELE01|TélécomPro|FA000050|20250208|Facture TélécomPro - 02/2025|0,00|4668,00|AA052||20250208||
+AC|Achats|EC000054|20250208|623000|Publicité et marketing|||FA000050|20250208|Campagne marketing - 02/2025|800,00|0,00|||20250208||
+AC|Achats|EC000054|20250208|625000|Déplacements et missions|||FA000050|20250208|Frais déplacements - 02/2025|2200,00|0,00|||20250208||
+AC|Achats|EC000054|20250208|626000|Télécommunications|||FA000050|20250208|Abonnements télécom - 02/2025|890,00|0,00|||20250208||
+AC|Achats|EC000054|20250208|445660|TVA déductible sur ABS|||FA000050|20250208|TVA déductible TélécomPro - 02/2025|778,00|0,00|||20250208||
+BQ|Banque|EC000055|20250225|627000|Services bancaires|||BQ000002|20250225|Frais bancaires - 02/2025|115,00|0,00|||20250225||
+BQ|Banque|EC000055|20250225|512000|Banque Société Générale|||BQ000002|20250225|Frais bancaires - 02/2025|0,00|115,00|||20250225||
+AC|Achats|EC000056|20250308|401001|Fournisseurs - Informatique+|INFO01|Informatique+|FA000051|20250308|Facture Informatique+ - 03/2025|0,00|22560,00|AA053||20250308||
+AC|Achats|EC000056|20250308|601000|Achats matières premières|||FA000051|20250308|Achats composants informatiques - 03/2025|4100,00|0,00|||20250308||
+AC|Achats|EC000056|20250308|604000|Achats sous-traitance|||FA000051|20250308|Sous-traitance développement - 03/2025|7200,00|0,00|||20250308||
+AC|Achats|EC000056|20250308|607000|Achats de marchandises|||FA000051|20250308|Achat marchandises pour revente - 03/2025|7500,00|0,00|||20250308||
+AC|Achats|EC000056|20250308|445660|TVA déductible sur ABS|||FA000051|20250308|TVA déductible Informatique+ - 03/2025|3760,00|0,00|||20250308||
+AC|Achats|EC000057|20250308|401003|Fournisseurs - BureauPlus|BURE01|BureauPlus|FA000052|20250308|Facture BureauPlus - 03/2025|0,00|888,00|AA054||20250308||
+AC|Achats|EC000057|20250308|606100|Énergie|||FA000052|20250308|Électricité et gaz - 03/2025|420,00|0,00|||20250308||
+AC|Achats|EC000057|20250308|606400|Fournitures de bureau|||FA000052|20250308|Fournitures bureau - 03/2025|320,00|0,00|||20250308||
+AC|Achats|EC000057|20250308|445660|TVA déductible sur ABS|||FA000052|20250308|TVA déductible BureauPlus - 03/2025|148,00|0,00|||20250308||
+AC|Achats|EC000058|20250308|401002|Fournisseurs - LogiServ|LOGI01|LogiServ|FA000053|20250308|Facture LogiServ - 03/2025|0,00|5724,00|AA055||20250308||
+AC|Achats|EC000058|20250308|611000|Sous-traitance générale|||FA000053|20250308|Sous-traitance générale - 03/2025|3500,00|0,00|||20250308||
+AC|Achats|EC000058|20250308|615000|Maintenance|||FA000053|20250308|Contrat maintenance - T1/2025|820,00|0,00|||20250308||
+AC|Achats|EC000058|20250308|618000|Documentation et abonnements|||FA000053|20250308|Abonnements professionnels - 03/2025|450,00|0,00|||20250308||
+AC|Achats|EC000058|20250308|445660|TVA déductible sur ABS|||FA000053|20250308|TVA déductible LogiServ - 03/2025|954,00|0,00|||20250308||
+AC|Achats|EC000059|20250308|401005|Fournisseurs - AssurTech|ASSU01|AssurTech|FA000054|20250308|Facture AssurTech - 03/2025|0,00|7656,00|AA056||20250308||
+AC|Achats|EC000059|20250308|613000|Locations|||FA000054|20250308|Loyer bureaux - 03/2025|3200,00|0,00|||20250308||
+AC|Achats|EC000059|20250308|616000|Assurances|||FA000054|20250308|Prime assurance - 03/2025|680,00|0,00|||20250308||
+AC|Achats|EC000059|20250308|622000|Honoraires|||FA000054|20250308|Honoraires cabinet comptable - T1/2025|2500,00|0,00|||20250308||
+AC|Achats|EC000059|20250308|445660|TVA déductible sur ABS|||FA000054|20250308|TVA déductible AssurTech - 03/2025|1276,00|0,00|||20250308||
+AC|Achats|EC000060|20250308|401004|Fournisseurs - TélécomPro|TELE01|TélécomPro|FA000055|20250308|Facture TélécomPro - 03/2025|0,00|5028,00|AA057||20250308||
+AC|Achats|EC000060|20250308|623000|Publicité et marketing|||FA000055|20250308|Campagne marketing - 03/2025|1500,00|0,00|||20250308||
+AC|Achats|EC000060|20250308|625000|Déplacements et missions|||FA000055|20250308|Frais déplacements - 03/2025|1800,00|0,00|||20250308||
+AC|Achats|EC000060|20250308|626000|Télécommunications|||FA000055|20250308|Abonnements télécom - 03/2025|890,00|0,00|||20250308||
+AC|Achats|EC000060|20250308|445660|TVA déductible sur ABS|||FA000055|20250308|TVA déductible TélécomPro - 03/2025|838,00|0,00|||20250308||
+BQ|Banque|EC000061|20250325|627000|Services bancaires|||BQ000003|20250325|Frais bancaires - 03/2025|125,00|0,00|||20250325||
+BQ|Banque|EC000061|20250325|512000|Banque Société Générale|||BQ000003|20250325|Frais bancaires - 03/2025|0,00|125,00|||20250325||
+AC|Achats|EC000062|20250408|401001|Fournisseurs - Informatique+|INFO01|Informatique+|FA000056|20250408|Facture Informatique+ - 04/2025|0,00|3120,00|AA058||20250408||
+AC|Achats|EC000062|20250408|601000|Achats matières premières|||FA000056|20250408|Achats composants informatiques - 04/2025|2600,00|0,00|||20250408||
+AC|Achats|EC000062|20250408|445660|TVA déductible sur ABS|||FA000056|20250408|TVA déductible Informatique+ - 04/2025|520,00|0,00|||20250408||
+AC|Achats|EC000063|20250408|401003|Fournisseurs - BureauPlus|BURE01|BureauPlus|FA000057|20250408|Facture BureauPlus - 04/2025|0,00|756,00|AA059||20250408||
+AC|Achats|EC000063|20250408|606100|Énergie|||FA000057|20250408|Électricité et gaz - 04/2025|380,00|0,00|||20250408||
+AC|Achats|EC000063|20250408|606400|Fournitures de bureau|||FA000057|20250408|Fournitures bureau - 04/2025|250,00|0,00|||20250408||
+AC|Achats|EC000063|20250408|445660|TVA déductible sur ABS|||FA000057|20250408|TVA déductible BureauPlus - 04/2025|126,00|0,00|||20250408||
+AC|Achats|EC000064|20250408|401002|Fournisseurs - LogiServ|LOGI01|LogiServ|FA000058|20250408|Facture LogiServ - 04/2025|0,00|3660,00|AA060||20250408||
+AC|Achats|EC000064|20250408|611000|Sous-traitance générale|||FA000058|20250408|Sous-traitance générale - 04/2025|2600,00|0,00|||20250408||
+AC|Achats|EC000064|20250408|618000|Documentation et abonnements|||FA000058|20250408|Abonnements professionnels - 04/2025|450,00|0,00|||20250408||
+AC|Achats|EC000064|20250408|445660|TVA déductible sur ABS|||FA000058|20250408|TVA déductible LogiServ - 04/2025|610,00|0,00|||20250408||
+AC|Achats|EC000065|20250408|401005|Fournisseurs - AssurTech|ASSU01|AssurTech|FA000059|20250408|Facture AssurTech - 04/2025|0,00|4656,00|AA061||20250408||
+AC|Achats|EC000065|20250408|613000|Locations|||FA000059|20250408|Loyer bureaux - 04/2025|3200,00|0,00|||20250408||
+AC|Achats|EC000065|20250408|616000|Assurances|||FA000059|20250408|Prime assurance - 04/2025|680,00|0,00|||20250408||
+AC|Achats|EC000065|20250408|445660|TVA déductible sur ABS|||FA000059|20250408|TVA déductible AssurTech - 04/2025|776,00|0,00|||20250408||
+AC|Achats|EC000066|20250408|401004|Fournisseurs - TélécomPro|TELE01|TélécomPro|FA000060|20250408|Facture TélécomPro - 04/2025|0,00|3228,00|AA062||20250408||
+AC|Achats|EC000066|20250408|623000|Publicité et marketing|||FA000060|20250408|Campagne marketing - 04/2025|600,00|0,00|||20250408||
+AC|Achats|EC000066|20250408|625000|Déplacements et missions|||FA000060|20250408|Frais déplacements - 04/2025|1200,00|0,00|||20250408||
+AC|Achats|EC000066|20250408|626000|Télécommunications|||FA000060|20250408|Abonnements télécom - 04/2025|890,00|0,00|||20250408||
+AC|Achats|EC000066|20250408|445660|TVA déductible sur ABS|||FA000060|20250408|TVA déductible TélécomPro - 04/2025|538,00|0,00|||20250408||
+BQ|Banque|EC000067|20250425|627000|Services bancaires|||BQ000004|20250425|Frais bancaires - 04/2025|118,00|0,00|||20250425||
+BQ|Banque|EC000067|20250425|512000|Banque Société Générale|||BQ000004|20250425|Frais bancaires - 04/2025|0,00|118,00|||20250425||
+AC|Achats|EC000068|20250508|401001|Fournisseurs - Informatique+|INFO01|Informatique+|FA000061|20250508|Facture Informatique+ - 05/2025|0,00|16800,00|AA063||20250508||
+AC|Achats|EC000068|20250508|601000|Achats matières premières|||FA000061|20250508|Achats composants informatiques - 05/2025|3500,00|0,00|||20250508||
+AC|Achats|EC000068|20250508|604000|Achats sous-traitance|||FA000061|20250508|Sous-traitance développement - 05/2025|4800,00|0,00|||20250508||
+AC|Achats|EC000068|20250508|607000|Achats de marchandises|||FA000061|20250508|Achat marchandises pour revente - 05/2025|5700,00|0,00|||20250508||
+AC|Achats|EC000068|20250508|445660|TVA déductible sur ABS|||FA000061|20250508|TVA déductible Informatique+ - 05/2025|2800,00|0,00|||20250508||
+AC|Achats|EC000069|20250508|401003|Fournisseurs - BureauPlus|BURE01|BureauPlus|FA000062|20250508|Facture BureauPlus - 05/2025|0,00|876,00|AA064||20250508||
+AC|Achats|EC000069|20250508|606100|Énergie|||FA000062|20250508|Électricité et gaz - 05/2025|350,00|0,00|||20250508||
+AC|Achats|EC000069|20250508|606400|Fournitures de bureau|||FA000062|20250508|Fournitures bureau - 05/2025|380,00|0,00|||20250508||
+AC|Achats|EC000069|20250508|445660|TVA déductible sur ABS|||FA000062|20250508|TVA déductible BureauPlus - 05/2025|146,00|0,00|||20250508||
+AC|Achats|EC000070|20250508|401002|Fournisseurs - LogiServ|LOGI01|LogiServ|FA000063|20250508|Facture LogiServ - 05/2025|0,00|4260,00|AA065||20250508||
+AC|Achats|EC000070|20250508|611000|Sous-traitance générale|||FA000063|20250508|Sous-traitance générale - 05/2025|3100,00|0,00|||20250508||
+AC|Achats|EC000070|20250508|618000|Documentation et abonnements|||FA000063|20250508|Abonnements professionnels - 05/2025|450,00|0,00|||20250508||
+AC|Achats|EC000070|20250508|445660|TVA déductible sur ABS|||FA000063|20250508|TVA déductible LogiServ - 05/2025|710,00|0,00|||20250508||
+AC|Achats|EC000071|20250508|401005|Fournisseurs - AssurTech|ASSU01|AssurTech|FA000064|20250508|Facture AssurTech - 05/2025|0,00|4656,00|AA066||20250508||
+AC|Achats|EC000071|20250508|613000|Locations|||FA000064|20250508|Loyer bureaux - 05/2025|3200,00|0,00|||20250508||
+AC|Achats|EC000071|20250508|616000|Assurances|||FA000064|20250508|Prime assurance - 05/2025|680,00|0,00|||20250508||
+AC|Achats|EC000071|20250508|445660|TVA déductible sur ABS|||FA000064|20250508|TVA déductible AssurTech - 05/2025|776,00|0,00|||20250508||
+AC|Achats|EC000072|20250508|401004|Fournisseurs - TélécomPro|TELE01|TélécomPro|FA000065|20250508|Facture TélécomPro - 05/2025|0,00|6588,00|AA067||20250508||
+AC|Achats|EC000072|20250508|623000|Publicité et marketing|||FA000065|20250508|Campagne marketing - 05/2025|1800,00|0,00|||20250508||
+AC|Achats|EC000072|20250508|625000|Déplacements et missions|||FA000065|20250508|Frais déplacements - 05/2025|2800,00|0,00|||20250508||
+AC|Achats|EC000072|20250508|626000|Télécommunications|||FA000065|20250508|Abonnements télécom - 05/2025|890,00|0,00|||20250508||
+AC|Achats|EC000072|20250508|445660|TVA déductible sur ABS|||FA000065|20250508|TVA déductible TélécomPro - 05/2025|1098,00|0,00|||20250508||
+BQ|Banque|EC000073|20250525|627000|Services bancaires|||BQ000005|20250525|Frais bancaires - 05/2025|122,00|0,00|||20250525||
+BQ|Banque|EC000073|20250525|512000|Banque Société Générale|||BQ000005|20250525|Frais bancaires - 05/2025|0,00|122,00|||20250525||
+AC|Achats|EC000074|20250608|401001|Fournisseurs - Informatique+|INFO01|Informatique+|FA000066|20250608|Facture Informatique+ - 06/2025|0,00|8640,00|AA068||20250608||
+AC|Achats|EC000074|20250608|601000|Achats matières premières|||FA000066|20250608|Achats composants informatiques - 06/2025|2900,00|0,00|||20250608||
+AC|Achats|EC000074|20250608|607000|Achats de marchandises|||FA000066|20250608|Achat marchandises pour revente - 06/2025|4300,00|0,00|||20250608||
+AC|Achats|EC000074|20250608|445660|TVA déductible sur ABS|||FA000066|20250608|TVA déductible Informatique+ - 06/2025|1440,00|0,00|||20250608||
+AC|Achats|EC000075|20250608|401003|Fournisseurs - BureauPlus|BURE01|BureauPlus|FA000067|20250608|Facture BureauPlus - 06/2025|0,00|684,00|AA069||20250608||
+AC|Achats|EC000075|20250608|606100|Énergie|||FA000067|20250608|Électricité et gaz - 06/2025|360,00|0,00|||20250608||
+AC|Achats|EC000075|20250608|606400|Fournitures de bureau|||FA000067|20250608|Fournitures bureau - 06/2025|210,00|0,00|||20250608||
+AC|Achats|EC000075|20250608|445660|TVA déductible sur ABS|||FA000067|20250608|TVA déductible BureauPlus - 06/2025|114,00|0,00|||20250608||
+AC|Achats|EC000076|20250608|401002|Fournisseurs - LogiServ|LOGI01|LogiServ|FA000068|20250608|Facture LogiServ - 06/2025|0,00|4956,00|AA070||20250608||
+AC|Achats|EC000076|20250608|611000|Sous-traitance générale|||FA000068|20250608|Sous-traitance générale - 06/2025|2900,00|0,00|||20250608||
+AC|Achats|EC000076|20250608|615000|Maintenance|||FA000068|20250608|Contrat maintenance - T2/2025|780,00|0,00|||20250608||
+AC|Achats|EC000076|20250608|618000|Documentation et abonnements|||FA000068|20250608|Abonnements professionnels - 06/2025|450,00|0,00|||20250608||
+AC|Achats|EC000076|20250608|445660|TVA déductible sur ABS|||FA000068|20250608|TVA déductible LogiServ - 06/2025|826,00|0,00|||20250608||
+AC|Achats|EC000077|20250608|401005|Fournisseurs - AssurTech|ASSU01|AssurTech|FA000069|20250608|Facture AssurTech - 06/2025|0,00|7536,00|AA071||20250608||
+AC|Achats|EC000077|20250608|613000|Locations|||FA000069|20250608|Loyer bureaux - 06/2025|3200,00|0,00|||20250608||
+AC|Achats|EC000077|20250608|616000|Assurances|||FA000069|20250608|Prime assurance - 06/2025|680,00|0,00|||20250608||
+AC|Achats|EC000077|20250608|622000|Honoraires|||FA000069|20250608|Honoraires cabinet comptable - T2/2025|2400,00|0,00|||20250608||
+AC|Achats|EC000077|20250608|445660|TVA déductible sur ABS|||FA000069|20250608|TVA déductible AssurTech - 06/2025|1256,00|0,00|||20250608||
+AC|Achats|EC000078|20250608|401004|Fournisseurs - TélécomPro|TELE01|TélécomPro|FA000070|20250608|Facture TélécomPro - 06/2025|0,00|3588,00|AA072||20250608||
+AC|Achats|EC000078|20250608|623000|Publicité et marketing|||FA000070|20250608|Campagne marketing - 06/2025|500,00|0,00|||20250608||
+AC|Achats|EC000078|20250608|625000|Déplacements et missions|||FA000070|20250608|Frais déplacements - 06/2025|1600,00|0,00|||20250608||
+AC|Achats|EC000078|20250608|626000|Télécommunications|||FA000070|20250608|Abonnements télécom - 06/2025|890,00|0,00|||20250608||
+AC|Achats|EC000078|20250608|445660|TVA déductible sur ABS|||FA000070|20250608|TVA déductible TélécomPro - 06/2025|598,00|0,00|||20250608||
+BQ|Banque|EC000079|20250625|627000|Services bancaires|||BQ000006|20250625|Frais bancaires - 06/2025|130,00|0,00|||20250625||
+BQ|Banque|EC000079|20250625|512000|Banque Société Générale|||BQ000006|20250625|Frais bancaires - 06/2025|0,00|130,00|||20250625||
+AC|Achats|EC000080|20250708|401001|Fournisseurs - Informatique+|INFO01|Informatique+|FA000071|20250708|Facture Informatique+ - 07/2025|0,00|2160,00|AA073||20250708||
+AC|Achats|EC000080|20250708|601000|Achats matières premières|||FA000071|20250708|Achats composants informatiques - 07/2025|1800,00|0,00|||20250708||
+AC|Achats|EC000080|20250708|445660|TVA déductible sur ABS|||FA000071|20250708|TVA déductible Informatique+ - 07/2025|360,00|0,00|||20250708||
+AC|Achats|EC000081|20250708|401003|Fournisseurs - BureauPlus|BURE01|BureauPlus|FA000072|20250708|Facture BureauPlus - 07/2025|0,00|696,00|AA074||20250708||
+AC|Achats|EC000081|20250708|606100|Énergie|||FA000072|20250708|Électricité et gaz - 07/2025|390,00|0,00|||20250708||
+AC|Achats|EC000081|20250708|606400|Fournitures de bureau|||FA000072|20250708|Fournitures bureau - 07/2025|190,00|0,00|||20250708||
+AC|Achats|EC000081|20250708|445660|TVA déductible sur ABS|||FA000072|20250708|TVA déductible BureauPlus - 07/2025|116,00|0,00|||20250708||
+AC|Achats|EC000082|20250708|401002|Fournisseurs - LogiServ|LOGI01|LogiServ|FA000073|20250708|Facture LogiServ - 07/2025|0,00|2940,00|AA075||20250708||
+AC|Achats|EC000082|20250708|611000|Sous-traitance générale|||FA000073|20250708|Sous-traitance générale - 07/2025|2000,00|0,00|||20250708||
+AC|Achats|EC000082|20250708|618000|Documentation et abonnements|||FA000073|20250708|Abonnements professionnels - 07/2025|450,00|0,00|||20250708||
+AC|Achats|EC000082|20250708|445660|TVA déductible sur ABS|||FA000073|20250708|TVA déductible LogiServ - 07/2025|490,00|0,00|||20250708||
+AC|Achats|EC000083|20250708|401005|Fournisseurs - AssurTech|ASSU01|AssurTech|FA000074|20250708|Facture AssurTech - 07/2025|0,00|4656,00|AA076||20250708||
+AC|Achats|EC000083|20250708|613000|Locations|||FA000074|20250708|Loyer bureaux - 07/2025|3200,00|0,00|||20250708||
+AC|Achats|EC000083|20250708|616000|Assurances|||FA000074|20250708|Prime assurance - 07/2025|680,00|0,00|||20250708||
+AC|Achats|EC000083|20250708|445660|TVA déductible sur ABS|||FA000074|20250708|TVA déductible AssurTech - 07/2025|776,00|0,00|||20250708||
+AC|Achats|EC000084|20250708|401004|Fournisseurs - TélécomPro|TELE01|TélécomPro|FA000075|20250708|Facture TélécomPro - 07/2025|0,00|2868,00|AA077||20250708||
+AC|Achats|EC000084|20250708|623000|Publicité et marketing|||FA000075|20250708|Campagne marketing - 07/2025|700,00|0,00|||20250708||
+AC|Achats|EC000084|20250708|625000|Déplacements et missions|||FA000075|20250708|Frais déplacements - 07/2025|800,00|0,00|||20250708||
+AC|Achats|EC000084|20250708|626000|Télécommunications|||FA000075|20250708|Abonnements télécom - 07/2025|890,00|0,00|||20250708||
+AC|Achats|EC000084|20250708|445660|TVA déductible sur ABS|||FA000075|20250708|TVA déductible TélécomPro - 07/2025|478,00|0,00|||20250708||
+BQ|Banque|EC000085|20250725|627000|Services bancaires|||BQ000007|20250725|Frais bancaires - 07/2025|110,00|0,00|||20250725||
+BQ|Banque|EC000085|20250725|512000|Banque Société Générale|||BQ000007|20250725|Frais bancaires - 07/2025|0,00|110,00|||20250725||
+AC|Achats|EC000086|20250808|401001|Fournisseurs - Informatique+|INFO01|Informatique+|FA000076|20250808|Facture Informatique+ - 08/2025|0,00|13200,00|AA078||20250808||
+AC|Achats|EC000086|20250808|601000|Achats matières premières|||FA000076|20250808|Achats composants informatiques - 08/2025|2200,00|0,00|||20250808||
+AC|Achats|EC000086|20250808|604000|Achats sous-traitance|||FA000076|20250808|Sous-traitance développement - 08/2025|6100,00|0,00|||20250808||
+AC|Achats|EC000086|20250808|607000|Achats de marchandises|||FA000076|20250808|Achat marchandises pour revente - 08/2025|2700,00|0,00|||20250808||
+AC|Achats|EC000086|20250808|445660|TVA déductible sur ABS|||FA000076|20250808|TVA déductible Informatique+ - 08/2025|2200,00|0,00|||20250808||
+AC|Achats|EC000087|20250808|401003|Fournisseurs - BureauPlus|BURE01|BureauPlus|FA000077|20250808|Facture BureauPlus - 08/2025|0,00|768,00|AA079||20250808||
+AC|Achats|EC000087|20250808|606100|Énergie|||FA000077|20250808|Électricité et gaz - 08/2025|400,00|0,00|||20250808||
+AC|Achats|EC000087|20250808|606400|Fournitures de bureau|||FA000077|20250808|Fournitures bureau - 08/2025|240,00|0,00|||20250808||
+AC|Achats|EC000087|20250808|445660|TVA déductible sur ABS|||FA000077|20250808|TVA déductible BureauPlus - 08/2025|128,00|0,00|||20250808||
+AC|Achats|EC000088|20250808|401002|Fournisseurs - LogiServ|LOGI01|LogiServ|FA000078|20250808|Facture LogiServ - 08/2025|0,00|3420,00|AA080||20250808||
+AC|Achats|EC000088|20250808|611000|Sous-traitance générale|||FA000078|20250808|Sous-traitance générale - 08/2025|2400,00|0,00|||20250808||
+AC|Achats|EC000088|20250808|618000|Documentation et abonnements|||FA000078|20250808|Abonnements professionnels - 08/2025|450,00|0,00|||20250808||
+AC|Achats|EC000088|20250808|445660|TVA déductible sur ABS|||FA000078|20250808|TVA déductible LogiServ - 08/2025|570,00|0,00|||20250808||
+AC|Achats|EC000089|20250808|401005|Fournisseurs - AssurTech|ASSU01|AssurTech|FA000079|20250808|Facture AssurTech - 08/2025|0,00|4656,00|AA081||20250808||
+AC|Achats|EC000089|20250808|613000|Locations|||FA000079|20250808|Loyer bureaux - 08/2025|3200,00|0,00|||20250808||
+AC|Achats|EC000089|20250808|616000|Assurances|||FA000079|20250808|Prime assurance - 08/2025|680,00|0,00|||20250808||
+AC|Achats|EC000089|20250808|445660|TVA déductible sur ABS|||FA000079|20250808|TVA déductible AssurTech - 08/2025|776,00|0,00|||20250808||
+AC|Achats|EC000090|20250808|401004|Fournisseurs - TélécomPro|TELE01|TélécomPro|FA000080|20250808|Facture TélécomPro - 08/2025|0,00|3348,00|AA082||20250808||
+AC|Achats|EC000090|20250808|623000|Publicité et marketing|||FA000080|20250808|Campagne marketing - 08/2025|900,00|0,00|||20250808||
+AC|Achats|EC000090|20250808|625000|Déplacements et missions|||FA000080|20250808|Frais déplacements - 08/2025|1000,00|0,00|||20250808||
+AC|Achats|EC000090|20250808|626000|Télécommunications|||FA000080|20250808|Abonnements télécom - 08/2025|890,00|0,00|||20250808||
+AC|Achats|EC000090|20250808|445660|TVA déductible sur ABS|||FA000080|20250808|TVA déductible TélécomPro - 08/2025|558,00|0,00|||20250808||
+BQ|Banque|EC000091|20250825|627000|Services bancaires|||BQ000008|20250825|Frais bancaires - 08/2025|108,00|0,00|||20250825||
+BQ|Banque|EC000091|20250825|512000|Banque Société Générale|||BQ000008|20250825|Frais bancaires - 08/2025|0,00|108,00|||20250825||
+AC|Achats|EC000092|20250908|401001|Fournisseurs - Informatique+|INFO01|Informatique+|FA000081|20250908|Facture Informatique+ - 09/2025|0,00|9120,00|AA083||20250908||
+AC|Achats|EC000092|20250908|601000|Achats matières premières|||FA000081|20250908|Achats composants informatiques - 09/2025|3800,00|0,00|||20250908||
+AC|Achats|EC000092|20250908|607000|Achats de marchandises|||FA000081|20250908|Achat marchandises pour revente - 09/2025|3800,00|0,00|||20250908||
+AC|Achats|EC000092|20250908|445660|TVA déductible sur ABS|||FA000081|20250908|TVA déductible Informatique+ - 09/2025|1520,00|0,00|||20250908||
+AC|Achats|EC000093|20250908|401003|Fournisseurs - BureauPlus|BURE01|BureauPlus|FA000082|20250908|Facture BureauPlus - 09/2025|0,00|816,00|AA084||20250908||
+AC|Achats|EC000093|20250908|606100|Énergie|||FA000082|20250908|Électricité et gaz - 09/2025|370,00|0,00|||20250908||
+AC|Achats|EC000093|20250908|606400|Fournitures de bureau|||FA000082|20250908|Fournitures bureau - 09/2025|310,00|0,00|||20250908||
+AC|Achats|EC000093|20250908|445660|TVA déductible sur ABS|||FA000082|20250908|TVA déductible BureauPlus - 09/2025|136,00|0,00|||20250908||
+AC|Achats|EC000094|20250908|401002|Fournisseurs - LogiServ|LOGI01|LogiServ|FA000083|20250908|Facture LogiServ - 09/2025|0,00|6120,00|AA085||20250908||
+AC|Achats|EC000094|20250908|611000|Sous-traitance générale|||FA000083|20250908|Sous-traitance générale - 09/2025|3800,00|0,00|||20250908||
+AC|Achats|EC000094|20250908|615000|Maintenance|||FA000083|20250908|Contrat maintenance - T3/2025|850,00|0,00|||20250908||
+AC|Achats|EC000094|20250908|618000|Documentation et abonnements|||FA000083|20250908|Abonnements professionnels - 09/2025|450,00|0,00|||20250908||
+AC|Achats|EC000094|20250908|445660|TVA déductible sur ABS|||FA000083|20250908|TVA déductible LogiServ - 09/2025|1020,00|0,00|||20250908||
+AC|Achats|EC000095|20250908|401005|Fournisseurs - AssurTech|ASSU01|AssurTech|FA000084|20250908|Facture AssurTech - 09/2025|0,00|7776,00|AA086||20250908||
+AC|Achats|EC000095|20250908|613000|Locations|||FA000084|20250908|Loyer bureaux - 09/2025|3200,00|0,00|||20250908||
+AC|Achats|EC000095|20250908|616000|Assurances|||FA000084|20250908|Prime assurance - 09/2025|680,00|0,00|||20250908||
+AC|Achats|EC000095|20250908|622000|Honoraires|||FA000084|20250908|Honoraires cabinet comptable - T3/2025|2600,00|0,00|||20250908||
+AC|Achats|EC000095|20250908|445660|TVA déductible sur ABS|||FA000084|20250908|TVA déductible AssurTech - 09/2025|1296,00|0,00|||20250908||
+AC|Achats|EC000096|20250908|401004|Fournisseurs - TélécomPro|TELE01|TélécomPro|FA000085|20250908|Facture TélécomPro - 09/2025|0,00|5748,00|AA087||20250908||
+AC|Achats|EC000096|20250908|623000|Publicité et marketing|||FA000085|20250908|Campagne marketing - 09/2025|1400,00|0,00|||20250908||
+AC|Achats|EC000096|20250908|625000|Déplacements et missions|||FA000085|20250908|Frais déplacements - 09/2025|2500,00|0,00|||20250908||
+AC|Achats|EC000096|20250908|626000|Télécommunications|||FA000085|20250908|Abonnements télécom - 09/2025|890,00|0,00|||20250908||
+AC|Achats|EC000096|20250908|445660|TVA déductible sur ABS|||FA000085|20250908|TVA déductible TélécomPro - 09/2025|958,00|0,00|||20250908||
+BQ|Banque|EC000097|20250925|627000|Services bancaires|||BQ000009|20250925|Frais bancaires - 09/2025|128,00|0,00|||20250925||
+BQ|Banque|EC000097|20250925|512000|Banque Société Générale|||BQ000009|20250925|Frais bancaires - 09/2025|0,00|128,00|||20250925||
+AC|Achats|EC000098|20251008|401001|Fournisseurs - Informatique+|INFO01|Informatique+|FA000086|20251008|Facture Informatique+ - 10/2025|0,00|17520,00|AA088||20251008||
+AC|Achats|EC000098|20251008|601000|Achats matières premières|||FA000086|20251008|Achats composants informatiques - 10/2025|4200,00|0,00|||20251008||
+AC|Achats|EC000098|20251008|604000|Achats sous-traitance|||FA000086|20251008|Sous-traitance développement - 10/2025|5300,00|0,00|||20251008||
+AC|Achats|EC000098|20251008|607000|Achats de marchandises|||FA000086|20251008|Achat marchandises pour revente - 10/2025|5100,00|0,00|||20251008||
+AC|Achats|EC000098|20251008|445660|TVA déductible sur ABS|||FA000086|20251008|TVA déductible Informatique+ - 10/2025|2920,00|0,00|||20251008||
+AC|Achats|EC000099|20251008|401003|Fournisseurs - BureauPlus|BURE01|BureauPlus|FA000087|20251008|Facture BureauPlus - 10/2025|0,00|840,00|AA089||20251008||
+AC|Achats|EC000099|20251008|606100|Énergie|||FA000087|20251008|Électricité et gaz - 10/2025|410,00|0,00|||20251008||
+AC|Achats|EC000099|20251008|606400|Fournitures de bureau|||FA000087|20251008|Fournitures bureau - 10/2025|290,00|0,00|||20251008||
+AC|Achats|EC000099|20251008|445660|TVA déductible sur ABS|||FA000087|20251008|TVA déductible BureauPlus - 10/2025|140,00|0,00|||20251008||
+AC|Achats|EC000100|20251008|401002|Fournisseurs - LogiServ|LOGI01|LogiServ|FA000088|20251008|Facture LogiServ - 10/2025|0,00|4620,00|AA090||20251008||
+AC|Achats|EC000100|20251008|611000|Sous-traitance générale|||FA000088|20251008|Sous-traitance générale - 10/2025|3400,00|0,00|||20251008||
+AC|Achats|EC000100|20251008|618000|Documentation et abonnements|||FA000088|20251008|Abonnements professionnels - 10/2025|450,00|0,00|||20251008||
+AC|Achats|EC000100|20251008|445660|TVA déductible sur ABS|||FA000088|20251008|TVA déductible LogiServ - 10/2025|770,00|0,00|||20251008||
+AC|Achats|EC000101|20251008|401005|Fournisseurs - AssurTech|ASSU01|AssurTech|FA000089|20251008|Facture AssurTech - 10/2025|0,00|4656,00|AA091||20251008||
+AC|Achats|EC000101|20251008|613000|Locations|||FA000089|20251008|Loyer bureaux - 10/2025|3200,00|0,00|||20251008||
+AC|Achats|EC000101|20251008|616000|Assurances|||FA000089|20251008|Prime assurance - 10/2025|680,00|0,00|||20251008||
+AC|Achats|EC000101|20251008|445660|TVA déductible sur ABS|||FA000089|20251008|TVA déductible AssurTech - 10/2025|776,00|0,00|||20251008||
+AC|Achats|EC000102|20251008|401004|Fournisseurs - TélécomPro|TELE01|TélécomPro|FA000090|20251008|Facture TélécomPro - 10/2025|0,00|7068,00|AA092||20251008||
+AC|Achats|EC000102|20251008|623000|Publicité et marketing|||FA000090|20251008|Campagne marketing - 10/2025|2000,00|0,00|||20251008||
+AC|Achats|EC000102|20251008|625000|Déplacements et missions|||FA000090|20251008|Frais déplacements - 10/2025|3000,00|0,00|||20251008||
+AC|Achats|EC000102|20251008|626000|Télécommunications|||FA000090|20251008|Abonnements télécom - 10/2025|890,00|0,00|||20251008||
+AC|Achats|EC000102|20251008|445660|TVA déductible sur ABS|||FA000090|20251008|TVA déductible TélécomPro - 10/2025|1178,00|0,00|||20251008||
+BQ|Banque|EC000103|20251025|627000|Services bancaires|||BQ000010|20251025|Frais bancaires - 10/2025|135,00|0,00|||20251025||
+BQ|Banque|EC000103|20251025|512000|Banque Société Générale|||BQ000010|20251025|Frais bancaires - 10/2025|0,00|135,00|||20251025||
+AC|Achats|EC000104|20251108|401001|Fournisseurs - Informatique+|INFO01|Informatique+|FA000091|20251108|Facture Informatique+ - 11/2025|0,00|12360,00|AA093||20251108||
+AC|Achats|EC000104|20251108|601000|Achats matières premières|||FA000091|20251108|Achats composants informatiques - 11/2025|3600,00|0,00|||20251108||
+AC|Achats|EC000104|20251108|607000|Achats de marchandises|||FA000091|20251108|Achat marchandises pour revente - 11/2025|6700,00|0,00|||20251108||
+AC|Achats|EC000104|20251108|445660|TVA déductible sur ABS|||FA000091|20251108|TVA déductible Informatique+ - 11/2025|2060,00|0,00|||20251108||
+AC|Achats|EC000105|20251108|401003|Fournisseurs - BureauPlus|BURE01|BureauPlus|FA000092|20251108|Facture BureauPlus - 11/2025|0,00|1032,00|AA094||20251108||
+AC|Achats|EC000105|20251108|606100|Énergie|||FA000092|20251108|Électricité et gaz - 11/2025|460,00|0,00|||20251108||
+AC|Achats|EC000105|20251108|606400|Fournitures de bureau|||FA000092|20251108|Fournitures bureau - 11/2025|400,00|0,00|||20251108||
+AC|Achats|EC000105|20251108|445660|TVA déductible sur ABS|||FA000092|20251108|TVA déductible BureauPlus - 11/2025|172,00|0,00|||20251108||
+AC|Achats|EC000106|20251108|401002|Fournisseurs - LogiServ|LOGI01|LogiServ|FA000093|20251108|Facture LogiServ - 11/2025|0,00|5340,00|AA095||20251108||
+AC|Achats|EC000106|20251108|611000|Sous-traitance générale|||FA000093|20251108|Sous-traitance générale - 11/2025|4000,00|0,00|||20251108||
+AC|Achats|EC000106|20251108|618000|Documentation et abonnements|||FA000093|20251108|Abonnements professionnels - 11/2025|450,00|0,00|||20251108||
+AC|Achats|EC000106|20251108|445660|TVA déductible sur ABS|||FA000093|20251108|TVA déductible LogiServ - 11/2025|890,00|0,00|||20251108||
+AC|Achats|EC000107|20251108|401005|Fournisseurs - AssurTech|ASSU01|AssurTech|FA000094|20251108|Facture AssurTech - 11/2025|0,00|4656,00|AA096||20251108||
+AC|Achats|EC000107|20251108|613000|Locations|||FA000094|20251108|Loyer bureaux - 11/2025|3200,00|0,00|||20251108||
+AC|Achats|EC000107|20251108|616000|Assurances|||FA000094|20251108|Prime assurance - 11/2025|680,00|0,00|||20251108||
+AC|Achats|EC000107|20251108|445660|TVA déductible sur ABS|||FA000094|20251108|TVA déductible AssurTech - 11/2025|776,00|0,00|||20251108||
+AC|Achats|EC000108|20251108|401004|Fournisseurs - TélécomPro|TELE01|TélécomPro|FA000095|20251108|Facture TélécomPro - 11/2025|0,00|5868,00|AA097||20251108||
+AC|Achats|EC000108|20251108|623000|Publicité et marketing|||FA000095|20251108|Campagne marketing - 11/2025|1600,00|0,00|||20251108||
+AC|Achats|EC000108|20251108|625000|Déplacements et missions|||FA000095|20251108|Frais déplacements - 11/2025|2400,00|0,00|||20251108||
+AC|Achats|EC000108|20251108|626000|Télécommunications|||FA000095|20251108|Abonnements télécom - 11/2025|890,00|0,00|||20251108||
+AC|Achats|EC000108|20251108|445660|TVA déductible sur ABS|||FA000095|20251108|TVA déductible TélécomPro - 11/2025|978,00|0,00|||20251108||
+BQ|Banque|EC000109|20251125|627000|Services bancaires|||BQ000011|20251125|Frais bancaires - 11/2025|142,00|0,00|||20251125||
+BQ|Banque|EC000109|20251125|512000|Banque Société Générale|||BQ000011|20251125|Frais bancaires - 11/2025|0,00|142,00|||20251125||
+AC|Achats|EC000110|20251208|401001|Fournisseurs - Informatique+|INFO01|Informatique+|FA000096|20251208|Facture Informatique+ - 12/2025|0,00|25080,00|AA098||20251208||
+AC|Achats|EC000110|20251208|601000|Achats matières premières|||FA000096|20251208|Achats composants informatiques - 12/2025|5100,00|0,00|||20251208||
+AC|Achats|EC000110|20251208|604000|Achats sous-traitance|||FA000096|20251208|Sous-traitance développement - 12/2025|8400,00|0,00|||20251208||
+AC|Achats|EC000110|20251208|607000|Achats de marchandises|||FA000096|20251208|Achat marchandises pour revente - 12/2025|7400,00|0,00|||20251208||
+AC|Achats|EC000110|20251208|445660|TVA déductible sur ABS|||FA000096|20251208|TVA déductible Informatique+ - 12/2025|4180,00|0,00|||20251208||
+AC|Achats|EC000111|20251208|401003|Fournisseurs - BureauPlus|BURE01|BureauPlus|FA000097|20251208|Facture BureauPlus - 12/2025|0,00|1044,00|AA099||20251208||
+AC|Achats|EC000111|20251208|606100|Énergie|||FA000097|20251208|Électricité et gaz - 12/2025|500,00|0,00|||20251208||
+AC|Achats|EC000111|20251208|606400|Fournitures de bureau|||FA000097|20251208|Fournitures bureau - 12/2025|370,00|0,00|||20251208||
+AC|Achats|EC000111|20251208|445660|TVA déductible sur ABS|||FA000097|20251208|TVA déductible BureauPlus - 12/2025|174,00|0,00|||20251208||
+AC|Achats|EC000112|20251208|401002|Fournisseurs - LogiServ|LOGI01|LogiServ|FA000098|20251208|Facture LogiServ - 12/2025|0,00|5952,00|AA100||20251208||
+AC|Achats|EC000112|20251208|611000|Sous-traitance générale|||FA000098|20251208|Sous-traitance générale - 12/2025|3700,00|0,00|||20251208||
+AC|Achats|EC000112|20251208|615000|Maintenance|||FA000098|20251208|Contrat maintenance - T4/2025|810,00|0,00|||20251208||
+AC|Achats|EC000112|20251208|618000|Documentation et abonnements|||FA000098|20251208|Abonnements professionnels - 12/2025|450,00|0,00|||20251208||
+AC|Achats|EC000112|20251208|445660|TVA déductible sur ABS|||FA000098|20251208|TVA déductible LogiServ - 12/2025|992,00|0,00|||20251208||
+AC|Achats|EC000113|20251208|401005|Fournisseurs - AssurTech|ASSU01|AssurTech|FA000099|20251208|Facture AssurTech - 12/2025|0,00|8016,00|AA101||20251208||
+AC|Achats|EC000113|20251208|613000|Locations|||FA000099|20251208|Loyer bureaux - 12/2025|3200,00|0,00|||20251208||
+AC|Achats|EC000113|20251208|616000|Assurances|||FA000099|20251208|Prime assurance - 12/2025|680,00|0,00|||20251208||
+AC|Achats|EC000113|20251208|622000|Honoraires|||FA000099|20251208|Honoraires cabinet comptable - T4/2025|2800,00|0,00|||20251208||
+AC|Achats|EC000113|20251208|445660|TVA déductible sur ABS|||FA000099|20251208|TVA déductible AssurTech - 12/2025|1336,00|0,00|||20251208||
+AC|Achats|EC000114|20251208|401004|Fournisseurs - TélécomPro|TELE01|TélécomPro|FA000100|20251208|Facture TélécomPro - 12/2025|0,00|4668,00|AA102||20251208||
+AC|Achats|EC000114|20251208|623000|Publicité et marketing|||FA000100|20251208|Campagne marketing - 12/2025|1100,00|0,00|||20251208||
+AC|Achats|EC000114|20251208|625000|Déplacements et missions|||FA000100|20251208|Frais déplacements - 12/2025|1900,00|0,00|||20251208||
+AC|Achats|EC000114|20251208|626000|Télécommunications|||FA000100|20251208|Abonnements télécom - 12/2025|890,00|0,00|||20251208||
+AC|Achats|EC000114|20251208|445660|TVA déductible sur ABS|||FA000100|20251208|TVA déductible TélécomPro - 12/2025|778,00|0,00|||20251208||
+BQ|Banque|EC000115|20251225|627000|Services bancaires|||BQ000012|20251225|Frais bancaires - 12/2025|138,00|0,00|||20251225||
+BQ|Banque|EC000115|20251225|512000|Banque Société Générale|||BQ000012|20251225|Frais bancaires - 12/2025|0,00|138,00|||20251225||
+SA|Salaires|EC000116|20250128|641000|Rémunérations du personnel|||SA000001|20250128|Salaires bruts - 01/2025|18500,00|0,00|||20250128||
+SA|Salaires|EC000116|20250128|645100|Cotisations URSSAF|||SA000001|20250128|Charges patronales URSSAF - 01/2025|7400,00|0,00|||20250128||
+SA|Salaires|EC000116|20250128|645200|Cotisations retraite|||SA000001|20250128|Charges patronales retraite - 01/2025|2775,00|0,00|||20250128||
+SA|Salaires|EC000116|20250128|647000|Tickets restaurant|||SA000001|20250128|Tickets restaurant - 01/2025|440,00|0,00|||20250128||
+SA|Salaires|EC000116|20250128|421000|Personnel - Rémunérations dues|||SA000001|20250128|Net à payer - 01/2025|0,00|12580,00|||20250128||
+SA|Salaires|EC000116|20250128|421000|Personnel - Rémunérations dues|||SA000001|20250128|Tickets restaurant part salariale - 01/2025|0,00|440,00|||20250128||
+SA|Salaires|EC000116|20250128|431000|Sécurité sociale|||SA000001|20250128|Cotisations SS - 01/2025|0,00|11470,00|||20250128||
+SA|Salaires|EC000116|20250128|437000|Autres organismes sociaux|||SA000001|20250128|Cotisations retraite - 01/2025|0,00|4625,00|||20250128||
+SA|Salaires|EC000117|20250228|641000|Rémunérations du personnel|||SA000002|20250228|Salaires bruts - 02/2025|18500,00|0,00|||20250228||
+SA|Salaires|EC000117|20250228|645100|Cotisations URSSAF|||SA000002|20250228|Charges patronales URSSAF - 02/2025|7400,00|0,00|||20250228||
+SA|Salaires|EC000117|20250228|645200|Cotisations retraite|||SA000002|20250228|Charges patronales retraite - 02/2025|2775,00|0,00|||20250228||
+SA|Salaires|EC000117|20250228|647000|Tickets restaurant|||SA000002|20250228|Tickets restaurant - 02/2025|440,00|0,00|||20250228||
+SA|Salaires|EC000117|20250228|421000|Personnel - Rémunérations dues|||SA000002|20250228|Net à payer - 02/2025|0,00|12580,00|||20250228||
+SA|Salaires|EC000117|20250228|421000|Personnel - Rémunérations dues|||SA000002|20250228|Tickets restaurant part salariale - 02/2025|0,00|440,00|||20250228||
+SA|Salaires|EC000117|20250228|431000|Sécurité sociale|||SA000002|20250228|Cotisations SS - 02/2025|0,00|11470,00|||20250228||
+SA|Salaires|EC000117|20250228|437000|Autres organismes sociaux|||SA000002|20250228|Cotisations retraite - 02/2025|0,00|4625,00|||20250228||
+SA|Salaires|EC000118|20250328|641000|Rémunérations du personnel|||SA000003|20250328|Salaires bruts - 03/2025|18500,00|0,00|||20250328||
+SA|Salaires|EC000118|20250328|645100|Cotisations URSSAF|||SA000003|20250328|Charges patronales URSSAF - 03/2025|7400,00|0,00|||20250328||
+SA|Salaires|EC000118|20250328|645200|Cotisations retraite|||SA000003|20250328|Charges patronales retraite - 03/2025|2775,00|0,00|||20250328||
+SA|Salaires|EC000118|20250328|647000|Tickets restaurant|||SA000003|20250328|Tickets restaurant - 03/2025|440,00|0,00|||20250328||
+SA|Salaires|EC000118|20250328|421000|Personnel - Rémunérations dues|||SA000003|20250328|Net à payer - 03/2025|0,00|12580,00|||20250328||
+SA|Salaires|EC000118|20250328|421000|Personnel - Rémunérations dues|||SA000003|20250328|Tickets restaurant part salariale - 03/2025|0,00|440,00|||20250328||
+SA|Salaires|EC000118|20250328|431000|Sécurité sociale|||SA000003|20250328|Cotisations SS - 03/2025|0,00|11470,00|||20250328||
+SA|Salaires|EC000118|20250328|437000|Autres organismes sociaux|||SA000003|20250328|Cotisations retraite - 03/2025|0,00|4625,00|||20250328||
+SA|Salaires|EC000119|20250428|641000|Rémunérations du personnel|||SA000004|20250428|Salaires bruts - 04/2025|18500,00|0,00|||20250428||
+SA|Salaires|EC000119|20250428|645100|Cotisations URSSAF|||SA000004|20250428|Charges patronales URSSAF - 04/2025|7400,00|0,00|||20250428||
+SA|Salaires|EC000119|20250428|645200|Cotisations retraite|||SA000004|20250428|Charges patronales retraite - 04/2025|2775,00|0,00|||20250428||
+SA|Salaires|EC000119|20250428|647000|Tickets restaurant|||SA000004|20250428|Tickets restaurant - 04/2025|440,00|0,00|||20250428||
+SA|Salaires|EC000119|20250428|421000|Personnel - Rémunérations dues|||SA000004|20250428|Net à payer - 04/2025|0,00|12580,00|||20250428||
+SA|Salaires|EC000119|20250428|421000|Personnel - Rémunérations dues|||SA000004|20250428|Tickets restaurant part salariale - 04/2025|0,00|440,00|||20250428||
+SA|Salaires|EC000119|20250428|431000|Sécurité sociale|||SA000004|20250428|Cotisations SS - 04/2025|0,00|11470,00|||20250428||
+SA|Salaires|EC000119|20250428|437000|Autres organismes sociaux|||SA000004|20250428|Cotisations retraite - 04/2025|0,00|4625,00|||20250428||
+SA|Salaires|EC000120|20250528|641000|Rémunérations du personnel|||SA000005|20250528|Salaires bruts - 05/2025|18500,00|0,00|||20250528||
+SA|Salaires|EC000120|20250528|645100|Cotisations URSSAF|||SA000005|20250528|Charges patronales URSSAF - 05/2025|7400,00|0,00|||20250528||
+SA|Salaires|EC000120|20250528|645200|Cotisations retraite|||SA000005|20250528|Charges patronales retraite - 05/2025|2775,00|0,00|||20250528||
+SA|Salaires|EC000120|20250528|647000|Tickets restaurant|||SA000005|20250528|Tickets restaurant - 05/2025|440,00|0,00|||20250528||
+SA|Salaires|EC000120|20250528|421000|Personnel - Rémunérations dues|||SA000005|20250528|Net à payer - 05/2025|0,00|12580,00|||20250528||
+SA|Salaires|EC000120|20250528|421000|Personnel - Rémunérations dues|||SA000005|20250528|Tickets restaurant part salariale - 05/2025|0,00|440,00|||20250528||
+SA|Salaires|EC000120|20250528|431000|Sécurité sociale|||SA000005|20250528|Cotisations SS - 05/2025|0,00|11470,00|||20250528||
+SA|Salaires|EC000120|20250528|437000|Autres organismes sociaux|||SA000005|20250528|Cotisations retraite - 05/2025|0,00|4625,00|||20250528||
+SA|Salaires|EC000121|20250628|641000|Rémunérations du personnel|||SA000006|20250628|Salaires bruts - 06/2025|18500,00|0,00|||20250628||
+SA|Salaires|EC000121|20250628|645100|Cotisations URSSAF|||SA000006|20250628|Charges patronales URSSAF - 06/2025|7400,00|0,00|||20250628||
+SA|Salaires|EC000121|20250628|645200|Cotisations retraite|||SA000006|20250628|Charges patronales retraite - 06/2025|2775,00|0,00|||20250628||
+SA|Salaires|EC000121|20250628|647000|Tickets restaurant|||SA000006|20250628|Tickets restaurant - 06/2025|440,00|0,00|||20250628||
+SA|Salaires|EC000121|20250628|421000|Personnel - Rémunérations dues|||SA000006|20250628|Net à payer - 06/2025|0,00|12580,00|||20250628||
+SA|Salaires|EC000121|20250628|421000|Personnel - Rémunérations dues|||SA000006|20250628|Tickets restaurant part salariale - 06/2025|0,00|440,00|||20250628||
+SA|Salaires|EC000121|20250628|431000|Sécurité sociale|||SA000006|20250628|Cotisations SS - 06/2025|0,00|11470,00|||20250628||
+SA|Salaires|EC000121|20250628|437000|Autres organismes sociaux|||SA000006|20250628|Cotisations retraite - 06/2025|0,00|4625,00|||20250628||
+SA|Salaires|EC000122|20250728|641000|Rémunérations du personnel|||SA000007|20250728|Salaires bruts - 07/2025|19200,00|0,00|||20250728||
+SA|Salaires|EC000122|20250728|645100|Cotisations URSSAF|||SA000007|20250728|Charges patronales URSSAF - 07/2025|7680,00|0,00|||20250728||
+SA|Salaires|EC000122|20250728|645200|Cotisations retraite|||SA000007|20250728|Charges patronales retraite - 07/2025|2880,00|0,00|||20250728||
+SA|Salaires|EC000122|20250728|647000|Tickets restaurant|||SA000007|20250728|Tickets restaurant - 07/2025|440,00|0,00|||20250728||
+SA|Salaires|EC000122|20250728|421000|Personnel - Rémunérations dues|||SA000007|20250728|Net à payer - 07/2025|0,00|13056,00|||20250728||
+SA|Salaires|EC000122|20250728|421000|Personnel - Rémunérations dues|||SA000007|20250728|Tickets restaurant part salariale - 07/2025|0,00|440,00|||20250728||
+SA|Salaires|EC000122|20250728|431000|Sécurité sociale|||SA000007|20250728|Cotisations SS - 07/2025|0,00|11904,00|||20250728||
+SA|Salaires|EC000122|20250728|437000|Autres organismes sociaux|||SA000007|20250728|Cotisations retraite - 07/2025|0,00|4800,00|||20250728||
+SA|Salaires|EC000123|20250828|641000|Rémunérations du personnel|||SA000008|20250828|Salaires bruts - 08/2025|19200,00|0,00|||20250828||
+SA|Salaires|EC000123|20250828|645100|Cotisations URSSAF|||SA000008|20250828|Charges patronales URSSAF - 08/2025|7680,00|0,00|||20250828||
+SA|Salaires|EC000123|20250828|645200|Cotisations retraite|||SA000008|20250828|Charges patronales retraite - 08/2025|2880,00|0,00|||20250828||
+SA|Salaires|EC000123|20250828|647000|Tickets restaurant|||SA000008|20250828|Tickets restaurant - 08/2025|440,00|0,00|||20250828||
+SA|Salaires|EC000123|20250828|421000|Personnel - Rémunérations dues|||SA000008|20250828|Net à payer - 08/2025|0,00|13056,00|||20250828||
+SA|Salaires|EC000123|20250828|421000|Personnel - Rémunérations dues|||SA000008|20250828|Tickets restaurant part salariale - 08/2025|0,00|440,00|||20250828||
+SA|Salaires|EC000123|20250828|431000|Sécurité sociale|||SA000008|20250828|Cotisations SS - 08/2025|0,00|11904,00|||20250828||
+SA|Salaires|EC000123|20250828|437000|Autres organismes sociaux|||SA000008|20250828|Cotisations retraite - 08/2025|0,00|4800,00|||20250828||
+SA|Salaires|EC000124|20250928|641000|Rémunérations du personnel|||SA000009|20250928|Salaires bruts - 09/2025|19200,00|0,00|||20250928||
+SA|Salaires|EC000124|20250928|645100|Cotisations URSSAF|||SA000009|20250928|Charges patronales URSSAF - 09/2025|7680,00|0,00|||20250928||
+SA|Salaires|EC000124|20250928|645200|Cotisations retraite|||SA000009|20250928|Charges patronales retraite - 09/2025|2880,00|0,00|||20250928||
+SA|Salaires|EC000124|20250928|647000|Tickets restaurant|||SA000009|20250928|Tickets restaurant - 09/2025|440,00|0,00|||20250928||
+SA|Salaires|EC000124|20250928|421000|Personnel - Rémunérations dues|||SA000009|20250928|Net à payer - 09/2025|0,00|13056,00|||20250928||
+SA|Salaires|EC000124|20250928|421000|Personnel - Rémunérations dues|||SA000009|20250928|Tickets restaurant part salariale - 09/2025|0,00|440,00|||20250928||
+SA|Salaires|EC000124|20250928|431000|Sécurité sociale|||SA000009|20250928|Cotisations SS - 09/2025|0,00|11904,00|||20250928||
+SA|Salaires|EC000124|20250928|437000|Autres organismes sociaux|||SA000009|20250928|Cotisations retraite - 09/2025|0,00|4800,00|||20250928||
+SA|Salaires|EC000125|20251028|641000|Rémunérations du personnel|||SA000010|20251028|Salaires bruts - 10/2025|19200,00|0,00|||20251028||
+SA|Salaires|EC000125|20251028|645100|Cotisations URSSAF|||SA000010|20251028|Charges patronales URSSAF - 10/2025|7680,00|0,00|||20251028||
+SA|Salaires|EC000125|20251028|645200|Cotisations retraite|||SA000010|20251028|Charges patronales retraite - 10/2025|2880,00|0,00|||20251028||
+SA|Salaires|EC000125|20251028|647000|Tickets restaurant|||SA000010|20251028|Tickets restaurant - 10/2025|440,00|0,00|||20251028||
+SA|Salaires|EC000125|20251028|421000|Personnel - Rémunérations dues|||SA000010|20251028|Net à payer - 10/2025|0,00|13056,00|||20251028||
+SA|Salaires|EC000125|20251028|421000|Personnel - Rémunérations dues|||SA000010|20251028|Tickets restaurant part salariale - 10/2025|0,00|440,00|||20251028||
+SA|Salaires|EC000125|20251028|431000|Sécurité sociale|||SA000010|20251028|Cotisations SS - 10/2025|0,00|11904,00|||20251028||
+SA|Salaires|EC000125|20251028|437000|Autres organismes sociaux|||SA000010|20251028|Cotisations retraite - 10/2025|0,00|4800,00|||20251028||
+SA|Salaires|EC000126|20251128|641000|Rémunérations du personnel|||SA000011|20251128|Salaires bruts - 11/2025|19200,00|0,00|||20251128||
+SA|Salaires|EC000126|20251128|645100|Cotisations URSSAF|||SA000011|20251128|Charges patronales URSSAF - 11/2025|7680,00|0,00|||20251128||
+SA|Salaires|EC000126|20251128|645200|Cotisations retraite|||SA000011|20251128|Charges patronales retraite - 11/2025|2880,00|0,00|||20251128||
+SA|Salaires|EC000126|20251128|647000|Tickets restaurant|||SA000011|20251128|Tickets restaurant - 11/2025|440,00|0,00|||20251128||
+SA|Salaires|EC000126|20251128|421000|Personnel - Rémunérations dues|||SA000011|20251128|Net à payer - 11/2025|0,00|13056,00|||20251128||
+SA|Salaires|EC000126|20251128|421000|Personnel - Rémunérations dues|||SA000011|20251128|Tickets restaurant part salariale - 11/2025|0,00|440,00|||20251128||
+SA|Salaires|EC000126|20251128|431000|Sécurité sociale|||SA000011|20251128|Cotisations SS - 11/2025|0,00|11904,00|||20251128||
+SA|Salaires|EC000126|20251128|437000|Autres organismes sociaux|||SA000011|20251128|Cotisations retraite - 11/2025|0,00|4800,00|||20251128||
+SA|Salaires|EC000127|20251228|641000|Rémunérations du personnel|||SA000012|20251228|Salaires bruts - 12/2025|19200,00|0,00|||20251228||
+SA|Salaires|EC000127|20251228|645100|Cotisations URSSAF|||SA000012|20251228|Charges patronales URSSAF - 12/2025|7680,00|0,00|||20251228||
+SA|Salaires|EC000127|20251228|645200|Cotisations retraite|||SA000012|20251228|Charges patronales retraite - 12/2025|2880,00|0,00|||20251228||
+SA|Salaires|EC000127|20251228|647000|Tickets restaurant|||SA000012|20251228|Tickets restaurant - 12/2025|440,00|0,00|||20251228||
+SA|Salaires|EC000127|20251228|421000|Personnel - Rémunérations dues|||SA000012|20251228|Net à payer - 12/2025|0,00|13056,00|||20251228||
+SA|Salaires|EC000127|20251228|421000|Personnel - Rémunérations dues|||SA000012|20251228|Tickets restaurant part salariale - 12/2025|0,00|440,00|||20251228||
+SA|Salaires|EC000127|20251228|431000|Sécurité sociale|||SA000012|20251228|Cotisations SS - 12/2025|0,00|11904,00|||20251228||
+SA|Salaires|EC000127|20251228|437000|Autres organismes sociaux|||SA000012|20251228|Cotisations retraite - 12/2025|0,00|4800,00|||20251228||
+BQ|Banque|EC000128|20250110|512000|Banque Société Générale|||BQ000013|20250110|Encaissement ACME Corp|28000,00|0,00|||20250110||
+BQ|Banque|EC000128|20250110|411001|Clients - ACME Corp|ACME01|ACME Corp|BQ000013|20250110|Encaissement ACME Corp|0,00|28000,00|||20250110||
+BQ|Banque|EC000129|20250115|512000|Banque Société Générale|||BQ000014|20250115|Encaissement BioTech SA|15600,00|0,00|||20250115||
+BQ|Banque|EC000129|20250115|411002|Clients - BioTech SA|BIOT01|BioTech SA|BQ000014|20250115|Encaissement BioTech SA|0,00|15600,00|||20250115||
+BQ|Banque|EC000130|20250120|512000|Banque Société Générale|||BQ000015|20250120|Encaissement MétalPro|9800,00|0,00|||20250120||
+BQ|Banque|EC000130|20250120|411003|Clients - MétalPro|META01|MétalPro|BQ000015|20250120|Encaissement MétalPro|0,00|9800,00|||20250120||
+BQ|Banque|EC000131|20250112|401001|Fournisseurs - Informatique+|INFO01|Informatique+|BQ000016|20250112|Règlement Informatique+|14200,00|0,00|||20250112||
+BQ|Banque|EC000131|20250112|512000|Banque Société Générale|||BQ000016|20250112|Règlement Informatique+|0,00|14200,00|||20250112||
+BQ|Banque|EC000132|20250118|401002|Fournisseurs - LogiServ|LOGI01|LogiServ|BQ000017|20250118|Règlement LogiServ|8400,00|0,00|||20250118||
+BQ|Banque|EC000132|20250118|512000|Banque Société Générale|||BQ000017|20250118|Règlement LogiServ|0,00|8400,00|||20250118||
+BQ|Banque|EC000133|20250215|512000|Banque Société Générale|||BQ000018|20250215|Encaissement ACME Corp - FA000001|22200,00|0,00|AA001|20250215|20250215||
+BQ|Banque|EC000133|20250215|411001|Clients - ACME Corp|ACME01|ACME Corp|BQ000018|20250215|Encaissement ACME Corp - FA000001|0,00|22200,00|AA001|20250215|20250215||
+BQ|Banque|EC000134|20250218|512000|Banque Société Générale|||BQ000019|20250218|Encaissement BioTech SA - FA000002|15360,00|0,00|AA002|20250218|20250218||
+BQ|Banque|EC000134|20250218|411002|Clients - BioTech SA|BIOT01|BioTech SA|BQ000019|20250218|Encaissement BioTech SA - FA000002|0,00|15360,00|AA002|20250218|20250218||
+BQ|Banque|EC000135|20250221|512000|Banque Société Générale|||BQ000020|20250221|Encaissement DataFlow - FA000003|6240,00|0,00|AA003|20250221|20250221||
+BQ|Banque|EC000135|20250221|411004|Clients - DataFlow|DATA01|DataFlow|BQ000020|20250221|Encaissement DataFlow - FA000003|0,00|6240,00|AA003|20250221|20250221||
+BQ|Banque|EC000136|20250315|512000|Banque Société Générale|||BQ000021|20250315|Encaissement ACME Corp - FA000004|18000,00|0,00|AA004|20250315|20250315||
+BQ|Banque|EC000136|20250315|411001|Clients - ACME Corp|ACME01|ACME Corp|BQ000021|20250315|Encaissement ACME Corp - FA000004|0,00|18000,00|AA004|20250315|20250315||
+BQ|Banque|EC000137|20250318|512000|Banque Société Générale|||BQ000022|20250318|Encaissement MétalPro - FA000005|11400,00|0,00|AA005|20250318|20250318||
+BQ|Banque|EC000137|20250318|411003|Clients - MétalPro|META01|MétalPro|BQ000022|20250318|Encaissement MétalPro - FA000005|0,00|11400,00|AA005|20250318|20250318||
+BQ|Banque|EC000138|20250321|512000|Banque Société Générale|||BQ000023|20250321|Encaissement GreenEnergy - FA000006|10080,00|0,00|AA006|20250321|20250321||
+BQ|Banque|EC000138|20250321|411005|Clients - GreenEnergy|GREEN01|GreenEnergy|BQ000023|20250321|Encaissement GreenEnergy - FA000006|0,00|10080,00|AA006|20250321|20250321||
+BQ|Banque|EC000139|20250324|512000|Banque Société Générale|||BQ000024|20250324|Encaissement BioTech SA - FA000007|2220,00|0,00|AA007|20250324|20250324||
+BQ|Banque|EC000139|20250324|411002|Clients - BioTech SA|BIOT01|BioTech SA|BQ000024|20250324|Encaissement BioTech SA - FA000007|0,00|2220,00|AA007|20250324|20250324||
+BQ|Banque|EC000140|20250415|512000|Banque Société Générale|||BQ000025|20250415|Encaissement ACME Corp - FA000008|26400,00|0,00|AA008|20250415|20250415||
+BQ|Banque|EC000140|20250415|411001|Clients - ACME Corp|ACME01|ACME Corp|BQ000025|20250415|Encaissement ACME Corp - FA000008|0,00|26400,00|AA008|20250415|20250415||
+BQ|Banque|EC000141|20250418|512000|Banque Société Générale|||BQ000026|20250418|Encaissement DataFlow - FA000009|8160,00|0,00|AA009|20250418|20250418||
+BQ|Banque|EC000141|20250418|411004|Clients - DataFlow|DATA01|DataFlow|BQ000026|20250418|Encaissement DataFlow - FA000009|0,00|8160,00|AA009|20250418|20250418||
+BQ|Banque|EC000142|20250421|512000|Banque Société Générale|||BQ000027|20250421|Encaissement MétalPro - FA000010|15000,00|0,00|AA010|20250421|20250421||
+BQ|Banque|EC000142|20250421|411003|Clients - MétalPro|META01|MétalPro|BQ000027|20250421|Encaissement MétalPro - FA000010|0,00|15000,00|AA010|20250421|20250421||
+BQ|Banque|EC000143|20250410|411003|Clients - MétalPro|META01|MétalPro|BQ000028|20250410|Remboursement avoir AV000001|3000,00|0,00|AA011|20250410|20250410||
+BQ|Banque|EC000143|20250410|512000|Banque Société Générale|||BQ000028|20250410|Remboursement avoir AV000001|0,00|3000,00|AA011|20250410|20250410||
+BQ|Banque|EC000144|20250515|512000|Banque Société Générale|||BQ000029|20250515|Encaissement BioTech SA - FA000011|19440,00|0,00|AA012|20250515|20250515||
+BQ|Banque|EC000144|20250515|411002|Clients - BioTech SA|BIOT01|BioTech SA|BQ000029|20250515|Encaissement BioTech SA - FA000011|0,00|19440,00|AA012|20250515|20250515||
+BQ|Banque|EC000145|20250518|512000|Banque Société Générale|||BQ000030|20250518|Encaissement GreenEnergy - FA000012|13800,00|0,00|AA013|20250518|20250518||
+BQ|Banque|EC000145|20250518|411005|Clients - GreenEnergy|GREEN01|GreenEnergy|BQ000030|20250518|Encaissement GreenEnergy - FA000012|0,00|13800,00|AA013|20250518|20250518||
+BQ|Banque|EC000146|20250521|512000|Banque Société Générale|||BQ000031|20250521|Encaissement ACME Corp - FA000013|3840,00|0,00|AA014|20250521|20250521||
+BQ|Banque|EC000146|20250521|411001|Clients - ACME Corp|ACME01|ACME Corp|BQ000031|20250521|Encaissement ACME Corp - FA000013|0,00|3840,00|AA014|20250521|20250521||
+BQ|Banque|EC000147|20250615|512000|Banque Société Générale|||BQ000032|20250615|Encaissement ACME Corp - FA000014|23760,00|0,00|AA015|20250615|20250615||
+BQ|Banque|EC000147|20250615|411001|Clients - ACME Corp|ACME01|ACME Corp|BQ000032|20250615|Encaissement ACME Corp - FA000014|0,00|23760,00|AA015|20250615|20250615||
+BQ|Banque|EC000148|20250618|512000|Banque Société Générale|||BQ000033|20250618|Encaissement MétalPro - FA000015|17040,00|0,00|AA016|20250618|20250618||
+BQ|Banque|EC000148|20250618|411003|Clients - MétalPro|META01|MétalPro|BQ000033|20250618|Encaissement MétalPro - FA000015|0,00|17040,00|AA016|20250618|20250618||
+BQ|Banque|EC000149|20250621|512000|Banque Société Générale|||BQ000034|20250621|Encaissement DataFlow - FA000016|11520,00|0,00|AA017|20250621|20250621||
+BQ|Banque|EC000149|20250621|411004|Clients - DataFlow|DATA01|DataFlow|BQ000034|20250621|Encaissement DataFlow - FA000016|0,00|11520,00|AA017|20250621|20250621||
+BQ|Banque|EC000150|20250715|512000|Banque Société Générale|||BQ000035|20250715|Encaissement BioTech SA - FA000017|16200,00|0,00|AA018|20250715|20250715||
+BQ|Banque|EC000150|20250715|411002|Clients - BioTech SA|BIOT01|BioTech SA|BQ000035|20250715|Encaissement BioTech SA - FA000017|0,00|16200,00|AA018|20250715|20250715||
+BQ|Banque|EC000151|20250718|512000|Banque Société Générale|||BQ000036|20250718|Encaissement GreenEnergy - FA000018|10680,00|0,00|AA019|20250718|20250718||
+BQ|Banque|EC000151|20250718|411005|Clients - GreenEnergy|GREEN01|GreenEnergy|BQ000036|20250718|Encaissement GreenEnergy - FA000018|0,00|10680,00|AA019|20250718|20250718||
+BQ|Banque|EC000152|20250721|512000|Banque Société Générale|||BQ000037|20250721|Encaissement ACME Corp - FA000019|8640,00|0,00|AA020|20250721|20250721||
+BQ|Banque|EC000152|20250721|411001|Clients - ACME Corp|ACME01|ACME Corp|BQ000037|20250721|Encaissement ACME Corp - FA000019|0,00|8640,00|AA020|20250721|20250721||
+BQ|Banque|EC000153|20250724|512000|Banque Société Générale|||BQ000038|20250724|Encaissement DataFlow - FA000020|2880,00|0,00|AA021|20250724|20250724||
+BQ|Banque|EC000153|20250724|411004|Clients - DataFlow|DATA01|DataFlow|BQ000038|20250724|Encaissement DataFlow - FA000020|0,00|2880,00|AA021|20250724|20250724||
+BQ|Banque|EC000154|20250815|512000|Banque Société Générale|||BQ000039|20250815|Encaissement ACME Corp - FA000021|15000,00|0,00|AA022|20250815|20250815||
+BQ|Banque|EC000154|20250815|411001|Clients - ACME Corp|ACME01|ACME Corp|BQ000039|20250815|Encaissement ACME Corp - FA000021|0,00|15000,00|AA022|20250815|20250815||
+BQ|Banque|EC000155|20250818|512000|Banque Société Générale|||BQ000040|20250818|Encaissement BioTech SA - FA000022|10560,00|0,00|AA023|20250818|20250818||
+BQ|Banque|EC000155|20250818|411002|Clients - BioTech SA|BIOT01|BioTech SA|BQ000040|20250818|Encaissement BioTech SA - FA000022|0,00|10560,00|AA023|20250818|20250818||
+BQ|Banque|EC000156|20250915|512000|Banque Société Générale|||BQ000041|20250915|Encaissement MétalPro - FA000023|12240,00|0,00|AA024|20250915|20250915||
+BQ|Banque|EC000156|20250915|411003|Clients - MétalPro|META01|MétalPro|BQ000041|20250915|Encaissement MétalPro - FA000023|0,00|12240,00|AA024|20250915|20250915||
+BQ|Banque|EC000157|20250918|512000|Banque Société Générale|||BQ000042|20250918|Encaissement GreenEnergy - FA000024|5400,00|0,00|AA025|20250918|20250918||
+BQ|Banque|EC000157|20250918|411005|Clients - GreenEnergy|GREEN01|GreenEnergy|BQ000042|20250918|Encaissement GreenEnergy - FA000024|0,00|5400,00|AA025|20250918|20250918||
+BQ|Banque|EC000158|20250921|512000|Banque Société Générale|||BQ000043|20250921|Encaissement DataFlow - FA000025|9360,00|0,00|AA026|20250921|20250921||
+BQ|Banque|EC000158|20250921|411004|Clients - DataFlow|DATA01|DataFlow|BQ000043|20250921|Encaissement DataFlow - FA000025|0,00|9360,00|AA026|20250921|20250921||
+BQ|Banque|EC000159|20251015|512000|Banque Société Générale|||BQ000044|20251015|Encaissement ACME Corp - FA000026|25200,00|0,00|AA027|20251015|20251015||
+BQ|Banque|EC000159|20251015|411001|Clients - ACME Corp|ACME01|ACME Corp|BQ000044|20251015|Encaissement ACME Corp - FA000026|0,00|25200,00|AA027|20251015|20251015||
+BQ|Banque|EC000160|20251018|512000|Banque Société Générale|||BQ000045|20251018|Encaissement BioTech SA - FA000027|17760,00|0,00|AA028|20251018|20251018||
+BQ|Banque|EC000160|20251018|411002|Clients - BioTech SA|BIOT01|BioTech SA|BQ000045|20251018|Encaissement BioTech SA - FA000027|0,00|17760,00|AA028|20251018|20251018||
+BQ|Banque|EC000161|20251021|512000|Banque Société Générale|||BQ000046|20251021|Encaissement MétalPro - FA000028|7560,00|0,00|AA029|20251021|20251021||
+BQ|Banque|EC000161|20251021|411003|Clients - MétalPro|META01|MétalPro|BQ000046|20251021|Encaissement MétalPro - FA000028|0,00|7560,00|AA029|20251021|20251021||
+BQ|Banque|EC000162|20251010|411001|Clients - ACME Corp|ACME01|ACME Corp|BQ000047|20251010|Remboursement avoir AV000002|3840,00|0,00|AA030|20251010|20251010||
+BQ|Banque|EC000162|20251010|512000|Banque Société Générale|||BQ000047|20251010|Remboursement avoir AV000002|0,00|3840,00|AA030|20251010|20251010||
+BQ|Banque|EC000163|20251115|512000|Banque Société Générale|||BQ000048|20251115|Encaissement DataFlow - FA000029|22320,00|0,00|AA031|20251115|20251115||
+BQ|Banque|EC000163|20251115|411004|Clients - DataFlow|DATA01|DataFlow|BQ000048|20251115|Encaissement DataFlow - FA000029|0,00|22320,00|AA031|20251115|20251115||
+BQ|Banque|EC000164|20251118|512000|Banque Société Générale|||BQ000049|20251118|Encaissement GreenEnergy - FA000030|15840,00|0,00|AA032|20251118|20251118||
+BQ|Banque|EC000164|20251118|411005|Clients - GreenEnergy|GREEN01|GreenEnergy|BQ000049|20251118|Encaissement GreenEnergy - FA000030|0,00|15840,00|AA032|20251118|20251118||
+BQ|Banque|EC000165|20251121|512000|Banque Société Générale|||BQ000050|20251121|Encaissement ACME Corp - FA000031|10200,00|0,00|AA033|20251121|20251121||
+BQ|Banque|EC000165|20251121|411001|Clients - ACME Corp|ACME01|ACME Corp|BQ000050|20251121|Encaissement ACME Corp - FA000031|0,00|10200,00|AA033|20251121|20251121||
+BQ|Banque|EC000166|20251124|512000|Banque Société Générale|||BQ000051|20251124|Encaissement BioTech SA - FA000032|2280,00|0,00|AA034|20251124|20251124||
+BQ|Banque|EC000166|20251124|411002|Clients - BioTech SA|BIOT01|BioTech SA|BQ000051|20251124|Encaissement BioTech SA - FA000032|0,00|2280,00|AA034|20251124|20251124||
+BQ|Banque|EC000167|20251215|512000|Banque Société Générale|||BQ000052|20251215|Encaissement ACME Corp - FA000033|34200,00|0,00|AA035|20251215|20251215||
+BQ|Banque|EC000167|20251215|411001|Clients - ACME Corp|ACME01|ACME Corp|BQ000052|20251215|Encaissement ACME Corp - FA000033|0,00|34200,00|AA035|20251215|20251215||
+BQ|Banque|EC000168|20251218|512000|Banque Société Générale|||BQ000053|20251218|Encaissement MétalPro - FA000034|20160,00|0,00|AA036|20251218|20251218||
+BQ|Banque|EC000168|20251218|411003|Clients - MétalPro|META01|MétalPro|BQ000053|20251218|Encaissement MétalPro - FA000034|0,00|20160,00|AA036|20251218|20251218||
+BQ|Banque|EC000169|20251221|512000|Banque Société Générale|||BQ000054|20251221|Encaissement BioTech SA - FA000035|13440,00|0,00|AA037|20251221|20251221||
+BQ|Banque|EC000169|20251221|411002|Clients - BioTech SA|BIOT01|BioTech SA|BQ000054|20251221|Encaissement BioTech SA - FA000035|0,00|13440,00|AA037|20251221|20251221||
+BQ|Banque|EC000170|20251224|512000|Banque Société Générale|||BQ000055|20251224|Encaissement GreenEnergy - FA000036|11400,00|0,00|AA038|20251224|20251224||
+BQ|Banque|EC000170|20251224|411005|Clients - GreenEnergy|GREEN01|GreenEnergy|BQ000055|20251224|Encaissement GreenEnergy - FA000036|0,00|11400,00|AA038|20251224|20251224||
+BQ|Banque|EC000171|20251228|512000|Banque Société Générale|||BQ000056|20251228|Encaissement ACME Corp - FA000037|28800,00|0,00|AA039|20251228|20251228||
+BQ|Banque|EC000171|20251228|411001|Clients - ACME Corp|ACME01|ACME Corp|BQ000056|20251228|Encaissement ACME Corp - FA000037|0,00|28800,00|AA039|20251228|20251228||
+BQ|Banque|EC000172|20251228|512000|Banque Société Générale|||BQ000057|20251228|Encaissement DataFlow - FA000038|23400,00|0,00|AA040|20251228|20251228||
+BQ|Banque|EC000172|20251228|411004|Clients - DataFlow|DATA01|DataFlow|BQ000057|20251228|Encaissement DataFlow - FA000038|0,00|23400,00|AA040|20251228|20251228||
+BQ|Banque|EC000173|20251228|512000|Banque Société Générale|||BQ000058|20251228|Encaissement BioTech SA - FA000039|18960,00|0,00|AA041|20251228|20251228||
+BQ|Banque|EC000173|20251228|411002|Clients - BioTech SA|BIOT01|BioTech SA|BQ000058|20251228|Encaissement BioTech SA - FA000039|0,00|18960,00|AA041|20251228|20251228||
+BQ|Banque|EC000174|20251228|512000|Banque Société Générale|||BQ000059|20251228|Encaissement GreenEnergy - FA000040|14880,00|0,00|AA042|20251228|20251228||
+BQ|Banque|EC000174|20251228|411005|Clients - GreenEnergy|GREEN01|GreenEnergy|BQ000059|20251228|Encaissement GreenEnergy - FA000040|0,00|14880,00|AA042|20251228|20251228||
+BQ|Banque|EC000175|20250122|401001|Fournisseurs - Informatique+|INFO01|Informatique+|BQ000060|20250122|Règlement Informatique+ - FA000041|14160,00|0,00|AA043|20250122|20250122||
+BQ|Banque|EC000175|20250122|512000|Banque Société Générale|||BQ000060|20250122|Règlement Informatique+ - FA000041|0,00|14160,00|AA043|20250122|20250122||
+BQ|Banque|EC000176|20250122|401003|Fournisseurs - BureauPlus|BURE01|BureauPlus|BQ000061|20250122|Règlement BureauPlus - FA000042|996,00|0,00|AA044|20250122|20250122||
+BQ|Banque|EC000176|20250122|512000|Banque Société Générale|||BQ000061|20250122|Règlement BureauPlus - FA000042|0,00|996,00|AA044|20250122|20250122||
+BQ|Banque|EC000177|20250122|401002|Fournisseurs - LogiServ|LOGI01|LogiServ|BQ000062|20250122|Règlement LogiServ - FA000043|4380,00|0,00|AA045|20250122|20250122||
+BQ|Banque|EC000177|20250122|512000|Banque Société Générale|||BQ000062|20250122|Règlement LogiServ - FA000043|0,00|4380,00|AA045|20250122|20250122||
+BQ|Banque|EC000178|20250122|401005|Fournisseurs - AssurTech|ASSU01|AssurTech|BQ000063|20250122|Règlement AssurTech - FA000044|4656,00|0,00|AA046|20250122|20250122||
+BQ|Banque|EC000178|20250122|512000|Banque Société Générale|||BQ000063|20250122|Règlement AssurTech - FA000044|0,00|4656,00|AA046|20250122|20250122||
+BQ|Banque|EC000179|20250122|401004|Fournisseurs - TélécomPro|TELE01|TélécomPro|BQ000064|20250122|Règlement TélécomPro - FA000045|4308,00|0,00|AA047|20250122|20250122||
+BQ|Banque|EC000179|20250122|512000|Banque Société Générale|||BQ000064|20250122|Règlement TélécomPro - FA000045|0,00|4308,00|AA047|20250122|20250122||
+BQ|Banque|EC000180|20250222|401001|Fournisseurs - Informatique+|INFO01|Informatique+|BQ000065|20250222|Règlement Informatique+ - FA000046|9360,00|0,00|AA048|20250222|20250222||
+BQ|Banque|EC000180|20250222|512000|Banque Société Générale|||BQ000065|20250222|Règlement Informatique+ - FA000046|0,00|9360,00|AA048|20250222|20250222||
+BQ|Banque|EC000181|20250222|401003|Fournisseurs - BureauPlus|BURE01|BureauPlus|BQ000066|20250222|Règlement BureauPlus - FA000047|876,00|0,00|AA049|20250222|20250222||
+BQ|Banque|EC000181|20250222|512000|Banque Société Générale|||BQ000066|20250222|Règlement BureauPlus - FA000047|0,00|876,00|AA049|20250222|20250222||
+BQ|Banque|EC000182|20250222|401002|Fournisseurs - LogiServ|LOGI01|LogiServ|BQ000067|20250222|Règlement LogiServ - FA000048|3900,00|0,00|AA050|20250222|20250222||
+BQ|Banque|EC000182|20250222|512000|Banque Société Générale|||BQ000067|20250222|Règlement LogiServ - FA000048|0,00|3900,00|AA050|20250222|20250222||
+BQ|Banque|EC000183|20250222|401005|Fournisseurs - AssurTech|ASSU01|AssurTech|BQ000068|20250222|Règlement AssurTech - FA000049|4656,00|0,00|AA051|20250222|20250222||
+BQ|Banque|EC000183|20250222|512000|Banque Société Générale|||BQ000068|20250222|Règlement AssurTech - FA000049|0,00|4656,00|AA051|20250222|20250222||
+BQ|Banque|EC000184|20250222|401004|Fournisseurs - TélécomPro|TELE01|TélécomPro|BQ000069|20250222|Règlement TélécomPro - FA000050|4668,00|0,00|AA052|20250222|20250222||
+BQ|Banque|EC000184|20250222|512000|Banque Société Générale|||BQ000069|20250222|Règlement TélécomPro - FA000050|0,00|4668,00|AA052|20250222|20250222||
+BQ|Banque|EC000185|20250322|401001|Fournisseurs - Informatique+|INFO01|Informatique+|BQ000070|20250322|Règlement Informatique+ - FA000051|22560,00|0,00|AA053|20250322|20250322||
+BQ|Banque|EC000185|20250322|512000|Banque Société Générale|||BQ000070|20250322|Règlement Informatique+ - FA000051|0,00|22560,00|AA053|20250322|20250322||
+BQ|Banque|EC000186|20250322|401003|Fournisseurs - BureauPlus|BURE01|BureauPlus|BQ000071|20250322|Règlement BureauPlus - FA000052|888,00|0,00|AA054|20250322|20250322||
+BQ|Banque|EC000186|20250322|512000|Banque Société Générale|||BQ000071|20250322|Règlement BureauPlus - FA000052|0,00|888,00|AA054|20250322|20250322||
+BQ|Banque|EC000187|20250322|401002|Fournisseurs - LogiServ|LOGI01|LogiServ|BQ000072|20250322|Règlement LogiServ - FA000053|5724,00|0,00|AA055|20250322|20250322||
+BQ|Banque|EC000187|20250322|512000|Banque Société Générale|||BQ000072|20250322|Règlement LogiServ - FA000053|0,00|5724,00|AA055|20250322|20250322||
+BQ|Banque|EC000188|20250322|401005|Fournisseurs - AssurTech|ASSU01|AssurTech|BQ000073|20250322|Règlement AssurTech - FA000054|7656,00|0,00|AA056|20250322|20250322||
+BQ|Banque|EC000188|20250322|512000|Banque Société Générale|||BQ000073|20250322|Règlement AssurTech - FA000054|0,00|7656,00|AA056|20250322|20250322||
+BQ|Banque|EC000189|20250322|401004|Fournisseurs - TélécomPro|TELE01|TélécomPro|BQ000074|20250322|Règlement TélécomPro - FA000055|5028,00|0,00|AA057|20250322|20250322||
+BQ|Banque|EC000189|20250322|512000|Banque Société Générale|||BQ000074|20250322|Règlement TélécomPro - FA000055|0,00|5028,00|AA057|20250322|20250322||
+BQ|Banque|EC000190|20250422|401001|Fournisseurs - Informatique+|INFO01|Informatique+|BQ000075|20250422|Règlement Informatique+ - FA000056|3120,00|0,00|AA058|20250422|20250422||
+BQ|Banque|EC000190|20250422|512000|Banque Société Générale|||BQ000075|20250422|Règlement Informatique+ - FA000056|0,00|3120,00|AA058|20250422|20250422||
+BQ|Banque|EC000191|20250422|401003|Fournisseurs - BureauPlus|BURE01|BureauPlus|BQ000076|20250422|Règlement BureauPlus - FA000057|756,00|0,00|AA059|20250422|20250422||
+BQ|Banque|EC000191|20250422|512000|Banque Société Générale|||BQ000076|20250422|Règlement BureauPlus - FA000057|0,00|756,00|AA059|20250422|20250422||
+BQ|Banque|EC000192|20250422|401002|Fournisseurs - LogiServ|LOGI01|LogiServ|BQ000077|20250422|Règlement LogiServ - FA000058|3660,00|0,00|AA060|20250422|20250422||
+BQ|Banque|EC000192|20250422|512000|Banque Société Générale|||BQ000077|20250422|Règlement LogiServ - FA000058|0,00|3660,00|AA060|20250422|20250422||
+BQ|Banque|EC000193|20250422|401005|Fournisseurs - AssurTech|ASSU01|AssurTech|BQ000078|20250422|Règlement AssurTech - FA000059|4656,00|0,00|AA061|20250422|20250422||
+BQ|Banque|EC000193|20250422|512000|Banque Société Générale|||BQ000078|20250422|Règlement AssurTech - FA000059|0,00|4656,00|AA061|20250422|20250422||
+BQ|Banque|EC000194|20250422|401004|Fournisseurs - TélécomPro|TELE01|TélécomPro|BQ000079|20250422|Règlement TélécomPro - FA000060|3228,00|0,00|AA062|20250422|20250422||
+BQ|Banque|EC000194|20250422|512000|Banque Société Générale|||BQ000079|20250422|Règlement TélécomPro - FA000060|0,00|3228,00|AA062|20250422|20250422||
+BQ|Banque|EC000195|20250522|401001|Fournisseurs - Informatique+|INFO01|Informatique+|BQ000080|20250522|Règlement Informatique+ - FA000061|16800,00|0,00|AA063|20250522|20250522||
+BQ|Banque|EC000195|20250522|512000|Banque Société Générale|||BQ000080|20250522|Règlement Informatique+ - FA000061|0,00|16800,00|AA063|20250522|20250522||
+BQ|Banque|EC000196|20250522|401003|Fournisseurs - BureauPlus|BURE01|BureauPlus|BQ000081|20250522|Règlement BureauPlus - FA000062|876,00|0,00|AA064|20250522|20250522||
+BQ|Banque|EC000196|20250522|512000|Banque Société Générale|||BQ000081|20250522|Règlement BureauPlus - FA000062|0,00|876,00|AA064|20250522|20250522||
+BQ|Banque|EC000197|20250522|401002|Fournisseurs - LogiServ|LOGI01|LogiServ|BQ000082|20250522|Règlement LogiServ - FA000063|4260,00|0,00|AA065|20250522|20250522||
+BQ|Banque|EC000197|20250522|512000|Banque Société Générale|||BQ000082|20250522|Règlement LogiServ - FA000063|0,00|4260,00|AA065|20250522|20250522||
+BQ|Banque|EC000198|20250522|401005|Fournisseurs - AssurTech|ASSU01|AssurTech|BQ000083|20250522|Règlement AssurTech - FA000064|4656,00|0,00|AA066|20250522|20250522||
+BQ|Banque|EC000198|20250522|512000|Banque Société Générale|||BQ000083|20250522|Règlement AssurTech - FA000064|0,00|4656,00|AA066|20250522|20250522||
+BQ|Banque|EC000199|20250522|401004|Fournisseurs - TélécomPro|TELE01|TélécomPro|BQ000084|20250522|Règlement TélécomPro - FA000065|6588,00|0,00|AA067|20250522|20250522||
+BQ|Banque|EC000199|20250522|512000|Banque Société Générale|||BQ000084|20250522|Règlement TélécomPro - FA000065|0,00|6588,00|AA067|20250522|20250522||
+BQ|Banque|EC000200|20250622|401001|Fournisseurs - Informatique+|INFO01|Informatique+|BQ000085|20250622|Règlement Informatique+ - FA000066|8640,00|0,00|AA068|20250622|20250622||
+BQ|Banque|EC000200|20250622|512000|Banque Société Générale|||BQ000085|20250622|Règlement Informatique+ - FA000066|0,00|8640,00|AA068|20250622|20250622||
+BQ|Banque|EC000201|20250622|401003|Fournisseurs - BureauPlus|BURE01|BureauPlus|BQ000086|20250622|Règlement BureauPlus - FA000067|684,00|0,00|AA069|20250622|20250622||
+BQ|Banque|EC000201|20250622|512000|Banque Société Générale|||BQ000086|20250622|Règlement BureauPlus - FA000067|0,00|684,00|AA069|20250622|20250622||
+BQ|Banque|EC000202|20250622|401002|Fournisseurs - LogiServ|LOGI01|LogiServ|BQ000087|20250622|Règlement LogiServ - FA000068|4956,00|0,00|AA070|20250622|20250622||
+BQ|Banque|EC000202|20250622|512000|Banque Société Générale|||BQ000087|20250622|Règlement LogiServ - FA000068|0,00|4956,00|AA070|20250622|20250622||
+BQ|Banque|EC000203|20250622|401005|Fournisseurs - AssurTech|ASSU01|AssurTech|BQ000088|20250622|Règlement AssurTech - FA000069|7536,00|0,00|AA071|20250622|20250622||
+BQ|Banque|EC000203|20250622|512000|Banque Société Générale|||BQ000088|20250622|Règlement AssurTech - FA000069|0,00|7536,00|AA071|20250622|20250622||
+BQ|Banque|EC000204|20250622|401004|Fournisseurs - TélécomPro|TELE01|TélécomPro|BQ000089|20250622|Règlement TélécomPro - FA000070|3588,00|0,00|AA072|20250622|20250622||
+BQ|Banque|EC000204|20250622|512000|Banque Société Générale|||BQ000089|20250622|Règlement TélécomPro - FA000070|0,00|3588,00|AA072|20250622|20250622||
+BQ|Banque|EC000205|20250722|401001|Fournisseurs - Informatique+|INFO01|Informatique+|BQ000090|20250722|Règlement Informatique+ - FA000071|2160,00|0,00|AA073|20250722|20250722||
+BQ|Banque|EC000205|20250722|512000|Banque Société Générale|||BQ000090|20250722|Règlement Informatique+ - FA000071|0,00|2160,00|AA073|20250722|20250722||
+BQ|Banque|EC000206|20250722|401003|Fournisseurs - BureauPlus|BURE01|BureauPlus|BQ000091|20250722|Règlement BureauPlus - FA000072|696,00|0,00|AA074|20250722|20250722||
+BQ|Banque|EC000206|20250722|512000|Banque Société Générale|||BQ000091|20250722|Règlement BureauPlus - FA000072|0,00|696,00|AA074|20250722|20250722||
+BQ|Banque|EC000207|20250722|401002|Fournisseurs - LogiServ|LOGI01|LogiServ|BQ000092|20250722|Règlement LogiServ - FA000073|2940,00|0,00|AA075|20250722|20250722||
+BQ|Banque|EC000207|20250722|512000|Banque Société Générale|||BQ000092|20250722|Règlement LogiServ - FA000073|0,00|2940,00|AA075|20250722|20250722||
+BQ|Banque|EC000208|20250722|401005|Fournisseurs - AssurTech|ASSU01|AssurTech|BQ000093|20250722|Règlement AssurTech - FA000074|4656,00|0,00|AA076|20250722|20250722||
+BQ|Banque|EC000208|20250722|512000|Banque Société Générale|||BQ000093|20250722|Règlement AssurTech - FA000074|0,00|4656,00|AA076|20250722|20250722||
+BQ|Banque|EC000209|20250722|401004|Fournisseurs - TélécomPro|TELE01|TélécomPro|BQ000094|20250722|Règlement TélécomPro - FA000075|2868,00|0,00|AA077|20250722|20250722||
+BQ|Banque|EC000209|20250722|512000|Banque Société Générale|||BQ000094|20250722|Règlement TélécomPro - FA000075|0,00|2868,00|AA077|20250722|20250722||
+BQ|Banque|EC000210|20250822|401001|Fournisseurs - Informatique+|INFO01|Informatique+|BQ000095|20250822|Règlement Informatique+ - FA000076|13200,00|0,00|AA078|20250822|20250822||
+BQ|Banque|EC000210|20250822|512000|Banque Société Générale|||BQ000095|20250822|Règlement Informatique+ - FA000076|0,00|13200,00|AA078|20250822|20250822||
+BQ|Banque|EC000211|20250822|401003|Fournisseurs - BureauPlus|BURE01|BureauPlus|BQ000096|20250822|Règlement BureauPlus - FA000077|768,00|0,00|AA079|20250822|20250822||
+BQ|Banque|EC000211|20250822|512000|Banque Société Générale|||BQ000096|20250822|Règlement BureauPlus - FA000077|0,00|768,00|AA079|20250822|20250822||
+BQ|Banque|EC000212|20250822|401002|Fournisseurs - LogiServ|LOGI01|LogiServ|BQ000097|20250822|Règlement LogiServ - FA000078|3420,00|0,00|AA080|20250822|20250822||
+BQ|Banque|EC000212|20250822|512000|Banque Société Générale|||BQ000097|20250822|Règlement LogiServ - FA000078|0,00|3420,00|AA080|20250822|20250822||
+BQ|Banque|EC000213|20250822|401005|Fournisseurs - AssurTech|ASSU01|AssurTech|BQ000098|20250822|Règlement AssurTech - FA000079|4656,00|0,00|AA081|20250822|20250822||
+BQ|Banque|EC000213|20250822|512000|Banque Société Générale|||BQ000098|20250822|Règlement AssurTech - FA000079|0,00|4656,00|AA081|20250822|20250822||
+BQ|Banque|EC000214|20250822|401004|Fournisseurs - TélécomPro|TELE01|TélécomPro|BQ000099|20250822|Règlement TélécomPro - FA000080|3348,00|0,00|AA082|20250822|20250822||
+BQ|Banque|EC000214|20250822|512000|Banque Société Générale|||BQ000099|20250822|Règlement TélécomPro - FA000080|0,00|3348,00|AA082|20250822|20250822||
+BQ|Banque|EC000215|20250922|401001|Fournisseurs - Informatique+|INFO01|Informatique+|BQ000100|20250922|Règlement Informatique+ - FA000081|9120,00|0,00|AA083|20250922|20250922||
+BQ|Banque|EC000215|20250922|512000|Banque Société Générale|||BQ000100|20250922|Règlement Informatique+ - FA000081|0,00|9120,00|AA083|20250922|20250922||
+BQ|Banque|EC000216|20250922|401003|Fournisseurs - BureauPlus|BURE01|BureauPlus|BQ000101|20250922|Règlement BureauPlus - FA000082|816,00|0,00|AA084|20250922|20250922||
+BQ|Banque|EC000216|20250922|512000|Banque Société Générale|||BQ000101|20250922|Règlement BureauPlus - FA000082|0,00|816,00|AA084|20250922|20250922||
+BQ|Banque|EC000217|20250922|401002|Fournisseurs - LogiServ|LOGI01|LogiServ|BQ000102|20250922|Règlement LogiServ - FA000083|6120,00|0,00|AA085|20250922|20250922||
+BQ|Banque|EC000217|20250922|512000|Banque Société Générale|||BQ000102|20250922|Règlement LogiServ - FA000083|0,00|6120,00|AA085|20250922|20250922||
+BQ|Banque|EC000218|20250922|401005|Fournisseurs - AssurTech|ASSU01|AssurTech|BQ000103|20250922|Règlement AssurTech - FA000084|7776,00|0,00|AA086|20250922|20250922||
+BQ|Banque|EC000218|20250922|512000|Banque Société Générale|||BQ000103|20250922|Règlement AssurTech - FA000084|0,00|7776,00|AA086|20250922|20250922||
+BQ|Banque|EC000219|20250922|401004|Fournisseurs - TélécomPro|TELE01|TélécomPro|BQ000104|20250922|Règlement TélécomPro - FA000085|5748,00|0,00|AA087|20250922|20250922||
+BQ|Banque|EC000219|20250922|512000|Banque Société Générale|||BQ000104|20250922|Règlement TélécomPro - FA000085|0,00|5748,00|AA087|20250922|20250922||
+BQ|Banque|EC000220|20251022|401001|Fournisseurs - Informatique+|INFO01|Informatique+|BQ000105|20251022|Règlement Informatique+ - FA000086|17520,00|0,00|AA088|20251022|20251022||
+BQ|Banque|EC000220|20251022|512000|Banque Société Générale|||BQ000105|20251022|Règlement Informatique+ - FA000086|0,00|17520,00|AA088|20251022|20251022||
+BQ|Banque|EC000221|20251022|401003|Fournisseurs - BureauPlus|BURE01|BureauPlus|BQ000106|20251022|Règlement BureauPlus - FA000087|840,00|0,00|AA089|20251022|20251022||
+BQ|Banque|EC000221|20251022|512000|Banque Société Générale|||BQ000106|20251022|Règlement BureauPlus - FA000087|0,00|840,00|AA089|20251022|20251022||
+BQ|Banque|EC000222|20251022|401002|Fournisseurs - LogiServ|LOGI01|LogiServ|BQ000107|20251022|Règlement LogiServ - FA000088|4620,00|0,00|AA090|20251022|20251022||
+BQ|Banque|EC000222|20251022|512000|Banque Société Générale|||BQ000107|20251022|Règlement LogiServ - FA000088|0,00|4620,00|AA090|20251022|20251022||
+BQ|Banque|EC000223|20251022|401005|Fournisseurs - AssurTech|ASSU01|AssurTech|BQ000108|20251022|Règlement AssurTech - FA000089|4656,00|0,00|AA091|20251022|20251022||
+BQ|Banque|EC000223|20251022|512000|Banque Société Générale|||BQ000108|20251022|Règlement AssurTech - FA000089|0,00|4656,00|AA091|20251022|20251022||
+BQ|Banque|EC000224|20251022|401004|Fournisseurs - TélécomPro|TELE01|TélécomPro|BQ000109|20251022|Règlement TélécomPro - FA000090|7068,00|0,00|AA092|20251022|20251022||
+BQ|Banque|EC000224|20251022|512000|Banque Société Générale|||BQ000109|20251022|Règlement TélécomPro - FA000090|0,00|7068,00|AA092|20251022|20251022||
+BQ|Banque|EC000225|20251122|401001|Fournisseurs - Informatique+|INFO01|Informatique+|BQ000110|20251122|Règlement Informatique+ - FA000091|12360,00|0,00|AA093|20251122|20251122||
+BQ|Banque|EC000225|20251122|512000|Banque Société Générale|||BQ000110|20251122|Règlement Informatique+ - FA000091|0,00|12360,00|AA093|20251122|20251122||
+BQ|Banque|EC000226|20251122|401003|Fournisseurs - BureauPlus|BURE01|BureauPlus|BQ000111|20251122|Règlement BureauPlus - FA000092|1032,00|0,00|AA094|20251122|20251122||
+BQ|Banque|EC000226|20251122|512000|Banque Société Générale|||BQ000111|20251122|Règlement BureauPlus - FA000092|0,00|1032,00|AA094|20251122|20251122||
+BQ|Banque|EC000227|20251122|401002|Fournisseurs - LogiServ|LOGI01|LogiServ|BQ000112|20251122|Règlement LogiServ - FA000093|5340,00|0,00|AA095|20251122|20251122||
+BQ|Banque|EC000227|20251122|512000|Banque Société Générale|||BQ000112|20251122|Règlement LogiServ - FA000093|0,00|5340,00|AA095|20251122|20251122||
+BQ|Banque|EC000228|20251122|401005|Fournisseurs - AssurTech|ASSU01|AssurTech|BQ000113|20251122|Règlement AssurTech - FA000094|4656,00|0,00|AA096|20251122|20251122||
+BQ|Banque|EC000228|20251122|512000|Banque Société Générale|||BQ000113|20251122|Règlement AssurTech - FA000094|0,00|4656,00|AA096|20251122|20251122||
+BQ|Banque|EC000229|20251122|401004|Fournisseurs - TélécomPro|TELE01|TélécomPro|BQ000114|20251122|Règlement TélécomPro - FA000095|5868,00|0,00|AA097|20251122|20251122||
+BQ|Banque|EC000229|20251122|512000|Banque Société Générale|||BQ000114|20251122|Règlement TélécomPro - FA000095|0,00|5868,00|AA097|20251122|20251122||
+BQ|Banque|EC000230|20251222|401001|Fournisseurs - Informatique+|INFO01|Informatique+|BQ000115|20251222|Règlement Informatique+ - FA000096|25080,00|0,00|AA098|20251222|20251222||
+BQ|Banque|EC000230|20251222|512000|Banque Société Générale|||BQ000115|20251222|Règlement Informatique+ - FA000096|0,00|25080,00|AA098|20251222|20251222||
+BQ|Banque|EC000231|20251222|401003|Fournisseurs - BureauPlus|BURE01|BureauPlus|BQ000116|20251222|Règlement BureauPlus - FA000097|1044,00|0,00|AA099|20251222|20251222||
+BQ|Banque|EC000231|20251222|512000|Banque Société Générale|||BQ000116|20251222|Règlement BureauPlus - FA000097|0,00|1044,00|AA099|20251222|20251222||
+BQ|Banque|EC000232|20251222|401002|Fournisseurs - LogiServ|LOGI01|LogiServ|BQ000117|20251222|Règlement LogiServ - FA000098|5952,00|0,00|AA100|20251222|20251222||
+BQ|Banque|EC000232|20251222|512000|Banque Société Générale|||BQ000117|20251222|Règlement LogiServ - FA000098|0,00|5952,00|AA100|20251222|20251222||
+BQ|Banque|EC000233|20251222|401005|Fournisseurs - AssurTech|ASSU01|AssurTech|BQ000118|20251222|Règlement AssurTech - FA000099|8016,00|0,00|AA101|20251222|20251222||
+BQ|Banque|EC000233|20251222|512000|Banque Société Générale|||BQ000118|20251222|Règlement AssurTech - FA000099|0,00|8016,00|AA101|20251222|20251222||
+BQ|Banque|EC000234|20251222|401004|Fournisseurs - TélécomPro|TELE01|TélécomPro|BQ000119|20251222|Règlement TélécomPro - FA000100|4668,00|0,00|AA102|20251222|20251222||
+BQ|Banque|EC000234|20251222|512000|Banque Société Générale|||BQ000119|20251222|Règlement TélécomPro - FA000100|0,00|4668,00|AA102|20251222|20251222||
+BQ|Banque|EC000235|20250131|421000|Personnel - Rémunérations dues|||BQ000120|20250131|Virement salaires - 01/2025|13020,00|0,00|||20250131||
+BQ|Banque|EC000235|20250131|512000|Banque Société Générale|||BQ000120|20250131|Virement salaires - 01/2025|0,00|13020,00|||20250131||
+BQ|Banque|EC000236|20250131|431000|Sécurité sociale|||BQ000121|20250131|Règlement cotisations SS - 01/2025|11470,00|0,00|||20250131||
+BQ|Banque|EC000236|20250131|512000|Banque Société Générale|||BQ000121|20250131|Règlement cotisations SS - 01/2025|0,00|11470,00|||20250131||
+BQ|Banque|EC000237|20250131|437000|Autres organismes sociaux|||BQ000122|20250131|Règlement cotisations retraite - 01/2025|4625,00|0,00|||20250131||
+BQ|Banque|EC000237|20250131|512000|Banque Société Générale|||BQ000122|20250131|Règlement cotisations retraite - 01/2025|0,00|4625,00|||20250131||
+BQ|Banque|EC000238|20250228|421000|Personnel - Rémunérations dues|||BQ000123|20250228|Virement salaires - 02/2025|13020,00|0,00|||20250228||
+BQ|Banque|EC000238|20250228|512000|Banque Société Générale|||BQ000123|20250228|Virement salaires - 02/2025|0,00|13020,00|||20250228||
+BQ|Banque|EC000239|20250228|431000|Sécurité sociale|||BQ000124|20250228|Règlement cotisations SS - 02/2025|11470,00|0,00|||20250228||
+BQ|Banque|EC000239|20250228|512000|Banque Société Générale|||BQ000124|20250228|Règlement cotisations SS - 02/2025|0,00|11470,00|||20250228||
+BQ|Banque|EC000240|20250228|437000|Autres organismes sociaux|||BQ000125|20250228|Règlement cotisations retraite - 02/2025|4625,00|0,00|||20250228||
+BQ|Banque|EC000240|20250228|512000|Banque Société Générale|||BQ000125|20250228|Règlement cotisations retraite - 02/2025|0,00|4625,00|||20250228||
+BQ|Banque|EC000241|20250331|421000|Personnel - Rémunérations dues|||BQ000126|20250331|Virement salaires - 03/2025|13020,00|0,00|||20250331||
+BQ|Banque|EC000241|20250331|512000|Banque Société Générale|||BQ000126|20250331|Virement salaires - 03/2025|0,00|13020,00|||20250331||
+BQ|Banque|EC000242|20250331|431000|Sécurité sociale|||BQ000127|20250331|Règlement cotisations SS - 03/2025|11470,00|0,00|||20250331||
+BQ|Banque|EC000242|20250331|512000|Banque Société Générale|||BQ000127|20250331|Règlement cotisations SS - 03/2025|0,00|11470,00|||20250331||
+BQ|Banque|EC000243|20250331|437000|Autres organismes sociaux|||BQ000128|20250331|Règlement cotisations retraite - 03/2025|4625,00|0,00|||20250331||
+BQ|Banque|EC000243|20250331|512000|Banque Société Générale|||BQ000128|20250331|Règlement cotisations retraite - 03/2025|0,00|4625,00|||20250331||
+BQ|Banque|EC000244|20250430|421000|Personnel - Rémunérations dues|||BQ000129|20250430|Virement salaires - 04/2025|13020,00|0,00|||20250430||
+BQ|Banque|EC000244|20250430|512000|Banque Société Générale|||BQ000129|20250430|Virement salaires - 04/2025|0,00|13020,00|||20250430||
+BQ|Banque|EC000245|20250430|431000|Sécurité sociale|||BQ000130|20250430|Règlement cotisations SS - 04/2025|11470,00|0,00|||20250430||
+BQ|Banque|EC000245|20250430|512000|Banque Société Générale|||BQ000130|20250430|Règlement cotisations SS - 04/2025|0,00|11470,00|||20250430||
+BQ|Banque|EC000246|20250430|437000|Autres organismes sociaux|||BQ000131|20250430|Règlement cotisations retraite - 04/2025|4625,00|0,00|||20250430||
+BQ|Banque|EC000246|20250430|512000|Banque Société Générale|||BQ000131|20250430|Règlement cotisations retraite - 04/2025|0,00|4625,00|||20250430||
+BQ|Banque|EC000247|20250531|421000|Personnel - Rémunérations dues|||BQ000132|20250531|Virement salaires - 05/2025|13020,00|0,00|||20250531||
+BQ|Banque|EC000247|20250531|512000|Banque Société Générale|||BQ000132|20250531|Virement salaires - 05/2025|0,00|13020,00|||20250531||
+BQ|Banque|EC000248|20250531|431000|Sécurité sociale|||BQ000133|20250531|Règlement cotisations SS - 05/2025|11470,00|0,00|||20250531||
+BQ|Banque|EC000248|20250531|512000|Banque Société Générale|||BQ000133|20250531|Règlement cotisations SS - 05/2025|0,00|11470,00|||20250531||
+BQ|Banque|EC000249|20250531|437000|Autres organismes sociaux|||BQ000134|20250531|Règlement cotisations retraite - 05/2025|4625,00|0,00|||20250531||
+BQ|Banque|EC000249|20250531|512000|Banque Société Générale|||BQ000134|20250531|Règlement cotisations retraite - 05/2025|0,00|4625,00|||20250531||
+BQ|Banque|EC000250|20250630|421000|Personnel - Rémunérations dues|||BQ000135|20250630|Virement salaires - 06/2025|13020,00|0,00|||20250630||
+BQ|Banque|EC000250|20250630|512000|Banque Société Générale|||BQ000135|20250630|Virement salaires - 06/2025|0,00|13020,00|||20250630||
+BQ|Banque|EC000251|20250630|431000|Sécurité sociale|||BQ000136|20250630|Règlement cotisations SS - 06/2025|11470,00|0,00|||20250630||
+BQ|Banque|EC000251|20250630|512000|Banque Société Générale|||BQ000136|20250630|Règlement cotisations SS - 06/2025|0,00|11470,00|||20250630||
+BQ|Banque|EC000252|20250630|437000|Autres organismes sociaux|||BQ000137|20250630|Règlement cotisations retraite - 06/2025|4625,00|0,00|||20250630||
+BQ|Banque|EC000252|20250630|512000|Banque Société Générale|||BQ000137|20250630|Règlement cotisations retraite - 06/2025|0,00|4625,00|||20250630||
+BQ|Banque|EC000253|20250731|421000|Personnel - Rémunérations dues|||BQ000138|20250731|Virement salaires - 07/2025|13496,00|0,00|||20250731||
+BQ|Banque|EC000253|20250731|512000|Banque Société Générale|||BQ000138|20250731|Virement salaires - 07/2025|0,00|13496,00|||20250731||
+BQ|Banque|EC000254|20250731|431000|Sécurité sociale|||BQ000139|20250731|Règlement cotisations SS - 07/2025|11904,00|0,00|||20250731||
+BQ|Banque|EC000254|20250731|512000|Banque Société Générale|||BQ000139|20250731|Règlement cotisations SS - 07/2025|0,00|11904,00|||20250731||
+BQ|Banque|EC000255|20250731|437000|Autres organismes sociaux|||BQ000140|20250731|Règlement cotisations retraite - 07/2025|4800,00|0,00|||20250731||
+BQ|Banque|EC000255|20250731|512000|Banque Société Générale|||BQ000140|20250731|Règlement cotisations retraite - 07/2025|0,00|4800,00|||20250731||
+BQ|Banque|EC000256|20250831|421000|Personnel - Rémunérations dues|||BQ000141|20250831|Virement salaires - 08/2025|13496,00|0,00|||20250831||
+BQ|Banque|EC000256|20250831|512000|Banque Société Générale|||BQ000141|20250831|Virement salaires - 08/2025|0,00|13496,00|||20250831||
+BQ|Banque|EC000257|20250831|431000|Sécurité sociale|||BQ000142|20250831|Règlement cotisations SS - 08/2025|11904,00|0,00|||20250831||
+BQ|Banque|EC000257|20250831|512000|Banque Société Générale|||BQ000142|20250831|Règlement cotisations SS - 08/2025|0,00|11904,00|||20250831||
+BQ|Banque|EC000258|20250831|437000|Autres organismes sociaux|||BQ000143|20250831|Règlement cotisations retraite - 08/2025|4800,00|0,00|||20250831||
+BQ|Banque|EC000258|20250831|512000|Banque Société Générale|||BQ000143|20250831|Règlement cotisations retraite - 08/2025|0,00|4800,00|||20250831||
+BQ|Banque|EC000259|20250930|421000|Personnel - Rémunérations dues|||BQ000144|20250930|Virement salaires - 09/2025|13496,00|0,00|||20250930||
+BQ|Banque|EC000259|20250930|512000|Banque Société Générale|||BQ000144|20250930|Virement salaires - 09/2025|0,00|13496,00|||20250930||
+BQ|Banque|EC000260|20250930|431000|Sécurité sociale|||BQ000145|20250930|Règlement cotisations SS - 09/2025|11904,00|0,00|||20250930||
+BQ|Banque|EC000260|20250930|512000|Banque Société Générale|||BQ000145|20250930|Règlement cotisations SS - 09/2025|0,00|11904,00|||20250930||
+BQ|Banque|EC000261|20250930|437000|Autres organismes sociaux|||BQ000146|20250930|Règlement cotisations retraite - 09/2025|4800,00|0,00|||20250930||
+BQ|Banque|EC000261|20250930|512000|Banque Société Générale|||BQ000146|20250930|Règlement cotisations retraite - 09/2025|0,00|4800,00|||20250930||
+BQ|Banque|EC000262|20251031|421000|Personnel - Rémunérations dues|||BQ000147|20251031|Virement salaires - 10/2025|13496,00|0,00|||20251031||
+BQ|Banque|EC000262|20251031|512000|Banque Société Générale|||BQ000147|20251031|Virement salaires - 10/2025|0,00|13496,00|||20251031||
+BQ|Banque|EC000263|20251031|431000|Sécurité sociale|||BQ000148|20251031|Règlement cotisations SS - 10/2025|11904,00|0,00|||20251031||
+BQ|Banque|EC000263|20251031|512000|Banque Société Générale|||BQ000148|20251031|Règlement cotisations SS - 10/2025|0,00|11904,00|||20251031||
+BQ|Banque|EC000264|20251031|437000|Autres organismes sociaux|||BQ000149|20251031|Règlement cotisations retraite - 10/2025|4800,00|0,00|||20251031||
+BQ|Banque|EC000264|20251031|512000|Banque Société Générale|||BQ000149|20251031|Règlement cotisations retraite - 10/2025|0,00|4800,00|||20251031||
+BQ|Banque|EC000265|20251130|421000|Personnel - Rémunérations dues|||BQ000150|20251130|Virement salaires - 11/2025|13496,00|0,00|||20251130||
+BQ|Banque|EC000265|20251130|512000|Banque Société Générale|||BQ000150|20251130|Virement salaires - 11/2025|0,00|13496,00|||20251130||
+BQ|Banque|EC000266|20251130|431000|Sécurité sociale|||BQ000151|20251130|Règlement cotisations SS - 11/2025|11904,00|0,00|||20251130||
+BQ|Banque|EC000266|20251130|512000|Banque Société Générale|||BQ000151|20251130|Règlement cotisations SS - 11/2025|0,00|11904,00|||20251130||
+BQ|Banque|EC000267|20251130|437000|Autres organismes sociaux|||BQ000152|20251130|Règlement cotisations retraite - 11/2025|4800,00|0,00|||20251130||
+BQ|Banque|EC000267|20251130|512000|Banque Société Générale|||BQ000152|20251130|Règlement cotisations retraite - 11/2025|0,00|4800,00|||20251130||
+BQ|Banque|EC000268|20251231|421000|Personnel - Rémunérations dues|||BQ000153|20251231|Virement salaires - 12/2025|13496,00|0,00|||20251231||
+BQ|Banque|EC000268|20251231|512000|Banque Société Générale|||BQ000153|20251231|Virement salaires - 12/2025|0,00|13496,00|||20251231||
+BQ|Banque|EC000269|20251231|431000|Sécurité sociale|||BQ000154|20251231|Règlement cotisations SS - 12/2025|11904,00|0,00|||20251231||
+BQ|Banque|EC000269|20251231|512000|Banque Société Générale|||BQ000154|20251231|Règlement cotisations SS - 12/2025|0,00|11904,00|||20251231||
+BQ|Banque|EC000270|20251231|437000|Autres organismes sociaux|||BQ000155|20251231|Règlement cotisations retraite - 12/2025|4800,00|0,00|||20251231||
+BQ|Banque|EC000270|20251231|512000|Banque Société Générale|||BQ000155|20251231|Règlement cotisations retraite - 12/2025|0,00|4800,00|||20251231||
+BQ|Banque|EC000271|20250105|164000|Emprunt bancaire|||BQ000156|20250105|Remboursement emprunt principal - 01/2025|1200,00|0,00|||20250105||
+BQ|Banque|EC000271|20250105|661000|Intérêts des emprunts|||BQ000156|20250105|Intérêts emprunt - 01/2025|350,00|0,00|||20250105||
+BQ|Banque|EC000271|20250105|512000|Banque Société Générale|||BQ000156|20250105|Échéance emprunt - 01/2025|0,00|1550,00|||20250105||
+BQ|Banque|EC000272|20250205|164000|Emprunt bancaire|||BQ000157|20250205|Remboursement emprunt principal - 02/2025|1200,00|0,00|||20250205||
+BQ|Banque|EC000272|20250205|661000|Intérêts des emprunts|||BQ000157|20250205|Intérêts emprunt - 02/2025|347,00|0,00|||20250205||
+BQ|Banque|EC000272|20250205|512000|Banque Société Générale|||BQ000157|20250205|Échéance emprunt - 02/2025|0,00|1547,00|||20250205||
+BQ|Banque|EC000273|20250305|164000|Emprunt bancaire|||BQ000158|20250305|Remboursement emprunt principal - 03/2025|1200,00|0,00|||20250305||
+BQ|Banque|EC000273|20250305|661000|Intérêts des emprunts|||BQ000158|20250305|Intérêts emprunt - 03/2025|344,00|0,00|||20250305||
+BQ|Banque|EC000273|20250305|512000|Banque Société Générale|||BQ000158|20250305|Échéance emprunt - 03/2025|0,00|1544,00|||20250305||
+BQ|Banque|EC000274|20250405|164000|Emprunt bancaire|||BQ000159|20250405|Remboursement emprunt principal - 04/2025|1200,00|0,00|||20250405||
+BQ|Banque|EC000274|20250405|661000|Intérêts des emprunts|||BQ000159|20250405|Intérêts emprunt - 04/2025|341,00|0,00|||20250405||
+BQ|Banque|EC000274|20250405|512000|Banque Société Générale|||BQ000159|20250405|Échéance emprunt - 04/2025|0,00|1541,00|||20250405||
+BQ|Banque|EC000275|20250505|164000|Emprunt bancaire|||BQ000160|20250505|Remboursement emprunt principal - 05/2025|1200,00|0,00|||20250505||
+BQ|Banque|EC000275|20250505|661000|Intérêts des emprunts|||BQ000160|20250505|Intérêts emprunt - 05/2025|338,00|0,00|||20250505||
+BQ|Banque|EC000275|20250505|512000|Banque Société Générale|||BQ000160|20250505|Échéance emprunt - 05/2025|0,00|1538,00|||20250505||
+BQ|Banque|EC000276|20250605|164000|Emprunt bancaire|||BQ000161|20250605|Remboursement emprunt principal - 06/2025|1200,00|0,00|||20250605||
+BQ|Banque|EC000276|20250605|661000|Intérêts des emprunts|||BQ000161|20250605|Intérêts emprunt - 06/2025|335,00|0,00|||20250605||
+BQ|Banque|EC000276|20250605|512000|Banque Société Générale|||BQ000161|20250605|Échéance emprunt - 06/2025|0,00|1535,00|||20250605||
+BQ|Banque|EC000277|20250705|164000|Emprunt bancaire|||BQ000162|20250705|Remboursement emprunt principal - 07/2025|1200,00|0,00|||20250705||
+BQ|Banque|EC000277|20250705|661000|Intérêts des emprunts|||BQ000162|20250705|Intérêts emprunt - 07/2025|332,00|0,00|||20250705||
+BQ|Banque|EC000277|20250705|512000|Banque Société Générale|||BQ000162|20250705|Échéance emprunt - 07/2025|0,00|1532,00|||20250705||
+BQ|Banque|EC000278|20250805|164000|Emprunt bancaire|||BQ000163|20250805|Remboursement emprunt principal - 08/2025|1200,00|0,00|||20250805||
+BQ|Banque|EC000278|20250805|661000|Intérêts des emprunts|||BQ000163|20250805|Intérêts emprunt - 08/2025|329,00|0,00|||20250805||
+BQ|Banque|EC000278|20250805|512000|Banque Société Générale|||BQ000163|20250805|Échéance emprunt - 08/2025|0,00|1529,00|||20250805||
+BQ|Banque|EC000279|20250905|164000|Emprunt bancaire|||BQ000164|20250905|Remboursement emprunt principal - 09/2025|1200,00|0,00|||20250905||
+BQ|Banque|EC000279|20250905|661000|Intérêts des emprunts|||BQ000164|20250905|Intérêts emprunt - 09/2025|326,00|0,00|||20250905||
+BQ|Banque|EC000279|20250905|512000|Banque Société Générale|||BQ000164|20250905|Échéance emprunt - 09/2025|0,00|1526,00|||20250905||
+BQ|Banque|EC000280|20251005|164000|Emprunt bancaire|||BQ000165|20251005|Remboursement emprunt principal - 10/2025|1200,00|0,00|||20251005||
+BQ|Banque|EC000280|20251005|661000|Intérêts des emprunts|||BQ000165|20251005|Intérêts emprunt - 10/2025|323,00|0,00|||20251005||
+BQ|Banque|EC000280|20251005|512000|Banque Société Générale|||BQ000165|20251005|Échéance emprunt - 10/2025|0,00|1523,00|||20251005||
+BQ|Banque|EC000281|20251105|164000|Emprunt bancaire|||BQ000166|20251105|Remboursement emprunt principal - 11/2025|1200,00|0,00|||20251105||
+BQ|Banque|EC000281|20251105|661000|Intérêts des emprunts|||BQ000166|20251105|Intérêts emprunt - 11/2025|320,00|0,00|||20251105||
+BQ|Banque|EC000281|20251105|512000|Banque Société Générale|||BQ000166|20251105|Échéance emprunt - 11/2025|0,00|1520,00|||20251105||
+BQ|Banque|EC000282|20251205|164000|Emprunt bancaire|||BQ000167|20251205|Remboursement emprunt principal - 12/2025|1200,00|0,00|||20251205||
+BQ|Banque|EC000282|20251205|661000|Intérêts des emprunts|||BQ000167|20251205|Intérêts emprunt - 12/2025|317,00|0,00|||20251205||
+BQ|Banque|EC000282|20251205|512000|Banque Société Générale|||BQ000167|20251205|Échéance emprunt - 12/2025|0,00|1517,00|||20251205||
+BQ|Banque|EC000283|20250214|512000|Banque Société Générale|||BQ000168|20250214|Remise espèces en banque|500,00|0,00|||20250214||
+BQ|Banque|EC000283|20250214|530000|Caisse|||BQ000168|20250214|Remise espèces en banque|0,00|500,00|||20250214||
+BQ|Banque|EC000284|20250516|530000|Caisse|||BQ000169|20250516|Retrait espèces|300,00|0,00|||20250516||
+BQ|Banque|EC000284|20250516|512000|Banque Société Générale|||BQ000169|20250516|Retrait espèces|0,00|300,00|||20250516||
+BQ|Banque|EC000285|20250812|512000|Banque Société Générale|||BQ000170|20250812|Remise espèces en banque|400,00|0,00|||20250812||
+BQ|Banque|EC000285|20250812|530000|Caisse|||BQ000170|20250812|Remise espèces en banque|0,00|400,00|||20250812||
+BQ|Banque|EC000286|20251107|530000|Caisse|||BQ000171|20251107|Retrait espèces|600,00|0,00|||20251107||
+BQ|Banque|EC000286|20251107|512000|Banque Société Générale|||BQ000171|20251107|Retrait espèces|0,00|600,00|||20251107||
+BQ|Banque|EC000287|20250630|512000|Banque Société Générale|||BQ000172|20250630|Revenus placements financiers|320,00|0,00|||20250630||
+BQ|Banque|EC000287|20250630|764000|Revenus des valeurs mobilières de placement|||BQ000172|20250630|Revenus placements financiers|0,00|320,00|||20250630||
+BQ|Banque|EC000288|20251231|512000|Banque Société Générale|||BQ000173|20251231|Revenus placements financiers|380,00|0,00|||20251231||
+BQ|Banque|EC000288|20251231|764000|Revenus des valeurs mobilières de placement|||BQ000173|20251231|Revenus placements financiers|0,00|380,00|||20251231||
+BQ|Banque|EC000289|20251231|512000|Banque Société Générale|||BQ000174|20251231|Autres produits financiers|150,00|0,00|||20251231||
+BQ|Banque|EC000289|20251231|768000|Autres produits financiers|||BQ000174|20251231|Autres produits financiers|0,00|150,00|||20251231||
+CA|Caisse|EC000290|20250117|606400|Fournitures de bureau|||CA000001|20250117|Achat fournitures urgent|37,92|0,00|||20250117||
+CA|Caisse|EC000290|20250117|445660|TVA déductible sur ABS|||CA000001|20250117|TVA - Achat fournitures urgent|7,58|0,00|||20250117||
+CA|Caisse|EC000290|20250117|530000|Caisse|||CA000001|20250117|Achat fournitures urgent|0,00|45,50|||20250117||
+CA|Caisse|EC000291|20250207|625000|Déplacements et missions|||CA000002|20250207|Parking client|23,33|0,00|||20250207||
+CA|Caisse|EC000291|20250207|445660|TVA déductible sur ABS|||CA000002|20250207|TVA - Parking client|4,67|0,00|||20250207||
+CA|Caisse|EC000291|20250207|530000|Caisse|||CA000002|20250207|Parking client|0,00|28,00|||20250207||
+CA|Caisse|EC000292|20250321|606400|Fournitures de bureau|||CA000003|20250321|Cartouches imprimante|51,92|0,00|||20250321||
+CA|Caisse|EC000292|20250321|445660|TVA déductible sur ABS|||CA000003|20250321|TVA - Cartouches imprimante|10,38|0,00|||20250321||
+CA|Caisse|EC000292|20250321|530000|Caisse|||CA000003|20250321|Cartouches imprimante|0,00|62,30|||20250321||
+CA|Caisse|EC000293|20250411|625000|Déplacements et missions|||CA000004|20250411|Péage autoroute|13,17|0,00|||20250411||
+CA|Caisse|EC000293|20250411|445660|TVA déductible sur ABS|||CA000004|20250411|TVA - Péage autoroute|2,63|0,00|||20250411||
+CA|Caisse|EC000293|20250411|530000|Caisse|||CA000004|20250411|Péage autoroute|0,00|15,80|||20250411||
+CA|Caisse|EC000294|20250523|606400|Fournitures de bureau|||CA000005|20250523|Papeterie|32,42|0,00|||20250523||
+CA|Caisse|EC000294|20250523|445660|TVA déductible sur ABS|||CA000005|20250523|TVA - Papeterie|6,48|0,00|||20250523||
+CA|Caisse|EC000294|20250523|530000|Caisse|||CA000005|20250523|Papeterie|0,00|38,90|||20250523||
+CA|Caisse|EC000295|20250612|625000|Déplacements et missions|||CA000006|20250612|Taxi client|43,33|0,00|||20250612||
+CA|Caisse|EC000295|20250612|445660|TVA déductible sur ABS|||CA000006|20250612|TVA - Taxi client|8,67|0,00|||20250612||
+CA|Caisse|EC000295|20250612|530000|Caisse|||CA000006|20250612|Taxi client|0,00|52,00|||20250612||
+CA|Caisse|EC000296|20250718|606400|Fournitures de bureau|||CA000007|20250718|Petit matériel|18,67|0,00|||20250718||
+CA|Caisse|EC000296|20250718|445660|TVA déductible sur ABS|||CA000007|20250718|TVA - Petit matériel|3,73|0,00|||20250718||
+CA|Caisse|EC000296|20250718|530000|Caisse|||CA000007|20250718|Petit matériel|0,00|22,40|||20250718||
+CA|Caisse|EC000297|20250905|625000|Déplacements et missions|||CA000008|20250905|Parking mission|28,75|0,00|||20250905||
+CA|Caisse|EC000297|20250905|445660|TVA déductible sur ABS|||CA000008|20250905|TVA - Parking mission|5,75|0,00|||20250905||
+CA|Caisse|EC000297|20250905|530000|Caisse|||CA000008|20250905|Parking mission|0,00|34,50|||20250905||
+CA|Caisse|EC000298|20251014|606400|Fournitures de bureau|||CA000009|20251014|Fournitures diverses|40,58|0,00|||20251014||
+CA|Caisse|EC000298|20251014|445660|TVA déductible sur ABS|||CA000009|20251014|TVA - Fournitures diverses|8,12|0,00|||20251014||
+CA|Caisse|EC000298|20251014|530000|Caisse|||CA000009|20251014|Fournitures diverses|0,00|48,70|||20251014||
+CA|Caisse|EC000299|20251121|625000|Déplacements et missions|||CA000010|20251121|Taxi aéroport|34,33|0,00|||20251121||
+CA|Caisse|EC000299|20251121|445660|TVA déductible sur ABS|||CA000010|20251121|TVA - Taxi aéroport|6,87|0,00|||20251121||
+CA|Caisse|EC000299|20251121|530000|Caisse|||CA000010|20251121|Taxi aéroport|0,00|41,20|||20251121||
+CA|Caisse|EC000300|20251205|606400|Fournitures de bureau|||CA000011|20251205|Fournitures fin année|47,33|0,00|||20251205||
+CA|Caisse|EC000300|20251205|445660|TVA déductible sur ABS|||CA000011|20251205|TVA - Fournitures fin année|9,47|0,00|||20251205||
+CA|Caisse|EC000300|20251205|530000|Caisse|||CA000011|20251205|Fournitures fin année|0,00|56,80|||20251205||
+OD|Opérations diverses|EC000301|20250331|681740|Dotations provisions créances douteuses|||OD000001|20250331|Provision créance douteuse client|3200,00|0,00|||20250331||
+OD|Opérations diverses|EC000301|20250331|491000|Provisions pour dépréciation comptes clients|||OD000001|20250331|Provision créance douteuse client|0,00|3200,00|||20250331||
+OD|Opérations diverses|EC000302|20250630|603710|Variation des stocks de matières|||OD000002|20250630|Variation stocks matières S1|1500,00|0,00|||20250630||
+OD|Opérations diverses|EC000302|20250630|310000|Stocks de matières|||OD000002|20250630|Variation stocks matières S1|0,00|1500,00|||20250630||
+OD|Opérations diverses|EC000303|20250930|491000|Provisions pour dépréciation comptes clients|||OD000003|20250930|Reprise provision créance douteuse|1500,00|0,00|||20250930||
+OD|Opérations diverses|EC000303|20250930|781740|Reprises provisions créances douteuses|||OD000003|20250930|Reprise provision créance douteuse|0,00|1500,00|||20250930||
+OD|Opérations diverses|EC000304|20250930|675000|Valeur comptable éléments actif cédés|||OD000004|20250930|VNC matériel informatique cédé|1800,00|0,00|||20250930||
+OD|Opérations diverses|EC000304|20250930|281840|Amort. matériel informatique|||OD000004|20250930|Reprise amort. matériel cédé|3200,00|0,00|||20250930||
+OD|Opérations diverses|EC000304|20250930|218400|Matériel informatique|||OD000004|20250930|Sortie matériel informatique cédé|0,00|5000,00|||20250930||
+OD|Opérations diverses|EC000305|20250930|462000|Créances sur cessions immobilisations|||OD000005|20250930|Produit cession matériel informatique|2400,00|0,00|||20250930||
+OD|Opérations diverses|EC000305|20250930|775000|Produits des cessions éléments actif|||OD000005|20250930|Produit cession matériel informatique|0,00|2000,00|||20250930||
+OD|Opérations diverses|EC000305|20250930|445710|TVA collectée|||OD000005|20250930|TVA cession matériel|0,00|400,00|||20250930||
+BQ|Banque|EC000306|20251015|512000|Banque Société Générale|||BQ000175|20251015|Encaissement cession matériel|2400,00|0,00|||20251015||
+BQ|Banque|EC000306|20251015|462000|Créances sur cessions immobilisations|||BQ000175|20251015|Encaissement cession matériel|0,00|2400,00|||20251015||
+OD|Opérations diverses|EC000307|20251031|631200|Taxe sur la formation professionnelle|||OD000006|20251031|Taxe formation professionnelle 2025|1850,00|0,00|||20251031||
+OD|Opérations diverses|EC000307|20251031|447000|Autres impôts et taxes|||OD000006|20251031|Taxe formation professionnelle 2025|0,00|1850,00|||20251031||
+BQ|Banque|EC000308|20251115|447000|Autres impôts et taxes|||BQ000176|20251115|Règlement taxe formation|1850,00|0,00|||20251115||
+BQ|Banque|EC000308|20251115|512000|Banque Société Générale|||BQ000176|20251115|Règlement taxe formation|0,00|1850,00|||20251115||
+OD|Opérations diverses|EC000309|20251215|635100|Contribution économique territoriale|||OD000007|20251215|CET/CFE exercice 2025|2800,00|0,00|||20251215||
+OD|Opérations diverses|EC000309|20251215|447000|Autres impôts et taxes|||OD000007|20251215|CET/CFE exercice 2025|0,00|2800,00|||20251215||
+BQ|Banque|EC000310|20251220|447000|Autres impôts et taxes|||BQ000177|20251220|Règlement CET/CFE|2800,00|0,00|||20251220||
+BQ|Banque|EC000310|20251220|512000|Banque Société Générale|||BQ000177|20251220|Règlement CET/CFE|0,00|2800,00|||20251220||
+OD|Opérations diverses|EC000311|20251231|681100|Dotations amort. immobilisations corporelles|||OD000008|20251231|Dotation amort. installations techniques 2025|9000,00|0,00|||20251231||
+OD|Opérations diverses|EC000311|20251231|281500|Amort. installations techniques|||OD000008|20251231|Dotation amort. installations techniques 2025|0,00|9000,00|||20251231||
+OD|Opérations diverses|EC000312|20251231|681100|Dotations amort. immobilisations corporelles|||OD000009|20251231|Dotation amort. matériel de bureau 2025|2400,00|0,00|||20251231||
+OD|Opérations diverses|EC000312|20251231|281830|Amort. matériel de bureau|||OD000009|20251231|Dotation amort. matériel de bureau 2025|0,00|2400,00|||20251231||
+OD|Opérations diverses|EC000313|20251231|681100|Dotations amort. immobilisations corporelles|||OD000010|20251231|Dotation amort. matériel informatique 2025|17000,00|0,00|||20251231||
+OD|Opérations diverses|EC000313|20251231|281840|Amort. matériel informatique|||OD000010|20251231|Dotation amort. matériel informatique 2025|0,00|17000,00|||20251231||
+OD|Opérations diverses|EC000314|20251231|695000|Impôts sur les bénéfices|||OD000011|20251231|IS estimé exercice 2025|22000,00|0,00|||20251231||
+OD|Opérations diverses|EC000314|20251231|444000|État - Impôt sur les bénéfices|||OD000011|20251231|IS estimé exercice 2025|0,00|22000,00|||20251231||
+OD|Opérations diverses|EC000315|20251231|310000|Stocks de matières|||OD000012|20251231|Variation stocks matières clôture|2200,00|0,00|||20251231||
+OD|Opérations diverses|EC000315|20251231|603710|Variation des stocks de matières|||OD000012|20251231|Variation stocks matières clôture|0,00|2200,00|||20251231||
