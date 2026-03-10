@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useCompanyStore } from '@/store/companyStore';
 import { getRapportActivite } from '@/api/analysis.api';
@@ -61,16 +61,41 @@ function formatDateLong(raw: string): string {
 // ════════════════════════════════════════════
 
 function ExpertTooltip({ children }: { children: React.ReactNode }) {
+  const [show, setShow] = useState(false);
+  const [pos, setPos] = useState({ top: 0, left: 0 });
+  const ref = useRef<HTMLSpanElement>(null);
+
+  const handleEnter = () => {
+    if (ref.current) {
+      const rect = ref.current.getBoundingClientRect();
+      setPos({
+        top: rect.top + rect.height / 2,
+        left: rect.right + 12,
+      });
+    }
+    setShow(true);
+  };
+
   return (
-    <div className="relative group/tip inline-flex ml-2 print:hidden">
-      <span className="w-5 h-5 rounded-full bg-accent-100 text-accent-600 text-[10px] flex items-center justify-center cursor-help font-bold shrink-0">
+    <span className="inline-flex ml-2 print:hidden">
+      <span
+        ref={ref}
+        onMouseEnter={handleEnter}
+        onMouseLeave={() => setShow(false)}
+        className="w-5 h-5 rounded-full bg-accent-100 text-accent-600 text-[10px] flex items-center justify-center cursor-help font-bold shrink-0"
+      >
         <Info className="w-3 h-3" />
       </span>
-      <div className="absolute left-full top-1/2 -translate-y-1/2 ml-3 w-72 bg-gray-900 text-white text-xs rounded-lg p-3 shadow-xl opacity-0 group-hover/tip:opacity-100 transition-opacity pointer-events-none z-50 leading-relaxed">
-        {children}
-        <div className="absolute right-full top-1/2 -translate-y-1/2 w-0 h-0 border-t-4 border-b-4 border-r-4 border-transparent border-r-gray-900" />
-      </div>
-    </div>
+      {show && (
+        <div
+          className="fixed w-72 bg-gray-900 text-white text-xs rounded-lg p-3 shadow-xl z-[9999] leading-relaxed pointer-events-none"
+          style={{ top: pos.top, left: pos.left, transform: 'translateY(-50%)' }}
+        >
+          {children}
+          <div className="absolute right-full top-1/2 -translate-y-1/2 w-0 h-0 border-t-4 border-b-4 border-r-4 border-transparent border-r-gray-900" />
+        </div>
+      )}
+    </span>
   );
 }
 
