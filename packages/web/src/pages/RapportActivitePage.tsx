@@ -269,11 +269,13 @@ function SIGSection({
   ratios,
   chargesDetaillees,
   nafLibelle,
+  chiffreAffaires,
 }: {
   sig: Sig;
   ratios: RatioFinancier[];
   chargesDetaillees: ChargeClassDetail[];
   nafLibelle?: string;
+  chiffreAffaires: number;
 }) {
   const { formatCurrency } = useCurrencyFormat();
   const [openLevels, setOpenLevels] = useState<Set<string>>(new Set());
@@ -325,6 +327,21 @@ function SIGSection({
 
   return (
     <section className="print:break-before-page">
+      {/* Encart Chiffre d'Affaires */}
+      <div className="rounded-xl border-2 border-primary-300 bg-primary-50 p-5 mb-6 print:bg-white">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <TrendingUp className="w-5 h-5 text-primary-600" />
+            <span className="text-lg font-bold text-primary-800">
+              Chiffre d'affaires
+            </span>
+          </div>
+          <span className="text-2xl font-bold text-primary-700">
+            {formatCurrency(chiffreAffaires)}
+          </span>
+        </div>
+      </div>
+
       <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
         <TrendingUp className="w-5 h-5 text-accent-500" />
         Soldes Intermédiaires de Gestion (SIG)
@@ -407,35 +424,42 @@ function SIGSection({
               </button>
 
               {/* Détails dépliables */}
-              {isOpen && level.details.length > 0 && (
+              {isOpen && level.details.length > 0 && (() => {
+                // Identifier le poste le plus élevé (en valeur absolue) dans ce niveau
+                const maxDetail = Math.max(...level.details.map(d => Math.abs(d.montant)));
+                return (
                 <div className="border-t border-gray-100 px-5 py-3 bg-gray-50 print:bg-white">
                   <table className="w-full text-sm">
                     <tbody>
-                      {level.details.map((d, i) => (
-                        <tr key={i} className="border-t border-gray-100 first:border-t-0">
+                      {level.details.map((d, i) => {
+                        const isMax = Math.abs(d.montant) === maxDetail && maxDetail > 0;
+                        return (
+                        <tr key={i} className={`border-t border-gray-100 first:border-t-0 ${isMax ? 'bg-accent-50/50' : ''}`}>
                           <td className="py-1.5 w-12 text-center">
                             {d.compteRacines ? (
-                              <span className="text-xs font-mono text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">
+                              <span className={`text-xs font-mono px-1.5 py-0.5 rounded ${isMax ? 'text-accent-700 bg-accent-100 font-bold' : 'text-gray-400 bg-gray-100'}`}>
                                 {d.compteRacines}
                               </span>
                             ) : (
                               <ArrowRight className="w-3 h-3 text-gray-300 mx-auto" />
                             )}
                           </td>
-                          <td className="py-1.5 text-gray-600">
+                          <td className={`py-1.5 ${isMax ? 'text-gray-900 font-semibold' : 'text-gray-600'}`}>
                             {d.label}
                           </td>
-                          <td className={`py-1.5 text-right font-medium ${
-                            d.montant >= 0 ? 'text-gray-900' : 'text-red-600'
+                          <td className={`py-1.5 text-right ${isMax ? 'font-bold' : 'font-medium'} ${
+                            d.montant >= 0 ? (isMax ? 'text-accent-700' : 'text-gray-900') : 'text-red-600'
                           }`}>
                             {formatCurrency(d.montant)}
                           </td>
                         </tr>
-                      ))}
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
-              )}
+                );
+              })()}
 
               {/* En mode print, toujours afficher les détails */}
               {level.details.length > 0 && (
@@ -876,6 +900,7 @@ export function RapportActivitePage() {
         ratios={data.ratios}
         chargesDetaillees={data.chargesDetaillees}
         nafLibelle={data.entreprise.nafLibelle}
+        chiffreAffaires={data.kpis.chiffreAffaires}
       />
 
       <BilanDetailSection
