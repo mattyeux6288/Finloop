@@ -7,7 +7,6 @@ import { CompteResultatPage } from '@/pages/CompteResultatPage';
 import { SigPage } from '@/pages/SigPage';
 import { SettingsPage } from '@/pages/SettingsPage';
 import { AdminPage } from '@/pages/AdminPage';
-import { KrokmouPage } from '@/pages/KrokmouPage';
 import { RapportActivitePage } from '@/pages/RapportActivitePage';
 
 export const router = createBrowserRouter([
@@ -23,7 +22,6 @@ export const router = createBrowserRouter([
       { path: 'rapport-activite', element: <RapportActivitePage /> },
       { path: 'comparaison', element: <div className="text-gray-500">Page de comparaison (à venir)</div> },
       { path: 'export', element: <div className="text-gray-500">Page d'export PDF (à venir)</div> },
-      { path: 'krokmou', element: <KrokmouPage /> },
       { path: 'parametres', element: <SettingsPage /> },
       { path: 'admin', element: <AdminPage /> },
     ],

@@ -23,9 +23,6 @@ export const config = {
   supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
   supabaseJwtSecret: process.env.SUPABASE_JWT_SECRET || 'super-secret-jwt-token-with-at-least-32-characters-long',
 
-  // OpenAI API (Krokmou)
-  openaiApiKey: process.env.OPENAI_API_KEY || '',
-
   // Upload — /tmp en serverless (Vercel), dossier local sinon
   uploadDir: process.env.UPLOAD_DIR || (process.env.VERCEL ? '/tmp' : path.join(rootDir, 'uploads')),
   maxUploadSize: 50 * 1024 * 1024, // 50 MB
