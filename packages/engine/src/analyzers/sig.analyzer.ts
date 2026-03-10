@@ -19,7 +19,7 @@ export function computeSig(aggregates: CompteAggregate[]): Sig {
 
   for (const levelKey of SIG_COMPUTATION_ORDER) {
     const formula = SIG_FORMULAS[levelKey];
-    const details: { label: string; montant: number }[] = [];
+    const details: { label: string; montant: number; compteRacines?: string }[] = [];
     let montant = 0;
 
     // Ajouter les dépendances (niveaux précédents)
@@ -39,9 +39,13 @@ export function computeSig(aggregates: CompteAggregate[]): Sig {
       const itemMontant = computeFormulaItem(aggregates, item.compteRacines);
       const signedMontant = itemMontant * item.sign;
 
+      // Extraire les 2 premiers chiffres de chaque racine, dédupliquer
+      const racines2 = [...new Set(item.compteRacines.map(r => r.substring(0, 2)))].join('/');
+
       details.push({
         label: item.label,
         montant: round(signedMontant),
+        compteRacines: racines2,
       });
 
       montant += signedMontant;

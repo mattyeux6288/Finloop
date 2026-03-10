@@ -413,8 +413,16 @@ function SIGSection({
                     <tbody>
                       {level.details.map((d, i) => (
                         <tr key={i} className="border-t border-gray-100 first:border-t-0">
-                          <td className="py-1.5 text-gray-600 flex items-center gap-1.5">
-                            <ArrowRight className="w-3 h-3 text-gray-300" />
+                          <td className="py-1.5 w-12 text-center">
+                            {d.compteRacines ? (
+                              <span className="text-xs font-mono text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">
+                                {d.compteRacines}
+                              </span>
+                            ) : (
+                              <ArrowRight className="w-3 h-3 text-gray-300 mx-auto" />
+                            )}
+                          </td>
+                          <td className="py-1.5 text-gray-600">
                             {d.label}
                           </td>
                           <td className={`py-1.5 text-right font-medium ${
@@ -436,6 +444,11 @@ function SIGSection({
                     <tbody>
                       {level.details.map((d, i) => (
                         <tr key={i} className="border-t border-gray-100 first:border-t-0">
+                          <td className="py-1 w-12 text-center">
+                            {d.compteRacines && (
+                              <span className="text-xs font-mono text-gray-400">{d.compteRacines}</span>
+                            )}
+                          </td>
                           <td className="py-1 text-gray-600">{d.label}</td>
                           <td className="py-1 text-right font-medium text-gray-900">{formatCurrency(d.montant)}</td>
                         </tr>

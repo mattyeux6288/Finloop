@@ -67,7 +67,7 @@ export interface CompteDeResultat {
 export interface SigLevel {
   label: string;
   montant: number;
-  details: { label: string; montant: number }[];
+  details: { label: string; montant: number; compteRacines?: string }[];
 }
 
 export interface Sig {
