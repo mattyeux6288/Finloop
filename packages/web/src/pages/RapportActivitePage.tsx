@@ -12,7 +12,6 @@ import type {
   Sig,
   SigLevel,
   SigDetail,
-  ChargeClassDetail,
   RapportActiviteData,
 } from '@finthesis/shared';
 import {
@@ -26,20 +25,6 @@ import {
   Info,
   ArrowRight,
 } from 'lucide-react';
-
-// ── Couleurs charges par classe ──
-const CHARGE_COLORS: Record<string, string> = {
-  '60': '#1E3A30',
-  '61': '#2D6B48',
-  '62': '#6DC28A',
-  '63': '#E8621A',
-  '64': '#c94f0e',
-  '65': '#84caaa',
-  '66': '#3a7d52',
-  '67': '#f77c2e',
-  '68': '#aedfc5',
-  '69': '#4a9866',
-};
 
 // ════════════════════════════════════════════
 // Utilitaires
@@ -293,20 +278,17 @@ const BILAN_PASSIF_TOOLTIPS: Record<string, string> = {
 function SIGSection({
   sig,
   ratios,
-  chargesDetaillees,
   nafLibelle,
   chiffreAffaires,
 }: {
   sig: Sig;
   ratios: RatioFinancier[];
-  chargesDetaillees: ChargeClassDetail[];
   nafLibelle?: string;
   chiffreAffaires: number;
 }) {
   const { formatCurrency } = useCurrencyFormat();
   const [openLevels, setOpenLevels] = useState<Set<string>>(new Set());
   const [openDetails, setOpenDetails] = useState<Set<string>>(new Set());
-  const [openChargeClasses, setOpenChargeClasses] = useState<Set<string>>(new Set());
 
   const toggleLevel = (label: string) => {
     setOpenLevels((prev) => {
@@ -322,15 +304,6 @@ function SIGSection({
       const next = new Set(prev);
       if (next.has(key)) next.delete(key);
       else next.add(key);
-      return next;
-    });
-  };
-
-  const toggleChargeClass = (code: string) => {
-    setOpenChargeClasses((prev) => {
-      const next = new Set(prev);
-      if (next.has(code)) next.delete(code);
-      else next.add(code);
       return next;
     });
   };
@@ -588,109 +561,6 @@ function SIGSection({
           );
         })}
       </div>
-
-      {/* Détail des charges par classe PCG */}
-      {chargesDetaillees.length > 0 && (
-        <div className="mb-8">
-          <h3 className="text-base font-semibold text-gray-800 mb-3 flex items-center gap-2">
-            <BarChart3 className="w-4 h-4 text-gray-400" />
-            Détail des charges par classe
-          </h3>
-          <div className="space-y-2">
-            {chargesDetaillees.map((classe) => {
-              const isOpen = openChargeClasses.has(classe.classeCode);
-              const barColor = CHARGE_COLORS[classe.classeCode] || '#6DC28A';
-              const totalCharges = chargesDetaillees.reduce((sum, c) => sum + c.montant, 0);
-              const barWidth = totalCharges > 0 ? Math.max(2, (classe.montant / totalCharges) * 100) : 0;
-
-              return (
-                <div
-                  key={classe.classeCode}
-                  className="bg-white rounded-lg border border-gray-200 overflow-hidden"
-                >
-                  <button
-                    onClick={() => toggleChargeClass(classe.classeCode)}
-                    className="w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 transition-colors text-left"
-                  >
-                    <span className="print:hidden">
-                      {isOpen ? (
-                        <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
-                      ) : (
-                        <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
-                      )}
-                    </span>
-                    <span
-                      className="w-7 h-7 rounded-md flex items-center justify-center text-white text-xs font-bold shrink-0"
-                      style={{ backgroundColor: barColor }}
-                    >
-                      {classe.classeCode}
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-medium text-gray-700 truncate">
-                          {classe.classeLabel}
-                        </span>
-                        <div className="flex items-center gap-2 shrink-0 ml-3">
-                          <span className="text-sm font-semibold text-gray-900">{formatCurrency(classe.montant)}</span>
-                          <span className="text-xs text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full">
-                            {classe.pourcentage.toFixed(1)}%
-                          </span>
-                        </div>
-                      </div>
-                      <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                        <div
-                          className="h-full rounded-full transition-all duration-500"
-                          style={{ width: `${barWidth}%`, backgroundColor: barColor }}
-                        />
-                      </div>
-                    </div>
-                  </button>
-
-                  {isOpen && classe.sousComptes.length > 0 && (
-                    <div className="border-t border-gray-100 px-4 py-2 bg-gray-50">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="text-gray-400 text-xs">
-                            <th className="text-left pb-1.5 font-medium">Compte</th>
-                            <th className="text-left pb-1.5 font-medium">Libellé</th>
-                            <th className="text-right pb-1.5 font-medium">Montant</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {classe.sousComptes.map((sc) => (
-                            <tr key={sc.compteNum} className="border-t border-gray-100">
-                              <td className="py-1 text-gray-500 font-mono text-xs">{sc.compteNum}</td>
-                              <td className="py-1 text-gray-700">{sc.label}</td>
-                              <td className="py-1 text-right font-medium text-gray-900">{formatCurrency(sc.montant)}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-
-                  {/* Print : toujours affiché */}
-                  {classe.sousComptes.length > 0 && (
-                    <div className="hidden print:block border-t border-gray-100 px-4 py-2">
-                      <table className="w-full text-sm">
-                        <tbody>
-                          {classe.sousComptes.map((sc) => (
-                            <tr key={sc.compteNum} className="border-t border-gray-100">
-                              <td className="py-1 text-gray-500 font-mono text-xs">{sc.compteNum}</td>
-                              <td className="py-1 text-gray-700">{sc.label}</td>
-                              <td className="py-1 text-right font-medium text-gray-900">{formatCurrency(sc.montant)}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
 
       {/* Ratios SIG */}
       {sigRatios.length > 0 && (
@@ -1001,7 +871,6 @@ export function RapportActivitePage() {
       <SIGSection
         sig={data.sig}
         ratios={data.ratios}
-        chargesDetaillees={data.chargesDetaillees}
         nafLibelle={data.entreprise.nafLibelle}
         chiffreAffaires={data.kpis.chiffreAffaires}
       />
