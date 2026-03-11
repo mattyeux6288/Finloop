@@ -490,13 +490,6 @@ function SIGSection({
                         {isDetailOpen && hasComptes && (
                           <div className="mx-5 mb-2 rounded-lg border border-primary-100 bg-white overflow-hidden print:hidden">
                             <table className="w-full text-xs">
-                              <thead>
-                                <tr className="bg-primary-50 text-primary-700">
-                                  <th className="text-left px-3 py-1.5 font-medium w-24">N° Compte</th>
-                                  <th className="text-left px-3 py-1.5 font-medium">Libellé</th>
-                                  <th className="text-right px-3 py-1.5 font-medium">Montant</th>
-                                </tr>
-                              </thead>
                               <tbody>
                                 {d.comptes!.map((c, j) => (
                                   <tr key={j} className="border-t border-gray-100 hover:bg-gray-50">
