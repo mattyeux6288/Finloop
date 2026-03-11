@@ -32,6 +32,7 @@ export interface RatioFinancier {
   secteurLibelle?: string;  // ex: "Moyenne Conseil informatique"
   formule?: string;          // ex: "Marge brute (45 k€) / CA (120 k€) × 100"
   categorie?: 'sig' | 'bilan'; // Pour filtrage frontend SIG vs Bilan
+  valeurN1?: number;            // Valeur exercice précédent (même unité)
 }
 
 // ---- POINTS DE DISCUSSION ----
@@ -85,4 +86,12 @@ export interface RapportActiviteData {
   ratios: RatioFinancier[];
   pointsDiscussion: PointDiscussion[];
   genereA: string; // ISO date
+
+  // ── Données N-1 (optionnelles, présentes si exercice précédent disponible) ──
+  exerciceN1Label?: string;
+  kpisN1?: DashboardKpis;
+  sigN1?: Sig;
+  bilanN1?: Bilan;
+  chargesDetailleesN1?: ChargeClassDetail[];
+  equilibreFinancierN1?: EquilibreFinancier;
 }

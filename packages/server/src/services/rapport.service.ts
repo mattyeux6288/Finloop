@@ -2,6 +2,7 @@ import { db } from '../config/database';
 import { config } from '../config/env';
 import * as analysisService from './analysis.service';
 import { PCG_MAIN_ACCOUNTS } from '@finthesis/shared';
+import { computeKpis, computeSig, computeBilan } from '@finthesis/engine';
 import { getBenchmarkByNaf } from '../data/naf-benchmarks';
 import type { SecteurBenchmark } from '../data/naf-benchmarks';
 import type {
@@ -85,6 +86,9 @@ function buildRatios(
   bilan: Bilan,
   sig: Sig,
   benchmark: SecteurBenchmark,
+  kpisN1?: DashboardKpis,
+  bilanN1?: Bilan,
+  sigN1?: Sig,
 ): RatioFinancier[] {
   const ratios: RatioFinancier[] = [];
   const B = benchmark.ratios;
@@ -116,6 +120,7 @@ function buildRatios(
     secteurLibelle: secteurLabel,
     formule: `Marge brute (${formatK(kpis.margeBrute)}) / CA (${formatK(kpis.chiffreAffaires)}) × 100`,
     categorie: 'sig',
+    valeurN1: kpisN1?.tauxMargeBrute,
   });
 
   // 2. Taux de valeur ajoutée
@@ -123,6 +128,9 @@ function buildRatios(
   const tauxVA = kpis.chiffreAffaires > 0
     ? Math.round((va / kpis.chiffreAffaires) * 10000) / 100
     : 0;
+  const tauxVAN1 = sigN1 && kpisN1 && kpisN1.chiffreAffaires > 0
+    ? Math.round((sigN1.valeurAjoutee.montant / kpisN1.chiffreAffaires) * 10000) / 100
+    : undefined;
   ratios.push({
     label: 'Taux de valeur ajoutée',
     valeur: tauxVA,
@@ -133,12 +141,16 @@ function buildRatios(
     secteurLibelle: secteurLabel,
     formule: `Valeur ajoutée (${formatK(va)}) / CA (${formatK(kpis.chiffreAffaires)}) × 100`,
     categorie: 'sig',
+    valeurN1: tauxVAN1,
   });
 
-  // 3. Taux d'EBE (nouveau)
+  // 3. Taux d'EBE
   const tauxEBE = kpis.chiffreAffaires > 0
     ? Math.round((sig.ebe.montant / kpis.chiffreAffaires) * 10000) / 100
     : 0;
+  const tauxEBEN1 = sigN1 && kpisN1 && kpisN1.chiffreAffaires > 0
+    ? Math.round((sigN1.ebe.montant / kpisN1.chiffreAffaires) * 10000) / 100
+    : undefined;
   ratios.push({
     label: "Taux d'EBE",
     valeur: tauxEBE,
@@ -149,6 +161,7 @@ function buildRatios(
     secteurLibelle: secteurLabel,
     formule: `EBE (${formatK(sig.ebe.montant)}) / CA (${formatK(kpis.chiffreAffaires)}) × 100`,
     categorie: 'sig',
+    valeurN1: tauxEBEN1,
   });
 
   // 4. Rentabilité nette
@@ -162,6 +175,7 @@ function buildRatios(
     secteurLibelle: secteurLabel,
     formule: `Résultat net (${formatK(kpis.resultatNet)}) / CA (${formatK(kpis.chiffreAffaires)}) × 100`,
     categorie: 'sig',
+    valeurN1: kpisN1?.ratioRentabilite,
   });
 
   // ── Ratios Bilan ──
@@ -170,6 +184,10 @@ function buildRatios(
   const cp = bilan.passif.capitauxPropres.total;
   const dettesFinancieres = bilan.passif.dettesFinancieres.total;
   const ratioEndettement = cp !== 0 ? Math.round((dettesFinancieres / cp) * 10000) / 100 : 0;
+  const cpN1 = bilanN1?.passif.capitauxPropres.total;
+  const endettementN1 = cpN1 && cpN1 !== 0 && bilanN1
+    ? Math.round((bilanN1.passif.dettesFinancieres.total / cpN1) * 10000) / 100
+    : undefined;
   ratios.push({
     label: "Ratio d'endettement",
     valeur: ratioEndettement,
@@ -180,12 +198,16 @@ function buildRatios(
     secteurLibelle: secteurLabel,
     formule: `Dettes financières (${formatK(dettesFinancieres)}) / Capitaux propres (${formatK(cp)}) × 100`,
     categorie: 'bilan',
+    valeurN1: endettementN1,
   });
 
   // 6. Autonomie financière
   const autonomie = bilan.passif.totalPassif !== 0
     ? Math.round((cp / bilan.passif.totalPassif) * 10000) / 100
     : 0;
+  const autonomieN1 = bilanN1 && cpN1 !== undefined && bilanN1.passif.totalPassif !== 0
+    ? Math.round((cpN1 / bilanN1.passif.totalPassif) * 10000) / 100
+    : undefined;
   ratios.push({
     label: 'Autonomie financière',
     valeur: autonomie,
@@ -196,12 +218,16 @@ function buildRatios(
     secteurLibelle: secteurLabel,
     formule: `Capitaux propres (${formatK(cp)}) / Total passif (${formatK(bilan.passif.totalPassif)}) × 100`,
     categorie: 'bilan',
+    valeurN1: autonomieN1,
   });
 
   // 7. BFR en jours de CA
   const bfrJours = kpis.chiffreAffaires > 0
     ? Math.round((kpis.bfr / kpis.chiffreAffaires) * 365)
     : 0;
+  const bfrJoursN1 = kpisN1 && kpisN1.chiffreAffaires > 0
+    ? Math.round((kpisN1.bfr / kpisN1.chiffreAffaires) * 365)
+    : undefined;
   ratios.push({
     label: 'BFR en jours de CA',
     valeur: bfrJours,
@@ -212,6 +238,7 @@ function buildRatios(
     secteurLibelle: secteurLabel,
     formule: `BFR (${formatK(kpis.bfr)}) / CA (${formatK(kpis.chiffreAffaires)}) × 365`,
     categorie: 'bilan',
+    valeurN1: bfrJoursN1,
   });
 
   // 8. Délai client moyen
@@ -225,6 +252,7 @@ function buildRatios(
     secteurLibelle: secteurLabel,
     formule: `Créances clients / CA TTC × 365`,
     categorie: 'bilan',
+    valeurN1: kpisN1?.delaiClientMoyen,
   });
 
   // 9. Délai fournisseur moyen
@@ -238,6 +266,7 @@ function buildRatios(
     secteurLibelle: secteurLabel,
     formule: `Dettes fournisseurs / Achats TTC × 365`,
     categorie: 'bilan',
+    valeurN1: kpisN1?.delaiFournisseurMoyen,
   });
 
   return ratios;
@@ -253,10 +282,80 @@ function buildPointsDiscussion(
   sig: Sig,
   benchmark: SecteurBenchmark,
   equilibre: EquilibreFinancier,
+  kpisN1?: DashboardKpis,
+  sigN1?: Sig,
 ): PointDiscussion[] {
   const points: PointDiscussion[] = [];
   const B = benchmark.ratios;
   const secteurLabel = benchmark.libelle;
+
+  // Helper : calcul de variation en %
+  function deltaPct(vN: number, vN1: number): number | null {
+    if (vN1 === 0) return null;
+    return Math.round(((vN - vN1) / Math.abs(vN1)) * 1000) / 10;
+  }
+
+  // ── Évolutions N-1 (si données disponibles) ──
+  if (kpisN1) {
+    const deltaCA = deltaPct(kpis.chiffreAffaires, kpisN1.chiffreAffaires);
+    if (deltaCA !== null && Math.abs(deltaCA) >= 2) {
+      if (deltaCA > 0) {
+        points.push({
+          type: 'force',
+          titre: `Chiffre d'affaires en hausse de ${deltaCA.toFixed(1)}%`,
+          description: `Le CA progresse de ${formatK(kpisN1.chiffreAffaires)} à ${formatK(kpis.chiffreAffaires)} par rapport à l'exercice précédent, soit une croissance de ${deltaCA.toFixed(1)}%.`,
+          formule: `CA N (${formatK(kpis.chiffreAffaires)}) vs CA N-1 (${formatK(kpisN1.chiffreAffaires)})`,
+        });
+      } else {
+        points.push({
+          type: 'vigilance',
+          titre: `Chiffre d'affaires en baisse de ${Math.abs(deltaCA).toFixed(1)}%`,
+          description: `Le CA recule de ${formatK(kpisN1.chiffreAffaires)} à ${formatK(kpis.chiffreAffaires)} par rapport à N-1, soit un repli de ${Math.abs(deltaCA).toFixed(1)}%. Analyser les causes (perte de clients, saisonnalité, conjoncture).`,
+          formule: `CA N (${formatK(kpis.chiffreAffaires)}) vs CA N-1 (${formatK(kpisN1.chiffreAffaires)})`,
+        });
+      }
+    }
+
+    const deltaRN = deltaPct(kpis.resultatNet, kpisN1.resultatNet);
+    if (deltaRN !== null && Math.abs(deltaRN) >= 5) {
+      if (kpis.resultatNet >= 0 && kpisN1.resultatNet < 0) {
+        points.push({
+          type: 'force',
+          titre: 'Retour à la rentabilité',
+          description: `L'entreprise passe d'un déficit de ${formatK(kpisN1.resultatNet)} en N-1 à un bénéfice de ${formatK(kpis.resultatNet)}. Redressement confirmé.`,
+        });
+      } else if (kpis.resultatNet < 0 && kpisN1.resultatNet >= 0) {
+        points.push({
+          type: 'action',
+          titre: 'Basculement en perte',
+          description: `L'entreprise passe d'un bénéfice de ${formatK(kpisN1.resultatNet)} en N-1 à un déficit de ${formatK(kpis.resultatNet)}. Identifier les causes et agir rapidement.`,
+        });
+      } else if (deltaRN > 0) {
+        points.push({
+          type: 'force',
+          titre: `Résultat net en amélioration (${deltaRN > 100 ? '> +100' : `+${deltaRN.toFixed(0)}`}%)`,
+          description: `Le résultat net progresse de ${formatK(kpisN1.resultatNet)} à ${formatK(kpis.resultatNet)} par rapport à N-1.`,
+        });
+      } else {
+        points.push({
+          type: 'vigilance',
+          titre: `Résultat net en recul (${deltaRN.toFixed(0)}%)`,
+          description: `Le résultat net se contracte de ${formatK(kpisN1.resultatNet)} à ${formatK(kpis.resultatNet)} par rapport à N-1.`,
+        });
+      }
+    }
+
+    if (sigN1) {
+      const deltaEBE = deltaPct(sig.ebe.montant, sigN1.ebe.montant);
+      if (deltaEBE !== null && Math.abs(deltaEBE) >= 5) {
+        points.push({
+          type: deltaEBE > 0 ? 'force' : 'vigilance',
+          titre: `EBE ${deltaEBE > 0 ? 'en progression' : 'en recul'} (${deltaEBE > 0 ? '+' : ''}${deltaEBE.toFixed(1)}%)`,
+          description: `L'EBE passe de ${formatK(sigN1.ebe.montant)} à ${formatK(sig.ebe.montant)}. ${deltaEBE > 0 ? 'La performance opérationnelle s\'améliore.' : 'La performance opérationnelle se dégrade, revoir la structure de coûts.'}`,
+        });
+      }
+    }
+  }
 
   // ── Forces ──
 
@@ -631,11 +730,15 @@ export async function getRapportActivite(fiscalYearId: string): Promise<RapportA
   // Construire les sections calculées
   const chargesDetaillees = buildChargesDetaillees(aggregates);
   const equilibreFinancier = buildEquilibreFinancier(dashboard.kpis, bilan, sig, aggregates);
-  const ratios = buildRatios(dashboard.kpis, bilan, sig, benchmark);
-  const pointsDiscussion = buildPointsDiscussion(dashboard.kpis, ratios, chargesDetaillees, bilan, sig, benchmark, equilibreFinancier);
-
   // Données N-1 (exercice précédent de la même entreprise)
   let revenueMonthlyN1: MonthlyData[] = [];
+  let exerciceN1Label: string | undefined;
+  let kpisN1: DashboardKpis | undefined;
+  let sigN1: Sig | undefined;
+  let bilanN1: Bilan | undefined;
+  let chargesDetailleesN1: ChargeClassDetail[] | undefined;
+  let equilibreFinancierN1: EquilibreFinancier | undefined;
+
   if (fy && company) {
     const previousFy = await db('fiscal_years')
       .where({ company_id: company.id })
@@ -644,22 +747,39 @@ export async function getRapportActivite(fiscalYearId: string): Promise<RapportA
       .first();
 
     if (previousFy) {
-      const monthlyN1 = await db('ecritures')
-        .where({ fiscal_year_id: previousFy.id })
-        .whereRaw("compte_num LIKE '70%'")
-        .groupByRaw(monthExpr)
-        .select(db.raw(`${monthExpr} as month`))
-        .sum('credit as creditTotal')
-        .sum('debit as debitTotal')
-        .orderBy('month');
+      exerciceN1Label = previousFy.label;
+
+      // Calcul complet N-1 en parallèle
+      const [aggN1, monthlyN1] = await Promise.all([
+        getAggregatesForRapport(previousFy.id),
+        db('ecritures')
+          .where({ fiscal_year_id: previousFy.id })
+          .whereRaw("compte_num LIKE '70%'")
+          .groupByRaw(monthExpr)
+          .select(db.raw(`${monthExpr} as month`))
+          .sum('credit as creditTotal')
+          .sum('debit as debitTotal')
+          .orderBy('month'),
+      ]);
 
       revenueMonthlyN1 = monthlyN1.map((r: any) => ({
         month: String(r.month),
         label: String(r.month).substring(5),
         montant: (Number(r.creditTotal) || 0) - (Number(r.debitTotal) || 0),
       }));
+
+      // Calcul des données financières N-1 via le moteur
+      kpisN1 = computeKpis(aggN1);
+      sigN1 = computeSig(aggN1);
+      bilanN1 = computeBilan(aggN1);
+      chargesDetailleesN1 = buildChargesDetaillees(aggN1);
+      equilibreFinancierN1 = buildEquilibreFinancier(kpisN1, bilanN1, sigN1, aggN1);
     }
   }
+
+  // Construire ratios et points de discussion AVEC données N-1
+  const ratios = buildRatios(dashboard.kpis, bilan, sig, benchmark, kpisN1, bilanN1, sigN1);
+  const pointsDiscussion = buildPointsDiscussion(dashboard.kpis, ratios, chargesDetaillees, bilan, sig, benchmark, equilibreFinancier, kpisN1, sigN1);
 
   return {
     entreprise: {
@@ -683,6 +803,13 @@ export async function getRapportActivite(fiscalYearId: string): Promise<RapportA
     ratios,
     pointsDiscussion,
     genereA: new Date().toISOString(),
+    // Données N-1
+    exerciceN1Label,
+    kpisN1,
+    sigN1,
+    bilanN1,
+    chargesDetailleesN1,
+    equilibreFinancierN1,
   };
 }
 

@@ -27,6 +27,8 @@ import {
   ArrowRight,
   Search,
   X,
+  ArrowUpRight,
+  ArrowDownRight,
 } from 'lucide-react';
 
 // ════════════════════════════════════════════
@@ -248,6 +250,30 @@ function EcrituresModal({
 }
 
 // ════════════════════════════════════════════
+// Composant : Badge Delta N-1
+// ════════════════════════════════════════════
+
+function DeltaBadge({ valueN, valueN1, className = '' }: { valueN: number; valueN1: number; className?: string }) {
+  if (valueN1 === 0 && valueN === 0) return null;
+  const delta = valueN1 !== 0 ? ((valueN - valueN1) / Math.abs(valueN1)) * 100 : null;
+  if (delta === null) return null;
+
+  const isPositive = delta >= 0;
+  const Icon = isPositive ? ArrowUpRight : ArrowDownRight;
+
+  return (
+    <span className={`inline-flex items-center gap-0.5 text-xs font-semibold px-1.5 py-0.5 rounded-full ${
+      isPositive
+        ? 'bg-green-100 text-green-700'
+        : 'bg-red-100 text-red-600'
+    } ${className}`}>
+      <Icon className="w-3 h-3" />
+      {isPositive ? '+' : ''}{delta.toFixed(1)}%
+    </span>
+  );
+}
+
+// ════════════════════════════════════════════
 // Composant : Carte Ratio (réutilisable)
 // ════════════════════════════════════════════
 
@@ -268,14 +294,17 @@ function RatioCard({ ratio }: { ratio: RatioFinancier }) {
   const style = interpretationStyles[ratio.interpretation];
   const formattedValue = formatVal(ratio.valeur, ratio.unite);
   const hasSecteur = ratio.secteurMoyenne !== undefined;
+  const hasN1 = ratio.valeurN1 !== undefined;
 
-  let barPct = 100;
-  let secteurPct = 100;
-  if (hasSecteur && ratio.secteurMoyenne! > 0 && ratio.valeur > 0) {
-    const max = Math.max(ratio.valeur, ratio.secteurMoyenne!);
-    barPct = Math.round((ratio.valeur / max) * 100);
-    secteurPct = Math.round((ratio.secteurMoyenne! / max) * 100);
-  }
+  // Calculer les barres proportionnelles (3 barres max : société, N-1, secteur)
+  const allBarValues = [ratio.valeur];
+  if (hasN1) allBarValues.push(ratio.valeurN1!);
+  if (hasSecteur) allBarValues.push(ratio.secteurMoyenne!);
+  const maxBar = Math.max(...allBarValues.map(Math.abs), 1);
+
+  let barPct = Math.round((Math.abs(ratio.valeur) / maxBar) * 100);
+  let n1Pct = hasN1 ? Math.round((Math.abs(ratio.valeurN1!) / maxBar) * 100) : 0;
+  let secteurPct = hasSecteur ? Math.round((Math.abs(ratio.secteurMoyenne!) / maxBar) * 100) : 0;
 
   return (
     <div className={`rounded-xl border p-4 ${style.bg} ${style.border} print:bg-white relative group`}>
@@ -285,7 +314,7 @@ function RatioCard({ ratio }: { ratio: RatioFinancier }) {
       </div>
       <p className={`text-lg font-bold ${style.text} leading-snug`}>{formattedValue}</p>
 
-      {hasSecteur && (
+      {(hasSecteur || hasN1) && (
         <div className="mt-2 space-y-1">
           <div className="flex items-center gap-1.5">
             <span className="text-xs text-gray-400 w-14 shrink-0">Société</span>
@@ -293,15 +322,28 @@ function RatioCard({ ratio }: { ratio: RatioFinancier }) {
               <div className="h-full rounded-full" style={{ width: `${barPct}%`, backgroundColor: style.bar }} />
             </div>
           </div>
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs text-gray-400 w-14 shrink-0">Secteur</span>
-            <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-              <div className="h-full bg-gray-400 rounded-full" style={{ width: `${secteurPct}%` }} />
+          {hasN1 && (
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-accent-500 w-14 shrink-0">N-1</span>
+              <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div className="h-full bg-accent-400 rounded-full" style={{ width: `${n1Pct}%` }} />
+              </div>
+              <span className="text-xs text-accent-500 ml-1">
+                {formatVal(ratio.valeurN1!, ratio.unite)}
+              </span>
             </div>
-            <span className="text-xs text-gray-400 ml-1">
-              {formatVal(ratio.secteurMoyenne!, ratio.unite)}
-            </span>
-          </div>
+          )}
+          {hasSecteur && (
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-gray-400 w-14 shrink-0">Secteur</span>
+              <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div className="h-full bg-gray-400 rounded-full" style={{ width: `${secteurPct}%` }} />
+              </div>
+              <span className="text-xs text-gray-400 ml-1">
+                {formatVal(ratio.secteurMoyenne!, ratio.unite)}
+              </span>
+            </div>
+          )}
         </div>
       )}
 
@@ -378,6 +420,12 @@ function RapportHeader({ data }: { data: RapportActiviteData }) {
               {data.entreprise.nafLibelle && ` — ${data.entreprise.nafLibelle}`}
             </span>
           )}
+          {data.exerciceN1Label && (
+            <span className="inline-flex items-center gap-1.5 text-xs font-medium text-accent-700 bg-accent-50 px-3 py-1.5 rounded-full">
+              <BarChart3 className="w-3.5 h-3.5" />
+              Comparaison N-1 : {data.exerciceN1Label}
+            </span>
+          )}
         </div>
 
         <p className="text-[11px] text-gray-400 mt-4">Rapport généré le {dateStr}</p>
@@ -441,15 +489,19 @@ const BILAN_PASSIF_TOOLTIPS: Record<string, string> = {
 
 function SIGSection({
   sig,
+  sigN1,
   ratios,
   nafLibelle,
   chiffreAffaires,
+  chiffreAffairesN1,
   onOpenEcritures,
 }: {
   sig: Sig;
+  sigN1?: Sig;
   ratios: RatioFinancier[];
   nafLibelle?: string;
   chiffreAffaires: number;
+  chiffreAffairesN1?: number;
   onOpenEcritures: (compteNum: string, compteLib: string) => void;
 }) {
   const { formatCurrency } = useCurrencyFormat();
@@ -487,6 +539,19 @@ function SIGSection({
     { key: 'Plus ou moins-values de cession', level: sig.plusMoinsValuesCessions },
   ];
 
+  // Lookup N-1 pour chaque step SIG
+  const sigN1Map: Record<string, number> = sigN1 ? {
+    'Marge commerciale': sigN1.margeCommerciale.montant,
+    'Production de l\'exercice': sigN1.productionExercice.montant,
+    'Valeur ajoutée': sigN1.valeurAjoutee.montant,
+    'EBE': sigN1.ebe.montant,
+    'Résultat d\'exploitation': sigN1.resultatExploitation.montant,
+    'RCAI': sigN1.rcai.montant,
+    'Résultat exceptionnel': sigN1.resultatExceptionnel.montant,
+    'Résultat net': sigN1.resultatNet.montant,
+    'Plus ou moins-values de cession': sigN1.plusMoinsValuesCessions.montant,
+  } : {};
+
   // Identifier les 3 plus gros postes (en valeur absolue) parmi tous les niveaux SIG
   const allMontants = sigSteps
     .filter(s => s.key !== 'Résultat net' && s.key !== 'Plus ou moins-values de cession')
@@ -515,10 +580,20 @@ function SIGSection({
             <span className="text-lg font-bold text-primary-800">
               Chiffre d'affaires
             </span>
+            {chiffreAffairesN1 !== undefined && (
+              <DeltaBadge valueN={chiffreAffaires} valueN1={chiffreAffairesN1} />
+            )}
           </div>
-          <span className="text-2xl font-bold text-primary-700">
-            {formatCurrency(chiffreAffaires)}
-          </span>
+          <div className="text-right">
+            <span className="text-2xl font-bold text-primary-700">
+              {formatCurrency(chiffreAffaires)}
+            </span>
+            {chiffreAffairesN1 !== undefined && (
+              <p className="text-xs text-primary-500 mt-0.5">
+                N-1 : {formatCurrency(chiffreAffairesN1)}
+              </p>
+            )}
+          </div>
         </div>
       </div>
 
@@ -572,12 +647,17 @@ function SIGSection({
                         </ExpertTooltip>
                       )}
                     </div>
-                    <span className={`text-sm font-bold shrink-0 ml-4 ${
-                      isResultatNet
-                        ? (isPositive ? 'text-green-700 text-base' : 'text-red-600 text-base')
-                        : (isPositive ? 'text-gray-900' : 'text-red-600')
-                    }`}>
-                      {formatCurrency(level.montant)}
+                    <span className="flex items-center gap-2 shrink-0 ml-4">
+                      {sigN1 && sigN1Map[key] !== undefined && (
+                        <DeltaBadge valueN={level.montant} valueN1={sigN1Map[key]} />
+                      )}
+                      <span className={`text-sm font-bold ${
+                        isResultatNet
+                          ? (isPositive ? 'text-green-700 text-base' : 'text-red-600 text-base')
+                          : (isPositive ? 'text-gray-900' : 'text-red-600')
+                      }`}>
+                        {formatCurrency(level.montant)}
+                      </span>
                     </span>
                   </div>
 
@@ -767,16 +847,26 @@ function SIGSection({
             }`}>
               Résultat net de l'exercice
             </span>
+            {sigN1 && (
+              <DeltaBadge valueN={sig.resultatNet.montant} valueN1={sigN1.resultatNet.montant} />
+            )}
             <ExpertTooltip>
               <p className="font-medium text-accent-300 mb-1">Résultat net</p>
               <p>{SIG_TOOLTIPS['Résultat net']}</p>
             </ExpertTooltip>
           </div>
-          <span className={`text-2xl font-bold ${
-            sig.resultatNet.montant >= 0 ? 'text-green-700' : 'text-red-600'
-          }`}>
-            {formatCurrency(sig.resultatNet.montant)}
-          </span>
+          <div className="text-right">
+            <span className={`text-2xl font-bold ${
+              sig.resultatNet.montant >= 0 ? 'text-green-700' : 'text-red-600'
+            }`}>
+              {formatCurrency(sig.resultatNet.montant)}
+            </span>
+            {sigN1 && (
+              <p className="text-xs text-gray-500 mt-0.5">
+                N-1 : {formatCurrency(sigN1.resultatNet.montant)}
+              </p>
+            )}
+          </div>
         </div>
       </div>
     </section>
@@ -791,15 +881,19 @@ function BilanSide({
   title,
   sections,
   total,
+  totalN1,
   tooltips,
   top3Items,
+  sectionsN1,
   onOpenEcritures,
 }: {
   title: string;
   sections: BilanSection[];
   total: number;
+  totalN1?: number;
   tooltips: Record<string, string>;
   top3Items: Set<string>;
+  sectionsN1?: BilanSection[];
   onOpenEcritures: (compteNum: string, compteLib: string) => void;
 }) {
   const { formatCurrency } = useCurrencyFormat();
@@ -824,10 +918,19 @@ function BilanSide({
     });
   };
 
+  // Lookup N-1 par label de section
+  const n1Map: Record<string, number> = {};
+  if (sectionsN1) {
+    for (const s of sectionsN1) n1Map[s.label] = s.total;
+  }
+
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm print:shadow-none">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">
+      <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
         {title} <span className="text-sm font-normal text-gray-500">— {formatCurrency(total)}</span>
+        {totalN1 !== undefined && (
+          <DeltaBadge valueN={total} valueN1={totalN1} />
+        )}
       </h3>
 
       <div className="space-y-3">
@@ -835,6 +938,7 @@ function BilanSide({
           const isOpen = openSections.has(section.label);
           const isTop3 = top3Items.has(section.label);
           const tooltip = tooltips[section.label];
+          const sectionN1Total = n1Map[section.label];
 
           return (
             <div
@@ -871,8 +975,13 @@ function BilanSide({
                     </ExpertTooltip>
                   )}
                 </div>
-                <span className="text-sm font-bold text-gray-900 shrink-0 ml-3">
-                  {formatCurrency(section.total)}
+                <span className="flex items-center gap-2 shrink-0 ml-3">
+                  {sectionN1Total !== undefined && (
+                    <DeltaBadge valueN={section.total} valueN1={sectionN1Total} />
+                  )}
+                  <span className="text-sm font-bold text-gray-900">
+                    {formatCurrency(section.total)}
+                  </span>
                 </span>
               </button>
 
@@ -982,11 +1091,13 @@ function BilanSide({
 
 function BilanDetailSection({
   bilan,
+  bilanN1,
   ratios,
   nafLibelle,
   onOpenEcritures,
 }: {
   bilan: Bilan;
+  bilanN1?: Bilan;
   ratios: RatioFinancier[];
   nafLibelle?: string;
   onOpenEcritures: (compteNum: string, compteLib: string) => void;
@@ -1006,6 +1117,22 @@ function BilanDetailSection({
     bilan.passif.dettesFiscales,
     ...(bilan.passif.autresDettes.total !== 0 ? [bilan.passif.autresDettes] : []),
   ];
+
+  // Sections N-1 pour comparaison
+  const actifSectionsN1 = bilanN1 ? [
+    bilanN1.actif.immobilisations,
+    bilanN1.actif.stocks,
+    bilanN1.actif.creances,
+    bilanN1.actif.tresorerie,
+  ] : undefined;
+
+  const passifSectionsN1 = bilanN1 ? [
+    bilanN1.passif.capitauxPropres,
+    bilanN1.passif.dettesFinancieres,
+    bilanN1.passif.dettesFournisseurs,
+    bilanN1.passif.dettesFiscales,
+    ...(bilanN1.passif.autresDettes.total !== 0 ? [bilanN1.passif.autresDettes] : []),
+  ] : undefined;
 
   const sortedActif = [...actifSections].sort((a, b) => Math.abs(b.total) - Math.abs(a.total));
   const top3Actif = new Set(sortedActif.slice(0, 3).map(s => s.label));
@@ -1027,16 +1154,20 @@ function BilanDetailSection({
           title="Actif"
           sections={actifSections}
           total={bilan.actif.totalActif}
+          totalN1={bilanN1?.actif.totalActif}
           tooltips={BILAN_ACTIF_TOOLTIPS}
           top3Items={top3Actif}
+          sectionsN1={actifSectionsN1}
           onOpenEcritures={onOpenEcritures}
         />
         <BilanSide
           title="Passif"
           sections={passifSections}
           total={bilan.passif.totalPassif}
+          totalN1={bilanN1?.passif.totalPassif}
           tooltips={BILAN_PASSIF_TOOLTIPS}
           top3Items={top3Passif}
+          sectionsN1={passifSectionsN1}
           onOpenEcritures={onOpenEcritures}
         />
       </div>
@@ -1117,14 +1248,17 @@ export function RapportActivitePage() {
 
       <SIGSection
         sig={data.sig}
+        sigN1={data.sigN1}
         ratios={data.ratios}
         nafLibelle={data.entreprise.nafLibelle}
         chiffreAffaires={data.kpis.chiffreAffaires}
+        chiffreAffairesN1={data.kpisN1?.chiffreAffaires}
         onOpenEcritures={openEcritures}
       />
 
       <BilanDetailSection
         bilan={data.bilan}
+        bilanN1={data.bilanN1}
         ratios={data.ratios}
         nafLibelle={data.entreprise.nafLibelle}
         onOpenEcritures={openEcritures}
