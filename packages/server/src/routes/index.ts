@@ -4,10 +4,12 @@ import companyRoutes from './company.routes';
 import importRoutes from './import.routes';
 import analysisRoutes from './analysis.routes';
 import adminRoutes from './admin.routes';
+import mappingRoutes from './mapping.routes';
 const router = Router();
 
 router.use('/auth', authRoutes);
 router.use('/companies', companyRoutes);
+router.use('/companies', mappingRoutes);
 router.use('/fiscal-years', importRoutes);
 router.use('/fiscal-years', analysisRoutes);
 router.use('/admin', adminRoutes);

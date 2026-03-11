@@ -109,6 +109,9 @@ export const SIG_COMPUTATION_ORDER = [
   'plusMoinsValuesCessions',
 ] as const;
 
+/** Type-safe key pour référencer un palier SIG */
+export type SigStepKey = typeof SIG_COMPUTATION_ORDER[number];
+
 /** Dépendances : le calcul de valeur ajoutée utilise MC + Production, etc. */
 export const SIG_DEPENDENCIES: Record<string, string[]> = {
   margeCommerciale: [],

@@ -1,6 +1,7 @@
 import { db } from '../config/database';
 import { config } from '../config/env';
 import * as analysisService from './analysis.service';
+import * as mappingService from './mapping.service';
 import { PCG_MAIN_ACCOUNTS } from '@finthesis/shared';
 import { computeKpis, computeSig, computeBilan } from '@finthesis/engine';
 import { getBenchmarkByNaf } from '../data/naf-benchmarks';
@@ -17,6 +18,7 @@ import type {
   MonthlyData,
   TresorerieMensuelle,
   EquilibreFinancier,
+  AccountOverride,
 } from '@finthesis/shared';
 
 /** Helper : formater un montant en k€ */
@@ -727,9 +729,28 @@ export async function getRapportActivite(fiscalYearId: string): Promise<RapportA
   // Benchmark sectoriel
   const { benchmark } = getBenchmarkByNaf(company?.naf_code);
 
+  // ── Mapping IA des comptes ──
+  let overrides: AccountOverride[] = [];
+  if (company) {
+    let mapping = await mappingService.getMapping(company.id);
+
+    // Auto-génération IA au premier rapport si NAF + clé OpenAI
+    if (!mapping && company.naf_code && config.openaiApiKey) {
+      try {
+        overrides = await mappingService.generateAiMapping(company.id, company.naf_code, aggregates);
+      } catch { /* silencieux — le rapport reste valide sans mapping IA */ }
+    } else if (mapping) {
+      overrides = mapping.mappings;
+    }
+  }
+
+  // Recalculer SIG et Bilan avec les overrides
+  const sigWithOverrides = computeSig(aggregates, overrides);
+  const bilanWithOverrides = computeBilan(aggregates, overrides);
+
   // Construire les sections calculées
   const chargesDetaillees = buildChargesDetaillees(aggregates);
-  const equilibreFinancier = buildEquilibreFinancier(dashboard.kpis, bilan, sig, aggregates);
+  const equilibreFinancier = buildEquilibreFinancier(dashboard.kpis, bilanWithOverrides, sigWithOverrides, aggregates);
   // Données N-1 (exercice précédent de la même entreprise)
   let revenueMonthlyN1: MonthlyData[] = [];
   let exerciceN1Label: string | undefined;
@@ -768,18 +789,18 @@ export async function getRapportActivite(fiscalYearId: string): Promise<RapportA
         montant: (Number(r.creditTotal) || 0) - (Number(r.debitTotal) || 0),
       }));
 
-      // Calcul des données financières N-1 via le moteur
+      // Calcul des données financières N-1 via le moteur (mêmes overrides)
       kpisN1 = computeKpis(aggN1);
-      sigN1 = computeSig(aggN1);
-      bilanN1 = computeBilan(aggN1);
+      sigN1 = computeSig(aggN1, overrides);
+      bilanN1 = computeBilan(aggN1, overrides);
       chargesDetailleesN1 = buildChargesDetaillees(aggN1);
       equilibreFinancierN1 = buildEquilibreFinancier(kpisN1, bilanN1, sigN1, aggN1);
     }
   }
 
   // Construire ratios et points de discussion AVEC données N-1
-  const ratios = buildRatios(dashboard.kpis, bilan, sig, benchmark, kpisN1, bilanN1, sigN1);
-  const pointsDiscussion = buildPointsDiscussion(dashboard.kpis, ratios, chargesDetaillees, bilan, sig, benchmark, equilibreFinancier, kpisN1, sigN1);
+  const ratios = buildRatios(dashboard.kpis, bilanWithOverrides, sigWithOverrides, benchmark, kpisN1, bilanN1, sigN1);
+  const pointsDiscussion = buildPointsDiscussion(dashboard.kpis, ratios, chargesDetaillees, bilanWithOverrides, sigWithOverrides, benchmark, equilibreFinancier, kpisN1, sigN1);
 
   return {
     entreprise: {
@@ -798,8 +819,8 @@ export async function getRapportActivite(fiscalYearId: string): Promise<RapportA
     tresorerieMensuelle,
     equilibreFinancier,
     chargesDetaillees,
-    bilan,
-    sig,
+    bilan: bilanWithOverrides,
+    sig: sigWithOverrides,
     ratios,
     pointsDiscussion,
     genereA: new Date().toISOString(),

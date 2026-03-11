@@ -1,5 +1,5 @@
 import api from './client';
-import type { ApiResponse, DashboardData, Bilan, CompteDeResultat, Sig, RapportActiviteData, EcritureDetail } from '@finthesis/shared';
+import type { ApiResponse, DashboardData, Bilan, CompteDeResultat, Sig, RapportActiviteData, EcritureDetail, AccountMapping, UpdateOverrideDto } from '@finthesis/shared';
 
 export async function getDashboard(fyId: string): Promise<DashboardData> {
   const { data } = await api.get<ApiResponse<DashboardData>>(`/fiscal-years/${fyId}/dashboard`);
@@ -66,5 +66,25 @@ export async function getRapportActivite(fyId: string): Promise<RapportActiviteD
 
 export async function getEcrituresByCompte(fyId: string, compteNum: string): Promise<EcritureDetail[]> {
   const { data } = await api.get<ApiResponse<EcritureDetail[]>>(`/fiscal-years/${fyId}/ecritures/${compteNum}`);
+  return data.data!;
+}
+
+// ── Mapping de comptes ──
+
+export async function getAccountMapping(companyId: string): Promise<AccountMapping | null> {
+  const { data } = await api.get<ApiResponse<AccountMapping | null>>(`/companies/${companyId}/mapping`);
+  return data.data ?? null;
+}
+
+export async function upsertAccountOverride(companyId: string, override: UpdateOverrideDto): Promise<void> {
+  await api.put(`/companies/${companyId}/mapping/override`, override);
+}
+
+export async function deleteAccountOverride(companyId: string, compteNum: string): Promise<void> {
+  await api.delete(`/companies/${companyId}/mapping/override/${compteNum}`);
+}
+
+export async function generateAiMapping(companyId: string, nafCode: string, fiscalYearId: string): Promise<{ overrides: any[]; count: number }> {
+  const { data } = await api.post<ApiResponse<{ overrides: any[]; count: number }>>(`/companies/${companyId}/mapping/generate`, { nafCode, fiscalYearId });
   return data.data!;
 }

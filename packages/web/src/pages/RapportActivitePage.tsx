@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCompanyStore } from '@/store/companyStore';
-import { getRapportActivite, getEcrituresByCompte } from '@/api/analysis.api';
-import { formatPercent } from '@finthesis/shared';
+import { getRapportActivite, getEcrituresByCompte, upsertAccountOverride, deleteAccountOverride, getAccountMapping } from '@/api/analysis.api';
+import { formatPercent, SIG_COMPUTATION_ORDER } from '@finthesis/shared';
 import { useCurrencyFormat } from '@/hooks/useCurrencyFormat';
 import type {
   RatioFinancier,
@@ -14,6 +14,9 @@ import type {
   SigDetail,
   RapportActiviteData,
   EcritureDetail,
+  AccountOverride,
+  UpdateOverrideDto,
+  SigStepKey,
 } from '@finthesis/shared';
 import {
   Printer,
@@ -29,6 +32,7 @@ import {
   X,
   ArrowUpRight,
   ArrowDownRight,
+  GripVertical,
 } from 'lucide-react';
 
 // ════════════════════════════════════════════
@@ -504,6 +508,10 @@ function SIGSection({
   chiffreAffaires,
   chiffreAffairesN1,
   onOpenEcritures,
+  companyId,
+  overrides,
+  onOverride,
+  onDeleteOverride,
 }: {
   sig: Sig;
   sigN1?: Sig;
@@ -512,6 +520,10 @@ function SIGSection({
   chiffreAffaires: number;
   chiffreAffairesN1?: number;
   onOpenEcritures: (compteNum: string, compteLib: string) => void;
+  companyId?: string;
+  overrides?: AccountOverride[];
+  onOverride: (dto: UpdateOverrideDto) => void;
+  onDeleteOverride: (compteNum: string) => void;
 }) {
   const { formatCurrency } = useCurrencyFormat();
   const [openLevels, setOpenLevels] = useState<Set<string>>(new Set());
@@ -536,16 +548,16 @@ function SIGSection({
   };
 
   // Niveaux SIG dans l'ordre classique
-  const sigSteps: { key: string; level: SigLevel }[] = [
-    { key: 'Marge commerciale', level: sig.margeCommerciale },
-    { key: 'Production de l\'exercice', level: sig.productionExercice },
-    { key: 'Valeur ajoutée', level: sig.valeurAjoutee },
-    { key: 'EBE', level: sig.ebe },
-    { key: 'Résultat d\'exploitation', level: sig.resultatExploitation },
-    { key: 'RCAI', level: sig.rcai },
-    { key: 'Résultat exceptionnel', level: sig.resultatExceptionnel },
-    { key: 'Résultat net', level: sig.resultatNet },
-    { key: 'Plus ou moins-values de cession', level: sig.plusMoinsValuesCessions },
+  const sigSteps: { key: string; stepKey: string; level: SigLevel }[] = [
+    { key: 'Marge commerciale', stepKey: 'margeCommerciale', level: sig.margeCommerciale },
+    { key: 'Production de l\'exercice', stepKey: 'productionExercice', level: sig.productionExercice },
+    { key: 'Valeur ajoutée', stepKey: 'valeurAjoutee', level: sig.valeurAjoutee },
+    { key: 'EBE', stepKey: 'ebe', level: sig.ebe },
+    { key: 'Résultat d\'exploitation', stepKey: 'resultatExploitation', level: sig.resultatExploitation },
+    { key: 'RCAI', stepKey: 'rcai', level: sig.rcai },
+    { key: 'Résultat exceptionnel', stepKey: 'resultatExceptionnel', level: sig.resultatExceptionnel },
+    { key: 'Résultat net', stepKey: 'resultatNet', level: sig.resultatNet },
+    { key: 'Plus ou moins-values de cession', stepKey: 'plusMoinsValuesCessions', level: sig.plusMoinsValuesCessions },
   ];
 
   // Lookup N-1 pour chaque step SIG
@@ -608,7 +620,7 @@ function SIGSection({
 
       {/* Cascade SIG */}
       <div className="space-y-2 mb-8">
-        {sigSteps.map(({ key, level }) => {
+        {sigSteps.map(({ key, stepKey, level }) => {
           const isOpen = openLevels.has(key);
           const isPositive = level.montant >= 0;
           const isTop3 = top3Keys.has(key);
@@ -623,7 +635,24 @@ function SIGSection({
                 isTop3 ? 'border-accent-300 ring-1 ring-accent-100' : 'border-gray-200'
               } ${isResultatNet ? 'mt-4' : ''}`}
             >
-              {/* En-tête du niveau SIG */}
+              {/* En-tête du niveau SIG — drop target */}
+              <div
+                onDragOver={(ev) => { ev.preventDefault(); ev.currentTarget.classList.add('ring-2', 'ring-accent-400'); }}
+                onDragLeave={(ev) => { ev.currentTarget.classList.remove('ring-2', 'ring-accent-400'); }}
+                onDrop={(ev) => {
+                  ev.preventDefault();
+                  ev.currentTarget.classList.remove('ring-2', 'ring-accent-400');
+                  try {
+                    const payload = JSON.parse(ev.dataTransfer.getData('application/json'));
+                    onOverride({
+                      compteNum: payload.compteNum,
+                      compteLib: payload.compteLib,
+                      target: { type: 'sig', sigStep: stepKey, sigItemIndex: 0 },
+                    });
+                  } catch {}
+                }}
+                className="transition-all rounded-xl"
+              >
               <button
                 onClick={() => toggleLevel(key)}
                 className="w-full px-5 py-4 flex items-center gap-3 hover:bg-gray-50 transition-colors text-left print:hover:bg-white"
@@ -689,6 +718,7 @@ function SIGSection({
                   </div>
                 </div>
               </button>
+              </div>
 
               {/* Niveau 2 : détails dépliables */}
               {isOpen && level.details.length > 0 && (() => {
@@ -749,10 +779,25 @@ function SIGSection({
                           <div className="mx-5 mb-2 rounded-lg border border-primary-100 bg-white overflow-hidden print:hidden">
                             <table className="w-full text-xs">
                               <tbody>
-                                {d.comptes!.map((c, j) => (
-                                  <tr key={j} className="border-t border-gray-100 hover:bg-gray-50">
+                                {d.comptes!.map((c, j) => {
+                                  const isOverridden = overrides?.some(o => o.compteNum === c.compteNum);
+                                  return (
+                                  <tr
+                                    key={j}
+                                    draggable
+                                    onDragStart={(ev) => {
+                                      ev.dataTransfer.setData('application/json', JSON.stringify({
+                                        compteNum: c.compteNum,
+                                        compteLib: c.compteLib,
+                                        sourceType: 'sig',
+                                      }));
+                                      ev.dataTransfer.effectAllowed = 'move';
+                                    }}
+                                    className="border-t border-gray-100 hover:bg-gray-50 cursor-grab active:cursor-grabbing"
+                                  >
                                     <td className="px-3 py-1.5 font-mono text-gray-500">
                                       <span className="inline-flex items-center gap-1.5">
+                                        <GripVertical className="w-3 h-3 text-gray-300 print:hidden" />
                                         {c.compteNum}
                                         <button
                                           onClick={(ev) => { ev.stopPropagation(); onOpenEcritures(c.compteNum, c.compteLib); }}
@@ -763,14 +808,33 @@ function SIGSection({
                                         </button>
                                       </span>
                                     </td>
-                                    <td className="px-3 py-1.5 text-gray-700">{c.compteLib}</td>
+                                    <td className="px-3 py-1.5 text-gray-700">
+                                      <span className="inline-flex items-center gap-1.5">
+                                        {c.compteLib}
+                                        {isOverridden && (
+                                          <>
+                                            <span className="text-[10px] bg-accent-100 text-accent-700 px-1.5 py-0.5 rounded-full font-medium">
+                                              Reclassé
+                                            </span>
+                                            <button
+                                              onClick={(ev) => { ev.stopPropagation(); onDeleteOverride(c.compteNum); }}
+                                              className="text-accent-400 hover:text-accent-600 transition-colors"
+                                              title="Annuler le reclassement"
+                                            >
+                                              <X className="w-3 h-3" />
+                                            </button>
+                                          </>
+                                        )}
+                                      </span>
+                                    </td>
                                     <td className={`px-3 py-1.5 text-right font-medium ${
                                       c.montant >= 0 ? 'text-gray-900' : 'text-red-600'
                                     }`}>
                                       {formatCurrency(c.montant)}
                                     </td>
                                   </tr>
-                                ))}
+                                  );
+                                })}
                               </tbody>
                             </table>
                           </div>
@@ -898,6 +962,11 @@ function BilanSide({
   top3Items,
   sectionsN1,
   onOpenEcritures,
+  sectionKeys,
+  bilanSide,
+  overrides,
+  onOverride,
+  onDeleteOverride,
 }: {
   title: string;
   sections: BilanSection[];
@@ -907,6 +976,11 @@ function BilanSide({
   top3Items: Set<string>;
   sectionsN1?: BilanSection[];
   onOpenEcritures: (compteNum: string, compteLib: string) => void;
+  sectionKeys: string[];
+  bilanSide: 'actif' | 'passif';
+  overrides?: AccountOverride[];
+  onOverride: (dto: UpdateOverrideDto) => void;
+  onDeleteOverride: (compteNum: string) => void;
 }) {
   const { formatCurrency } = useCurrencyFormat();
   const [openSections, setOpenSections] = useState<Set<string>>(new Set());
@@ -946,11 +1020,12 @@ function BilanSide({
       </h3>
 
       <div className="space-y-3">
-        {sections.map((section) => {
+        {sections.map((section, sIdx) => {
           const isOpen = openSections.has(section.label);
           const isTop3 = top3Items.has(section.label);
           const tooltip = tooltips[section.label];
           const sectionN1Total = n1Map[section.label];
+          const sectionKey = sectionKeys[sIdx];
 
           return (
             <div
@@ -959,7 +1034,24 @@ function BilanSide({
                 isTop3 ? 'border-accent-300 bg-accent-50/30' : 'border-gray-100'
               }`}
             >
-              {/* En-tête de section bilan */}
+              {/* En-tête de section bilan — drop target */}
+              <div
+                onDragOver={(ev) => { ev.preventDefault(); ev.currentTarget.classList.add('ring-2', 'ring-accent-400'); }}
+                onDragLeave={(ev) => { ev.currentTarget.classList.remove('ring-2', 'ring-accent-400'); }}
+                onDrop={(ev) => {
+                  ev.preventDefault();
+                  ev.currentTarget.classList.remove('ring-2', 'ring-accent-400');
+                  try {
+                    const payload = JSON.parse(ev.dataTransfer.getData('application/json'));
+                    onOverride({
+                      compteNum: payload.compteNum,
+                      compteLib: payload.compteLib,
+                      target: { type: 'bilan', bilanSection: sectionKey, bilanSide },
+                    });
+                  } catch {}
+                }}
+                className="transition-all rounded-lg"
+              >
               <button
                 onClick={() => toggleSection(section.label)}
                 className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 transition-colors text-left"
@@ -999,6 +1091,7 @@ function BilanSide({
                   </span>
                 </span>
               </button>
+              </div>
 
               {/* Items détaillés — niveau 2 */}
               {isOpen && section.items.length > 0 && (
@@ -1042,10 +1135,25 @@ function BilanSide({
                           <div className="mx-4 mb-2 rounded-lg border border-primary-100 bg-white overflow-hidden print:hidden">
                             <table className="w-full text-xs">
                               <tbody>
-                                {item.comptes!.map((c, j) => (
-                                  <tr key={j} className="border-t border-gray-100 hover:bg-gray-50">
+                                {item.comptes!.map((c, j) => {
+                                  const isOverridden = overrides?.some(o => o.compteNum === c.compteNum);
+                                  return (
+                                  <tr
+                                    key={j}
+                                    draggable
+                                    onDragStart={(ev) => {
+                                      ev.dataTransfer.setData('application/json', JSON.stringify({
+                                        compteNum: c.compteNum,
+                                        compteLib: c.compteLib,
+                                        sourceType: 'bilan',
+                                      }));
+                                      ev.dataTransfer.effectAllowed = 'move';
+                                    }}
+                                    className="border-t border-gray-100 hover:bg-gray-50 cursor-grab active:cursor-grabbing"
+                                  >
                                     <td className="px-3 py-1.5 font-mono text-gray-500">
                                       <span className="inline-flex items-center gap-1.5">
+                                        <GripVertical className="w-3 h-3 text-gray-300 print:hidden" />
                                         {c.compteNum}
                                         <button
                                           onClick={(ev) => { ev.stopPropagation(); onOpenEcritures(c.compteNum, c.compteLib); }}
@@ -1056,14 +1164,33 @@ function BilanSide({
                                         </button>
                                       </span>
                                     </td>
-                                    <td className="px-3 py-1.5 text-gray-700">{c.compteLib}</td>
+                                    <td className="px-3 py-1.5 text-gray-700">
+                                      <span className="inline-flex items-center gap-1.5">
+                                        {c.compteLib}
+                                        {isOverridden && (
+                                          <>
+                                            <span className="text-[10px] bg-accent-100 text-accent-700 px-1.5 py-0.5 rounded-full font-medium">
+                                              Reclassé
+                                            </span>
+                                            <button
+                                              onClick={(ev) => { ev.stopPropagation(); onDeleteOverride(c.compteNum); }}
+                                              className="text-accent-400 hover:text-accent-600 transition-colors"
+                                              title="Annuler le reclassement"
+                                            >
+                                              <X className="w-3 h-3" />
+                                            </button>
+                                          </>
+                                        )}
+                                      </span>
+                                    </td>
                                     <td className={`px-3 py-1.5 text-right font-medium ${
                                       c.montant >= 0 ? 'text-gray-900' : 'text-red-600'
                                     }`}>
                                       {formatCurrency(c.montant)}
                                     </td>
                                   </tr>
-                                ))}
+                                  );
+                                })}
                               </tbody>
                             </table>
                           </div>
@@ -1115,12 +1242,20 @@ function BilanDetailSection({
   ratios,
   nafLibelle,
   onOpenEcritures,
+  companyId,
+  overrides,
+  onOverride,
+  onDeleteOverride,
 }: {
   bilan: Bilan;
   bilanN1?: Bilan;
   ratios: RatioFinancier[];
   nafLibelle?: string;
   onOpenEcritures: (compteNum: string, compteLib: string) => void;
+  companyId?: string;
+  overrides?: AccountOverride[];
+  onOverride: (dto: UpdateOverrideDto) => void;
+  onDeleteOverride: (compteNum: string) => void;
 }) {
   // Identifier les 3 plus gros postes actif et passif
   const actifSections: BilanSection[] = [
@@ -1129,6 +1264,7 @@ function BilanDetailSection({
     bilan.actif.creances,
     bilan.actif.tresorerie,
   ];
+  const actifSectionKeys = ['immobilisations', 'stocks', 'creances', 'tresorerie'];
 
   const passifSections: BilanSection[] = [
     bilan.passif.capitauxPropres,
@@ -1136,6 +1272,13 @@ function BilanDetailSection({
     bilan.passif.dettesFournisseurs,
     bilan.passif.dettesFiscales,
     ...(bilan.passif.autresDettes.total !== 0 ? [bilan.passif.autresDettes] : []),
+  ];
+  const passifSectionKeys = [
+    'capitauxPropres',
+    'dettesFinancieres',
+    'dettesFournisseurs',
+    'dettesFiscales',
+    ...(bilan.passif.autresDettes.total !== 0 ? ['autresDettes'] : []),
   ];
 
   // Sections N-1 pour comparaison
@@ -1179,6 +1322,11 @@ function BilanDetailSection({
           top3Items={top3Actif}
           sectionsN1={actifSectionsN1}
           onOpenEcritures={onOpenEcritures}
+          sectionKeys={actifSectionKeys}
+          bilanSide="actif"
+          overrides={overrides}
+          onOverride={onOverride}
+          onDeleteOverride={onDeleteOverride}
         />
         <BilanSide
           title="Passif"
@@ -1189,6 +1337,11 @@ function BilanDetailSection({
           top3Items={top3Passif}
           sectionsN1={passifSectionsN1}
           onOpenEcritures={onOpenEcritures}
+          sectionKeys={passifSectionKeys}
+          bilanSide="passif"
+          overrides={overrides}
+          onOverride={onOverride}
+          onDeleteOverride={onDeleteOverride}
         />
       </div>
 
@@ -1222,11 +1375,20 @@ function BilanDetailSection({
 // ════════════════════════════════════════════
 
 export function RapportActivitePage() {
-  const { selectedFiscalYear } = useCompanyStore();
+  const { selectedFiscalYear, selectedCompany } = useCompanyStore();
+  const queryClient = useQueryClient();
   const [ecrituresModal, setEcrituresModal] = useState<{
     compteNum: string;
     compteLib: string;
   } | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+
+  // Auto-clear toast after 3s
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 3000);
+    return () => clearTimeout(t);
+  }, [toast]);
 
   const openEcritures = (compteNum: string, compteLib: string) =>
     setEcrituresModal({ compteNum, compteLib });
@@ -1236,6 +1398,51 @@ export function RapportActivitePage() {
     queryFn: () => getRapportActivite(selectedFiscalYear!.id),
     enabled: !!selectedFiscalYear,
   });
+
+  // Mapping query
+  const { data: mappingData } = useQuery({
+    queryKey: ['account-mapping', selectedCompany?.id],
+    queryFn: () => getAccountMapping(selectedCompany!.id),
+    enabled: !!selectedCompany,
+  });
+
+  // Upsert override mutation
+  const upsertMutation = useMutation({
+    mutationFn: (dto: UpdateOverrideDto) => upsertAccountOverride(selectedCompany!.id, dto),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['rapport-activite'] });
+      queryClient.invalidateQueries({ queryKey: ['account-mapping'] });
+      setToast(`Compte ${variables.compteNum} reclassé avec succès`);
+    },
+    onError: () => {
+      setToast('Erreur lors du reclassement du compte');
+    },
+  });
+
+  // Delete override mutation
+  const deleteMutation = useMutation({
+    mutationFn: (compteNum: string) => deleteAccountOverride(selectedCompany!.id, compteNum),
+    onSuccess: (_data, compteNum) => {
+      queryClient.invalidateQueries({ queryKey: ['rapport-activite'] });
+      queryClient.invalidateQueries({ queryKey: ['account-mapping'] });
+      setToast(`Reclassement du compte ${compteNum} annulé`);
+    },
+    onError: () => {
+      setToast('Erreur lors de la suppression du reclassement');
+    },
+  });
+
+  const handleOverride = (dto: UpdateOverrideDto) => {
+    if (!selectedCompany) return;
+    upsertMutation.mutate(dto);
+  };
+
+  const handleDeleteOverride = (compteNum: string) => {
+    if (!selectedCompany) return;
+    deleteMutation.mutate(compteNum);
+  };
+
+  const overrides = mappingData?.mappings;
 
   if (!selectedFiscalYear) {
     return (
@@ -1274,6 +1481,10 @@ export function RapportActivitePage() {
         chiffreAffaires={data.kpis.chiffreAffaires}
         chiffreAffairesN1={data.kpisN1?.chiffreAffaires}
         onOpenEcritures={openEcritures}
+        companyId={selectedCompany?.id}
+        overrides={overrides}
+        onOverride={handleOverride}
+        onDeleteOverride={handleDeleteOverride}
       />
 
       <BilanDetailSection
@@ -1282,6 +1493,10 @@ export function RapportActivitePage() {
         ratios={data.ratios}
         nafLibelle={data.entreprise.nafLibelle}
         onOpenEcritures={openEcritures}
+        companyId={selectedCompany?.id}
+        overrides={overrides}
+        onOverride={handleOverride}
+        onDeleteOverride={handleDeleteOverride}
       />
 
       {/* Footer print */}
@@ -1297,6 +1512,13 @@ export function RapportActivitePage() {
           fiscalYearId={selectedFiscalYear.id}
           onClose={() => setEcrituresModal(null)}
         />
+      )}
+
+      {/* Toast notification */}
+      {toast && (
+        <div className="fixed bottom-6 right-6 bg-primary-800 text-white px-4 py-3 rounded-lg shadow-lg text-sm z-50 print:hidden animate-in fade-in slide-in-from-bottom-2">
+          {toast}
+        </div>
       )}
     </div>
   );

@@ -1,4 +1,4 @@
-import type { CompteAggregate, Sig, SigLevel, SigCompteDetail } from '@finthesis/shared';
+import type { CompteAggregate, Sig, SigLevel, SigCompteDetail, AccountOverride } from '@finthesis/shared';
 import {
   SIG_FORMULAS,
   SIG_COMPUTATION_ORDER,
@@ -13,9 +13,17 @@ import {
  * - Pour les comptes 7x (produits), le montant = totalCredit - totalDebit
  * - Pour les comptes 6x (charges), le montant = totalDebit - totalCredit
  * - Le sign dans la formule indique si on ajoute (+1) ou soustrait (-1)
+ * - Les overrides permettent de reclasser un compte individuel dans un autre palier SIG
  */
-export function computeSig(aggregates: CompteAggregate[]): Sig {
+export function computeSig(
+  aggregates: CompteAggregate[],
+  overrides?: AccountOverride[],
+): Sig {
   const results: Record<string, SigLevel> = {};
+
+  // Construire le set des comptes overridés pour les exclure du matching standard
+  const sigOverrides = (overrides || []).filter(o => o.target.type === 'sig');
+  const excludedComptes = new Set(sigOverrides.map(o => o.compteNum));
 
   for (const levelKey of SIG_COMPUTATION_ORDER) {
     const formula = SIG_FORMULAS[levelKey];
@@ -35,9 +43,41 @@ export function computeSig(aggregates: CompteAggregate[]): Sig {
     }
 
     // Calculer les items de la formule
-    for (const item of formula.items) {
-      const { total: itemMontant, comptes } = computeFormulaItemWithComptes(aggregates, item.compteRacines);
-      const signedMontant = itemMontant * item.sign;
+    for (let itemIdx = 0; itemIdx < formula.items.length; itemIdx++) {
+      const item = formula.items[itemIdx];
+      const { total: itemMontant, comptes } = computeFormulaItemWithComptes(
+        aggregates, item.compteRacines, excludedComptes,
+      );
+
+      // Collecter les overrides ciblant cet item précis
+      const itemOverrides = sigOverrides.filter(
+        o => o.target.sigStep === levelKey && (o.target.sigItemIndex ?? 0) === itemIdx,
+      );
+
+      // Calculer les montants des comptes overridés
+      let overrideMontant = 0;
+      const overrideComptes: SigCompteDetail[] = [];
+      for (const ov of itemOverrides) {
+        const agg = aggregates.find(a => a.compteNum === ov.compteNum);
+        if (!agg) continue;
+
+        let m: number;
+        if (agg.compteClasse === 7) m = agg.totalCredit - agg.totalDebit;
+        else if (agg.compteClasse === 6) m = agg.totalDebit - agg.totalCredit;
+        else m = agg.totalDebit - agg.totalCredit;
+
+        if (m !== 0) {
+          overrideMontant += m;
+          overrideComptes.push({
+            compteNum: agg.compteNum,
+            compteLib: agg.compteLib,
+            montant: round(m * item.sign),
+          });
+        }
+      }
+
+      const totalItemMontant = itemMontant + overrideMontant;
+      const signedMontant = totalItemMontant * item.sign;
 
       // Extraire les 2 premiers chiffres de chaque racine, dédupliquer
       const racines2 = [...new Set(item.compteRacines.map(r => r.substring(0, 2)))].join('/');
@@ -46,8 +86,10 @@ export function computeSig(aggregates: CompteAggregate[]): Sig {
         label: item.label,
         montant: round(signedMontant),
         compteRacines: racines2,
-        comptes: comptes
-          .map(c => ({ ...c, montant: round(c.montant * item.sign) }))
+        comptes: [
+          ...comptes.map(c => ({ ...c, montant: round(c.montant * item.sign) })),
+          ...overrideComptes,
+        ]
           .filter(c => c.montant !== 0)
           .sort((a, b) => Math.abs(b.montant) - Math.abs(a.montant)),
       });
@@ -83,11 +125,14 @@ export function computeSig(aggregates: CompteAggregate[]): Sig {
 function computeFormulaItemWithComptes(
   aggregates: CompteAggregate[],
   compteRacines: string[],
+  excludedComptes?: Set<string>,
 ): { total: number; comptes: SigCompteDetail[] } {
   let total = 0;
   const comptes: SigCompteDetail[] = [];
 
   for (const agg of aggregates) {
+    // Skip les comptes overridés — ils seront injectés dans leur cible
+    if (excludedComptes?.has(agg.compteNum)) continue;
     if (!compteStartsWith(agg.compteNum, compteRacines)) continue;
 
     let montant: number;

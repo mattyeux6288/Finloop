@@ -1,4 +1,4 @@
-import type { CompteAggregate, Bilan, BilanSection, BilanItem, SigCompteDetail } from '@finthesis/shared';
+import type { CompteAggregate, Bilan, BilanSection, BilanItem, SigCompteDetail, AccountOverride } from '@finthesis/shared';
 import { BILAN_MAPPING, PCG_MAIN_ACCOUNTS, compteStartsWith } from '@finthesis/shared';
 
 /**
@@ -11,7 +11,14 @@ import { BILAN_MAPPING, PCG_MAIN_ACCOUNTS, compteStartsWith } from '@finthesis/s
  * - Comptes 49 : dépréciations → réduction des créances
  * - Comptes 51 négatifs : concours bancaires → dettes financières passif
  */
-export function computeBilan(aggregates: CompteAggregate[]): Bilan {
+export function computeBilan(
+  aggregates: CompteAggregate[],
+  overrides?: AccountOverride[],
+): Bilan {
+  // Construire le set des comptes overridés (type bilan) pour les exclure du matching standard
+  const bilanOverrides = (overrides || []).filter(o => o.target.type === 'bilan');
+  const excludedComptes = new Set(bilanOverrides.map(o => o.compteNum));
+
   // ──────────────────────────────────────
   // ACTIF
   // ──────────────────────────────────────
@@ -21,6 +28,7 @@ export function computeBilan(aggregates: CompteAggregate[]): Bilan {
     aggregates,
     BILAN_MAPPING.actif.immobilisations,
     BILAN_MAPPING.actif.amortissementsImmobilisations,
+    excludedComptes,
   );
 
   const stocks = buildSection(
@@ -28,23 +36,24 @@ export function computeBilan(aggregates: CompteAggregate[]): Bilan {
     aggregates,
     BILAN_MAPPING.actif.stocks,
     BILAN_MAPPING.actif.depreciationsStocks,
+    excludedComptes,
   );
 
   // Créances : 41+, 46+, 45+ (débiteurs), 47+ (transitoires débiteurs)
   const creancesRacines = ['41', '45', '46', '47'];
   const creancesAggregates = aggregates.filter(
-    (a) => compteStartsWith(a.compteNum, creancesRacines) && a.solde > 0,
+    (a) => !excludedComptes.has(a.compteNum) && compteStartsWith(a.compteNum, creancesRacines) && a.solde > 0,
   );
   // Dépréciations créances (49)
   const depreciationsCreances = aggregates.filter(
-    (a) => compteStartsWith(a.compteNum, ['49']),
+    (a) => !excludedComptes.has(a.compteNum) && compteStartsWith(a.compteNum, ['49']),
   );
   const creancesItems = buildItemsFromAggregates(creancesAggregates);
   let creancesTotal = round(creancesAggregates.reduce((sum, a) => sum + a.solde, 0));
 
   // Charges constatées d'avance (486x) → actif
   const ccaAggregates = aggregates.filter(
-    (a) => a.compteNum.startsWith('486') && a.solde > 0,
+    (a) => !excludedComptes.has(a.compteNum) && a.compteNum.startsWith('486') && a.solde > 0,
   );
   if (ccaAggregates.length > 0) {
     const ccaItems = buildItemsFromAggregates(ccaAggregates);
@@ -78,15 +87,13 @@ export function computeBilan(aggregates: CompteAggregate[]): Bilan {
 
   // Trésorerie actif : 50+, 51+, 53+, 54+ (solde débiteur uniquement)
   const tresorerieActifAggregates = aggregates.filter(
-    (a) => compteStartsWith(a.compteNum, ['50', '51', '53', '54']) && a.solde > 0,
+    (a) => !excludedComptes.has(a.compteNum) && compteStartsWith(a.compteNum, ['50', '51', '53', '54']) && a.solde > 0,
   );
   const tresorerieActif: BilanSection = {
     label: 'Disponibilités',
     items: buildItemsFromAggregates(tresorerieActifAggregates),
     total: round(tresorerieActifAggregates.reduce((sum, a) => sum + a.solde, 0)),
   };
-
-  const totalActif = immobilisations.total + stocks.total + creances.total + tresorerieActif.total;
 
   // ──────────────────────────────────────
   // PASSIF
@@ -97,8 +104,10 @@ export function computeBilan(aggregates: CompteAggregate[]): Bilan {
     'Capitaux propres',
     aggregates,
     BILAN_MAPPING.passif.capitauxPropres,
+    [],
+    excludedComptes,
   );
-  const provisions = buildSection('Provisions', aggregates, BILAN_MAPPING.passif.provisions);
+  const provisions = buildSection('Provisions', aggregates, BILAN_MAPPING.passif.provisions, [], excludedComptes);
   capitauxPropres.total += provisions.total;
   capitauxPropres.items.push(...provisions.items);
 
@@ -132,11 +141,13 @@ export function computeBilan(aggregates: CompteAggregate[]): Bilan {
     'Dettes financières',
     aggregates,
     BILAN_MAPPING.passif.dettesFinancieres,
+    [],
+    excludedComptes,
   );
 
   // Concours bancaires : comptes 51 avec solde créditeur (découvert)
   const concoursBancaires = aggregates.filter(
-    (a) => compteStartsWith(a.compteNum, ['51']) && a.solde < 0,
+    (a) => !excludedComptes.has(a.compteNum) && compteStartsWith(a.compteNum, ['51']) && a.solde < 0,
   );
   if (concoursBancaires.length > 0) {
     const cbItems = buildItemsFromAggregates(
@@ -153,7 +164,7 @@ export function computeBilan(aggregates: CompteAggregate[]): Bilan {
 
   // Dettes fournisseurs : comptes 40x avec solde créditeur
   const dettesFournisseursAggregates = aggregates.filter(
-    (a) => compteStartsWith(a.compteNum, ['40']) && a.solde > 0,
+    (a) => !excludedComptes.has(a.compteNum) && compteStartsWith(a.compteNum, ['40']) && a.solde > 0,
   );
   const dettesFournisseurs: BilanSection = {
     label: 'Dettes fournisseurs',
@@ -163,7 +174,7 @@ export function computeBilan(aggregates: CompteAggregate[]): Bilan {
 
   // Dettes fiscales et sociales : comptes 42, 43, 44 créditeurs
   const dettesFiscalesAggregates = aggregates.filter(
-    (a) => compteStartsWith(a.compteNum, ['42', '43', '44']) && a.solde > 0,
+    (a) => !excludedComptes.has(a.compteNum) && compteStartsWith(a.compteNum, ['42', '43', '44']) && a.solde > 0,
   );
   const dettesFiscales: BilanSection = {
     label: 'Dettes fiscales et sociales',
@@ -174,7 +185,7 @@ export function computeBilan(aggregates: CompteAggregate[]): Bilan {
   // Autres dettes : 45-, 46-, 47- (créditeurs) + PCA (487x)
   const autresDettesRacines = ['45', '46', '47'];
   const autresDettesAggregates = aggregates.filter(
-    (a) => compteStartsWith(a.compteNum, autresDettesRacines) && a.solde < 0,
+    (a) => !excludedComptes.has(a.compteNum) && compteStartsWith(a.compteNum, autresDettesRacines) && a.solde < 0,
   );
   const autresDettesItems = buildItemsFromAggregates(
     autresDettesAggregates.map(a => ({ ...a, solde: Math.abs(a.solde) })),
@@ -183,7 +194,7 @@ export function computeBilan(aggregates: CompteAggregate[]): Bilan {
 
   // Produits constatés d'avance (487x) → passif
   const pcaAggregates = aggregates.filter(
-    (a) => a.compteNum.startsWith('487') && a.solde > 0,
+    (a) => !excludedComptes.has(a.compteNum) && a.compteNum.startsWith('487') && a.solde > 0,
   );
   if (pcaAggregates.length > 0) {
     const pcaItems = buildItemsFromAggregates(pcaAggregates);
@@ -197,6 +208,60 @@ export function computeBilan(aggregates: CompteAggregate[]): Bilan {
     total: round(autresDettesTotal),
   };
 
+  // ──────────────────────────────────────
+  // INJECTION DES OVERRIDES BILAN
+  // ──────────────────────────────────────
+  const sectionMap: Record<string, BilanSection> = {
+    immobilisations,
+    stocks,
+    creances,
+    tresorerie: tresorerieActif,
+    capitauxPropres,
+    dettesFinancieres,
+    dettesFournisseurs,
+    dettesFiscales,
+    autresDettes,
+  };
+
+  for (const ov of bilanOverrides) {
+    const targetSection = sectionMap[ov.target.bilanSection || ''];
+    if (!targetSection) continue;
+
+    const agg = aggregates.find(a => a.compteNum === ov.compteNum);
+    if (!agg) continue;
+
+    const montant = Math.abs(agg.solde);
+    if (montant === 0) continue;
+
+    // Trouver ou créer l'item dans la section cible
+    const racine = agg.compteRacine;
+    let existingItem = targetSection.items.find(
+      it => it.compteRacine === racine && it.montant >= 0,
+    );
+
+    if (existingItem) {
+      existingItem.montant = round(existingItem.montant + montant);
+      if (!existingItem.comptes) existingItem.comptes = [];
+      existingItem.comptes.push({
+        compteNum: agg.compteNum,
+        compteLib: agg.compteLib,
+        montant: round(montant),
+      });
+      existingItem.comptes.sort((a, b) => Math.abs(b.montant) - Math.abs(a.montant));
+    } else {
+      targetSection.items.push({
+        compteRacine: racine,
+        label: PCG_MAIN_ACCOUNTS[racine.substring(0, 2)] || agg.compteLib,
+        montant: round(montant),
+        comptes: [{ compteNum: agg.compteNum, compteLib: agg.compteLib, montant: round(montant) }],
+      });
+    }
+
+    targetSection.total = round(targetSection.total + montant);
+  }
+
+  // Recalculer les totaux APRÈS injection des overrides
+  const totalActif = immobilisations.total + stocks.total + creances.total + tresorerieActif.total;
   const totalPassif =
     capitauxPropres.total +
     dettesFinancieres.total +
@@ -232,12 +297,15 @@ function buildSection(
   aggregates: CompteAggregate[],
   racines: readonly string[],
   amortRacines: readonly string[] = [],
+  excludedComptes?: Set<string>,
 ): BilanSection {
   const items: BilanItem[] = [];
   let total = 0;
 
   for (const racine of racines) {
-    const matching = aggregates.filter((a) => a.compteRacine.startsWith(racine));
+    const matching = aggregates.filter(
+      (a) => (!excludedComptes || !excludedComptes.has(a.compteNum)) && a.compteRacine.startsWith(racine),
+    );
     if (matching.length === 0) continue;
 
     const montantBrut = matching.reduce((sum, a) => sum + Math.abs(a.solde), 0);
@@ -262,7 +330,9 @@ function buildSection(
     const amortComptes: SigCompteDetail[] = [];
     let totalAmort = 0;
     for (const racine of amortRacines) {
-      const matching = aggregates.filter((a) => a.compteRacine.startsWith(racine));
+      const matching = aggregates.filter(
+        (a) => (!excludedComptes || !excludedComptes.has(a.compteNum)) && a.compteRacine.startsWith(racine),
+      );
       const montant = matching.reduce((sum, a) => sum + Math.abs(a.solde), 0);
       totalAmort += montant;
       for (const a of matching) {

@@ -5,3 +5,4 @@ export * from './company.types';
 export * from './api.types';
 export * from './admin.types';
 export * from './rapport.types';
+export * from './mapping.types';
