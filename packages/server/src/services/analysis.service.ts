@@ -42,6 +42,12 @@ async function getCompteAggregates(fiscalYearId: string): Promise<CompteAggregat
 }
 
 /**
+ * Version du schéma de cache. Incrémenter quand la structure des données calculées change
+ * pour invalider automatiquement les caches obsolètes.
+ */
+const CACHE_VERSION = 2; // v2 : ajout comptes individuels dans SIG
+
+/**
  * Récupère ou calcule un rapport en cache
  */
 async function getCachedOrCompute<T>(
@@ -49,8 +55,9 @@ async function getCachedOrCompute<T>(
   reportType: string,
   computeFn: () => Promise<T>,
 ): Promise<T> {
+  const versionedType = `${reportType}_v${CACHE_VERSION}`;
   const cached = await db('computed_reports')
-    .where({ fiscal_year_id: fiscalYearId, report_type: reportType })
+    .where({ fiscal_year_id: fiscalYearId, report_type: versionedType })
     .first();
 
   if (cached) {
@@ -61,13 +68,13 @@ async function getCachedOrCompute<T>(
 
   // Sauvegarder en cache (supprimer puis insérer pour compatibilité SQLite)
   await db('computed_reports')
-    .where({ fiscal_year_id: fiscalYearId, report_type: reportType })
+    .where({ fiscal_year_id: fiscalYearId, report_type: versionedType })
     .del();
 
   await db('computed_reports').insert({
     id: uuid(),
     fiscal_year_id: fiscalYearId,
-    report_type: reportType,
+    report_type: versionedType,
     data: JSON.stringify(data),
   });
 
