@@ -30,6 +30,7 @@ export interface Bilan {
     dettesFinancieres: BilanSection;
     dettesFournisseurs: BilanSection;
     dettesFiscales: BilanSection;
+    autresDettes: BilanSection;
     totalPassif: number;
   };
 }

@@ -45,7 +45,7 @@ async function getCompteAggregates(fiscalYearId: string): Promise<CompteAggregat
  * Version du schéma de cache. Incrémenter quand la structure des données calculées change
  * pour invalider automatiquement les caches obsolètes.
  */
-const CACHE_VERSION = 3; // v3 : ajout comptes individuels dans Bilan
+const CACHE_VERSION = 4; // v4 : bilan équilibré (résultat exercice, comptes double sens, autresDettes)
 
 /**
  * Récupère ou calcule un rapport en cache

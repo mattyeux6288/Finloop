@@ -269,6 +269,8 @@ const BILAN_PASSIF_TOOLTIPS: Record<string, string> = {
     "Le crédit fournisseur est un financement gratuit du cycle d'exploitation. Des délais trop courts pénalisent la trésorerie, mais des délais trop longs peuvent détériorer la relation commerciale.",
   'Dettes fiscales et sociales':
     "Les dettes envers l'État et les organismes sociaux. Des retards de paiement peuvent entraîner des pénalités et signalent une tension de trésorerie.",
+  'Autres dettes':
+    "Comptes courants d'associés, créditeurs divers, produits constatés d'avance. Vérifier les échéances et les conditions de remboursement des comptes courants.",
 };
 
 // ════════════════════════════════════════════
@@ -812,6 +814,7 @@ function BilanDetailSection({
     bilan.passif.dettesFinancieres,
     bilan.passif.dettesFournisseurs,
     bilan.passif.dettesFiscales,
+    ...(bilan.passif.autresDettes.total !== 0 ? [bilan.passif.autresDettes] : []),
   ];
 
   const sortedActif = [...actifSections].sort((a, b) => Math.abs(b.total) - Math.abs(a.total));
