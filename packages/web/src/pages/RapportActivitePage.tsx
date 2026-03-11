@@ -312,7 +312,12 @@ function RatioCard({ ratio }: { ratio: RatioFinancier }) {
         <div className={`w-2.5 h-2.5 rounded-full ${style.dot}`} />
         <span className="text-xs font-medium text-gray-600 leading-tight">{ratio.label}</span>
       </div>
-      <p className={`text-lg font-bold ${style.text} leading-snug`}>{formattedValue}</p>
+      <p
+        className={`text-lg font-bold ${style.text} leading-snug`}
+        title={hasN1 ? `N-1 : ${formatVal(ratio.valeurN1!, ratio.unite)}` : undefined}
+      >
+        {formattedValue}
+      </p>
 
       {(hasSecteur || hasN1) && (
         <div className="mt-2 space-y-1">
@@ -651,11 +656,14 @@ function SIGSection({
                       {sigN1 && sigN1Map[key] !== undefined && (
                         <DeltaBadge valueN={level.montant} valueN1={sigN1Map[key]} />
                       )}
-                      <span className={`text-sm font-bold ${
-                        isResultatNet
-                          ? (isPositive ? 'text-green-700 text-base' : 'text-red-600 text-base')
-                          : (isPositive ? 'text-gray-900' : 'text-red-600')
-                      }`}>
+                      <span
+                        className={`text-sm font-bold ${
+                          isResultatNet
+                            ? (isPositive ? 'text-green-700 text-base' : 'text-red-600 text-base')
+                            : (isPositive ? 'text-gray-900' : 'text-red-600')
+                        }`}
+                        title={sigN1 && sigN1Map[key] !== undefined ? `N-1 : ${formatCurrency(sigN1Map[key])}` : undefined}
+                      >
                         {formatCurrency(level.montant)}
                       </span>
                     </span>
@@ -979,7 +987,10 @@ function BilanSide({
                   {sectionN1Total !== undefined && (
                     <DeltaBadge valueN={section.total} valueN1={sectionN1Total} />
                   )}
-                  <span className="text-sm font-bold text-gray-900">
+                  <span
+                    className="text-sm font-bold text-gray-900"
+                    title={sectionN1Total !== undefined ? `N-1 : ${formatCurrency(sectionN1Total)}` : undefined}
+                  >
                     {formatCurrency(section.total)}
                   </span>
                 </span>
@@ -1083,7 +1094,12 @@ function BilanSide({
       {/* Total */}
       <div className="mt-4 pt-3 border-t-2 border-gray-300 flex items-center justify-between">
         <span className="text-sm font-bold text-gray-900">Total {title.toLowerCase()}</span>
-        <span className="text-lg font-bold text-gray-900">{formatCurrency(total)}</span>
+        <span
+          className="text-lg font-bold text-gray-900"
+          title={totalN1 !== undefined ? `N-1 : ${formatCurrency(totalN1)}` : undefined}
+        >
+          {formatCurrency(total)}
+        </span>
       </div>
     </div>
   );
