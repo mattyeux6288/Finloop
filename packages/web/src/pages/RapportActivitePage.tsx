@@ -11,6 +11,7 @@ import type {
   BilanItem,
   Sig,
   SigLevel,
+  SigDetail,
   ChargeClassDetail,
   RapportActiviteData,
 } from '@finthesis/shared';
@@ -304,6 +305,7 @@ function SIGSection({
 }) {
   const { formatCurrency } = useCurrencyFormat();
   const [openLevels, setOpenLevels] = useState<Set<string>>(new Set());
+  const [openDetails, setOpenDetails] = useState<Set<string>>(new Set());
   const [openChargeClasses, setOpenChargeClasses] = useState<Set<string>>(new Set());
 
   const toggleLevel = (label: string) => {
@@ -311,6 +313,15 @@ function SIGSection({
       const next = new Set(prev);
       if (next.has(label)) next.delete(label);
       else next.add(label);
+      return next;
+    });
+  };
+
+  const toggleDetail = (key: string) => {
+    setOpenDetails((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
       return next;
     });
   };
@@ -448,19 +459,35 @@ function SIGSection({
                 </div>
               </button>
 
-              {/* Détails dépliables */}
+              {/* Niveau 2 : détails dépliables */}
               {isOpen && level.details.length > 0 && (() => {
-                // Identifier le poste le plus élevé (en valeur absolue) dans ce niveau
                 const maxDetail = Math.max(...level.details.map(d => Math.abs(d.montant)));
                 return (
-                <div className="border-t border-gray-100 px-5 py-3 bg-gray-50 print:bg-white">
-                  <table className="w-full text-sm">
-                    <tbody>
-                      {level.details.map((d, i) => {
-                        const isMax = Math.abs(d.montant) === maxDetail && maxDetail > 0;
-                        return (
-                        <tr key={i} className={`border-t border-gray-100 first:border-t-0 ${isMax ? 'bg-accent-50/50' : ''}`}>
-                          <td className="py-1.5 w-12 text-center">
+                <div className="border-t border-gray-100 bg-gray-50 print:bg-white">
+                  {level.details.map((d, i) => {
+                    const isMax = Math.abs(d.montant) === maxDetail && maxDetail > 0;
+                    const detailKey = `${key}_${i}`;
+                    const isDetailOpen = openDetails.has(detailKey);
+                    const hasComptes = d.comptes && d.comptes.length > 0;
+
+                    return (
+                      <div key={i} className="border-t border-gray-100 first:border-t-0">
+                        {/* Ligne de détail — cliquable si comptes disponibles */}
+                        <div
+                          className={`flex items-center gap-2 px-5 py-2 ${isMax ? 'bg-accent-50/50' : ''} ${hasComptes ? 'cursor-pointer hover:bg-gray-100 transition-colors' : ''}`}
+                          onClick={() => hasComptes && toggleDetail(detailKey)}
+                        >
+                          {/* Icône dépli ou flèche statique */}
+                          <span className="w-4 shrink-0 print:hidden">
+                            {hasComptes ? (
+                              isDetailOpen
+                                ? <ChevronDown className="w-3.5 h-3.5 text-primary-400" />
+                                : <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
+                            ) : null}
+                          </span>
+
+                          {/* Badge racine */}
+                          <span className="w-14 shrink-0 text-center">
                             {d.compteRacines ? (
                               <span className={`text-xs font-mono px-1.5 py-0.5 rounded ${isMax ? 'text-accent-700 bg-accent-100 font-bold' : 'text-gray-400 bg-gray-100'}`}>
                                 {d.compteRacines}
@@ -468,25 +495,76 @@ function SIGSection({
                             ) : (
                               <ArrowRight className="w-3 h-3 text-gray-300 mx-auto" />
                             )}
-                          </td>
-                          <td className={`py-1.5 ${isMax ? 'text-gray-900 font-semibold' : 'text-gray-600'}`}>
+                          </span>
+
+                          <span className={`flex-1 text-sm ${isMax ? 'text-gray-900 font-semibold' : 'text-gray-600'}`}>
                             {d.label}
-                          </td>
-                          <td className={`py-1.5 text-right ${isMax ? 'font-bold' : 'font-medium'} ${
+                            {hasComptes && (
+                              <span className="ml-1.5 text-[10px] text-gray-400 font-normal print:hidden">
+                                ({d.comptes!.length} compte{d.comptes!.length > 1 ? 's' : ''})
+                              </span>
+                            )}
+                          </span>
+
+                          <span className={`text-sm shrink-0 ${isMax ? 'font-bold' : 'font-medium'} ${
                             d.montant >= 0 ? (isMax ? 'text-accent-700' : 'text-gray-900') : 'text-red-600'
                           }`}>
                             {formatCurrency(d.montant)}
-                          </td>
-                        </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+                          </span>
+                        </div>
+
+                        {/* Niveau 3 : comptes individuels */}
+                        {isDetailOpen && hasComptes && (
+                          <div className="mx-5 mb-2 rounded-lg border border-primary-100 bg-white overflow-hidden print:hidden">
+                            <table className="w-full text-xs">
+                              <thead>
+                                <tr className="bg-primary-50 text-primary-700">
+                                  <th className="text-left px-3 py-1.5 font-medium w-24">N° Compte</th>
+                                  <th className="text-left px-3 py-1.5 font-medium">Libellé</th>
+                                  <th className="text-right px-3 py-1.5 font-medium">Montant</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {d.comptes!.map((c, j) => (
+                                  <tr key={j} className="border-t border-gray-100 hover:bg-gray-50">
+                                    <td className="px-3 py-1.5 font-mono text-gray-500">{c.compteNum}</td>
+                                    <td className="px-3 py-1.5 text-gray-700">{c.compteLib}</td>
+                                    <td className={`px-3 py-1.5 text-right font-medium ${
+                                      c.montant >= 0 ? 'text-gray-900' : 'text-red-600'
+                                    }`}>
+                                      {formatCurrency(c.montant)}
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+
+                        {/* Print niveau 3 : toujours visible */}
+                        {hasComptes && (
+                          <div className="hidden print:block mx-5 mb-1">
+                            <table className="w-full text-xs">
+                              <tbody>
+                                {d.comptes!.map((c, j) => (
+                                  <tr key={j} className="border-t border-gray-100">
+                                    <td className="py-0.5 pl-4 font-mono text-gray-400 w-24">{c.compteNum}</td>
+                                    <td className="py-0.5 text-gray-500">{c.compteLib}</td>
+                                    <td className="py-0.5 text-right text-gray-700">{formatCurrency(c.montant)}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
                 );
               })()}
 
-              {/* En mode print, toujours afficher les détails */}
+              {/* En mode print, toujours afficher les détails niveau 2 */}
               {level.details.length > 0 && (
                 <div className="hidden print:block border-t border-gray-100 px-5 py-3">
                   <table className="w-full text-sm">

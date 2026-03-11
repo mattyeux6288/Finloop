@@ -64,10 +64,23 @@ export interface CompteDeResultat {
 
 // ---- SOLDES INTERMÉDIAIRES DE GESTION (SIG) ----
 
+export interface SigCompteDetail {
+  compteNum: string;
+  compteLib: string;
+  montant: number;
+}
+
+export interface SigDetail {
+  label: string;
+  montant: number;
+  compteRacines?: string;
+  comptes?: SigCompteDetail[];
+}
+
 export interface SigLevel {
   label: string;
   montant: number;
-  details: { label: string; montant: number; compteRacines?: string }[];
+  details: SigDetail[];
 }
 
 export interface Sig {
