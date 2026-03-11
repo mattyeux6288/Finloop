@@ -54,6 +54,19 @@ export interface CompteAggregate {
   solde: number; // debit - credit (positif = solde débiteur)
 }
 
+/** Détail d'une écriture comptable pour le popup drill-down */
+export interface EcritureDetail {
+  ecritureDate: string;
+  journalCode: string;
+  journalLib: string;
+  pieceRef: string | null;
+  ecritureLib: string;
+  debit: number;
+  credit: number;
+  ecritureNum: string;
+  ecritureLet: string | null;
+}
+
 /** Import de données */
 export interface Import {
   id: string;

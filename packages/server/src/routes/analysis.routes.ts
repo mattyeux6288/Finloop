@@ -67,4 +67,19 @@ router.get('/:fyId/rapport-activite', async (req: Request, res: Response) => {
   }
 });
 
+router.get('/:fyId/ecritures/:compteNum', async (req: Request, res: Response) => {
+  try {
+    const data = await analysisService.getEcrituresByCompte(
+      req.params.fyId as string,
+      req.params.compteNum as string,
+    );
+    res.json({ success: true, data });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      error: { code: 'ERROR', message: (err as Error).message },
+    });
+  }
+});
+
 export default router;

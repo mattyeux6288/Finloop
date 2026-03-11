@@ -1,7 +1,7 @@
 import { v4 as uuid } from 'uuid';
 import { db } from '../config/database';
 import { config } from '../config/env';
-import type { CompteAggregate } from '@finthesis/shared';
+import type { CompteAggregate, EcritureDetail } from '@finthesis/shared';
 import {
   computeBilan,
   computeCompteDeResultat,
@@ -155,4 +155,41 @@ export async function getSig(fiscalYearId: string) {
     const aggregates = await getCompteAggregates(fiscalYearId);
     return computeSig(aggregates);
   });
+}
+
+/**
+ * Récupère toutes les écritures pour un compte donné dans un exercice,
+ * triées par date puis numéro d'écriture.
+ */
+export async function getEcrituresByCompte(
+  fiscalYearId: string,
+  compteNum: string,
+): Promise<EcritureDetail[]> {
+  const rows = await db('ecritures')
+    .where({ fiscal_year_id: fiscalYearId, compte_num: compteNum })
+    .select(
+      'ecriture_date as ecritureDate',
+      'journal_code as journalCode',
+      'journal_lib as journalLib',
+      'piece_ref as pieceRef',
+      'ecriture_lib as ecritureLib',
+      'debit',
+      'credit',
+      'ecriture_num as ecritureNum',
+      'ecriture_let as ecritureLet',
+    )
+    .orderBy('ecriture_date', 'asc')
+    .orderBy('ecriture_num', 'asc');
+
+  return rows.map((r: any) => ({
+    ecritureDate: String(r.ecritureDate),
+    journalCode: String(r.journalCode),
+    journalLib: String(r.journalLib || ''),
+    pieceRef: r.pieceRef ? String(r.pieceRef) : null,
+    ecritureLib: String(r.ecritureLib || ''),
+    debit: Number(r.debit) || 0,
+    credit: Number(r.credit) || 0,
+    ecritureNum: String(r.ecritureNum),
+    ecritureLet: r.ecritureLet ? String(r.ecritureLet) : null,
+  }));
 }

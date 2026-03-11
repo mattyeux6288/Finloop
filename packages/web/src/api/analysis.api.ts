@@ -1,5 +1,5 @@
 import api from './client';
-import type { ApiResponse, DashboardData, Bilan, CompteDeResultat, Sig, RapportActiviteData } from '@finthesis/shared';
+import type { ApiResponse, DashboardData, Bilan, CompteDeResultat, Sig, RapportActiviteData, EcritureDetail } from '@finthesis/shared';
 
 export async function getDashboard(fyId: string): Promise<DashboardData> {
   const { data } = await api.get<ApiResponse<DashboardData>>(`/fiscal-years/${fyId}/dashboard`);
@@ -61,5 +61,10 @@ export async function deleteImport(importId: string): Promise<void> {
 
 export async function getRapportActivite(fyId: string): Promise<RapportActiviteData> {
   const { data } = await api.get<ApiResponse<RapportActiviteData>>(`/fiscal-years/${fyId}/rapport-activite`);
+  return data.data!;
+}
+
+export async function getEcrituresByCompte(fyId: string, compteNum: string): Promise<EcritureDetail[]> {
+  const { data } = await api.get<ApiResponse<EcritureDetail[]>>(`/fiscal-years/${fyId}/ecritures/${compteNum}`);
   return data.data!;
 }

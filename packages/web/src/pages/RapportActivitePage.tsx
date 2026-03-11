@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useCompanyStore } from '@/store/companyStore';
-import { getRapportActivite } from '@/api/analysis.api';
+import { getRapportActivite, getEcrituresByCompte } from '@/api/analysis.api';
 import { formatPercent } from '@finthesis/shared';
 import { useCurrencyFormat } from '@/hooks/useCurrencyFormat';
 import type {
@@ -13,6 +13,7 @@ import type {
   SigLevel,
   SigDetail,
   RapportActiviteData,
+  EcritureDetail,
 } from '@finthesis/shared';
 import {
   Printer,
@@ -24,6 +25,8 @@ import {
   BarChart3,
   Info,
   ArrowRight,
+  Search,
+  X,
 } from 'lucide-react';
 
 // ════════════════════════════════════════════
@@ -82,6 +85,165 @@ function ExpertTooltip({ children }: { children: React.ReactNode }) {
         </div>
       )}
     </span>
+  );
+}
+
+// ════════════════════════════════════════════
+// Composant : Modal Écritures par compte
+// ════════════════════════════════════════════
+
+function EcrituresModal({
+  compteNum,
+  compteLib,
+  fiscalYearId,
+  onClose,
+}: {
+  compteNum: string;
+  compteLib: string;
+  fiscalYearId: string;
+  onClose: () => void;
+}) {
+  const { formatCurrency } = useCurrencyFormat();
+  const backdropRef = useRef<HTMLDivElement>(null);
+
+  const { data: ecritures, isLoading, error } = useQuery({
+    queryKey: ['ecritures', fiscalYearId, compteNum],
+    queryFn: () => getEcrituresByCompte(fiscalYearId, compteNum),
+  });
+
+  // Fermer avec Escape
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [onClose]);
+
+  // Fermer au clic sur le fond
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === backdropRef.current) onClose();
+  };
+
+  // Bloquer le scroll du body quand le modal est ouvert
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, []);
+
+  const totalDebit = ecritures?.reduce((s, e) => s + e.debit, 0) ?? 0;
+  const totalCredit = ecritures?.reduce((s, e) => s + e.credit, 0) ?? 0;
+
+  return (
+    <div
+      ref={backdropRef}
+      onClick={handleBackdropClick}
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm print:hidden"
+    >
+      <div className="bg-white rounded-2xl shadow-2xl w-[90vw] max-w-4xl max-h-[85vh] flex flex-col overflow-hidden border border-gray-200">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50 shrink-0">
+          <div className="flex items-center gap-3 min-w-0">
+            <span className="font-mono text-sm bg-primary-100 text-primary-700 px-2.5 py-1 rounded font-semibold">
+              {compteNum}
+            </span>
+            <h3 className="text-base font-semibold text-gray-900 truncate">
+              {compteLib}
+            </h3>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-lg hover:bg-gray-200 transition-colors text-gray-500 hover:text-gray-700 shrink-0 ml-3"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="flex-1 overflow-auto px-6 py-4">
+          {isLoading && (
+            <div className="flex flex-col items-center justify-center py-12 gap-3">
+              <div className="animate-spin rounded-full h-7 w-7 border-b-2 border-primary-600" />
+              <p className="text-sm text-gray-500">Chargement des écritures...</p>
+            </div>
+          )}
+
+          {error && (
+            <div className="bg-red-50 text-red-700 rounded-lg p-4 text-sm">
+              Erreur lors du chargement des écritures.
+            </div>
+          )}
+
+          {ecritures && ecritures.length === 0 && (
+            <p className="text-sm text-gray-500 text-center py-8">
+              Aucune écriture trouvée pour ce compte.
+            </p>
+          )}
+
+          {ecritures && ecritures.length > 0 && (
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b-2 border-gray-200 text-left text-xs text-gray-500 uppercase tracking-wider">
+                  <th className="pb-2 pr-3">Date</th>
+                  <th className="pb-2 pr-3">Journal</th>
+                  <th className="pb-2 pr-3">Pièce</th>
+                  <th className="pb-2 pr-3">Libellé</th>
+                  <th className="pb-2 pr-3 text-right">Débit</th>
+                  <th className="pb-2 text-right">Crédit</th>
+                </tr>
+              </thead>
+              <tbody>
+                {ecritures.map((e, i) => (
+                  <tr key={i} className="border-t border-gray-100 hover:bg-gray-50">
+                    <td className="py-1.5 pr-3 text-gray-600 whitespace-nowrap">
+                      {formatDateFr(e.ecritureDate)}
+                    </td>
+                    <td className="py-1.5 pr-3 font-mono text-xs text-gray-500" title={e.journalLib}>
+                      {e.journalCode}
+                    </td>
+                    <td className="py-1.5 pr-3 text-gray-500 text-xs">
+                      {e.pieceRef || '—'}
+                    </td>
+                    <td className="py-1.5 pr-3 text-gray-700 max-w-xs truncate">
+                      {e.ecritureLib}
+                    </td>
+                    <td className="py-1.5 pr-3 text-right font-medium text-gray-900 whitespace-nowrap">
+                      {e.debit > 0 ? formatCurrency(e.debit) : ''}
+                    </td>
+                    <td className="py-1.5 text-right font-medium text-gray-900 whitespace-nowrap">
+                      {e.credit > 0 ? formatCurrency(e.credit) : ''}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr className="border-t-2 border-gray-300 font-bold">
+                  <td colSpan={4} className="py-2 pr-3 text-right text-gray-700">
+                    Totaux ({ecritures.length} écriture{ecritures.length > 1 ? 's' : ''})
+                  </td>
+                  <td className="py-2 pr-3 text-right text-gray-900 whitespace-nowrap">
+                    {formatCurrency(totalDebit)}
+                  </td>
+                  <td className="py-2 text-right text-gray-900 whitespace-nowrap">
+                    {formatCurrency(totalCredit)}
+                  </td>
+                </tr>
+                <tr>
+                  <td colSpan={4} className="py-1 pr-3 text-right text-sm text-gray-500">
+                    Solde
+                  </td>
+                  <td colSpan={2} className={`py-1 text-right font-bold ${
+                    totalDebit - totalCredit >= 0 ? 'text-gray-900' : 'text-red-600'
+                  }`}>
+                    {formatCurrency(totalDebit - totalCredit)}
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -282,11 +444,13 @@ function SIGSection({
   ratios,
   nafLibelle,
   chiffreAffaires,
+  onOpenEcritures,
 }: {
   sig: Sig;
   ratios: RatioFinancier[];
   nafLibelle?: string;
   chiffreAffaires: number;
+  onOpenEcritures: (compteNum: string, compteLib: string) => void;
 }) {
   const { formatCurrency } = useCurrencyFormat();
   const [openLevels, setOpenLevels] = useState<Set<string>>(new Set());
@@ -495,7 +659,18 @@ function SIGSection({
                               <tbody>
                                 {d.comptes!.map((c, j) => (
                                   <tr key={j} className="border-t border-gray-100 hover:bg-gray-50">
-                                    <td className="px-3 py-1.5 font-mono text-gray-500">{c.compteNum}</td>
+                                    <td className="px-3 py-1.5 font-mono text-gray-500">
+                                      <span className="inline-flex items-center gap-1.5">
+                                        {c.compteNum}
+                                        <button
+                                          onClick={(ev) => { ev.stopPropagation(); onOpenEcritures(c.compteNum, c.compteLib); }}
+                                          className="text-primary-400 hover:text-primary-600 transition-colors"
+                                          title="Voir les écritures"
+                                        >
+                                          <Search className="w-3.5 h-3.5" />
+                                        </button>
+                                      </span>
+                                    </td>
                                     <td className="px-3 py-1.5 text-gray-700">{c.compteLib}</td>
                                     <td className={`px-3 py-1.5 text-right font-medium ${
                                       c.montant >= 0 ? 'text-gray-900' : 'text-red-600'
@@ -618,12 +793,14 @@ function BilanSide({
   total,
   tooltips,
   top3Items,
+  onOpenEcritures,
 }: {
   title: string;
   sections: BilanSection[];
   total: number;
   tooltips: Record<string, string>;
   top3Items: Set<string>;
+  onOpenEcritures: (compteNum: string, compteLib: string) => void;
 }) {
   const { formatCurrency } = useCurrencyFormat();
   const [openSections, setOpenSections] = useState<Set<string>>(new Set());
@@ -743,7 +920,18 @@ function BilanSide({
                               <tbody>
                                 {item.comptes!.map((c, j) => (
                                   <tr key={j} className="border-t border-gray-100 hover:bg-gray-50">
-                                    <td className="px-3 py-1.5 font-mono text-gray-500">{c.compteNum}</td>
+                                    <td className="px-3 py-1.5 font-mono text-gray-500">
+                                      <span className="inline-flex items-center gap-1.5">
+                                        {c.compteNum}
+                                        <button
+                                          onClick={(ev) => { ev.stopPropagation(); onOpenEcritures(c.compteNum, c.compteLib); }}
+                                          className="text-primary-400 hover:text-primary-600 transition-colors"
+                                          title="Voir les écritures"
+                                        >
+                                          <Search className="w-3.5 h-3.5" />
+                                        </button>
+                                      </span>
+                                    </td>
                                     <td className="px-3 py-1.5 text-gray-700">{c.compteLib}</td>
                                     <td className={`px-3 py-1.5 text-right font-medium ${
                                       c.montant >= 0 ? 'text-gray-900' : 'text-red-600'
@@ -796,10 +984,12 @@ function BilanDetailSection({
   bilan,
   ratios,
   nafLibelle,
+  onOpenEcritures,
 }: {
   bilan: Bilan;
   ratios: RatioFinancier[];
   nafLibelle?: string;
+  onOpenEcritures: (compteNum: string, compteLib: string) => void;
 }) {
   // Identifier les 3 plus gros postes actif et passif
   const actifSections: BilanSection[] = [
@@ -839,6 +1029,7 @@ function BilanDetailSection({
           total={bilan.actif.totalActif}
           tooltips={BILAN_ACTIF_TOOLTIPS}
           top3Items={top3Actif}
+          onOpenEcritures={onOpenEcritures}
         />
         <BilanSide
           title="Passif"
@@ -846,6 +1037,7 @@ function BilanDetailSection({
           total={bilan.passif.totalPassif}
           tooltips={BILAN_PASSIF_TOOLTIPS}
           top3Items={top3Passif}
+          onOpenEcritures={onOpenEcritures}
         />
       </div>
 
@@ -880,6 +1072,13 @@ function BilanDetailSection({
 
 export function RapportActivitePage() {
   const { selectedFiscalYear } = useCompanyStore();
+  const [ecrituresModal, setEcrituresModal] = useState<{
+    compteNum: string;
+    compteLib: string;
+  } | null>(null);
+
+  const openEcritures = (compteNum: string, compteLib: string) =>
+    setEcrituresModal({ compteNum, compteLib });
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['rapport-activite', selectedFiscalYear?.id],
@@ -921,18 +1120,30 @@ export function RapportActivitePage() {
         ratios={data.ratios}
         nafLibelle={data.entreprise.nafLibelle}
         chiffreAffaires={data.kpis.chiffreAffaires}
+        onOpenEcritures={openEcritures}
       />
 
       <BilanDetailSection
         bilan={data.bilan}
         ratios={data.ratios}
         nafLibelle={data.entreprise.nafLibelle}
+        onOpenEcritures={openEcritures}
       />
 
       {/* Footer print */}
       <div className="hidden print:block text-center text-xs text-gray-400 mt-8 pt-4 border-t border-gray-200">
         <p>Rapport généré par Finloop — Raly Conseils — {new Date(data.genereA).toLocaleDateString('fr-FR')}</p>
       </div>
+
+      {/* Modal écritures */}
+      {ecrituresModal && selectedFiscalYear && (
+        <EcrituresModal
+          compteNum={ecrituresModal.compteNum}
+          compteLib={ecrituresModal.compteLib}
+          fiscalYearId={selectedFiscalYear.id}
+          onClose={() => setEcrituresModal(null)}
+        />
+      )}
     </div>
   );
 }
