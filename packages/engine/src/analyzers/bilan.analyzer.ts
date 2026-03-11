@@ -1,4 +1,4 @@
-import type { CompteAggregate, Bilan, BilanSection, BilanItem } from '@finthesis/shared';
+import type { CompteAggregate, Bilan, BilanSection, BilanItem, SigCompteDetail } from '@finthesis/shared';
 import { BILAN_MAPPING, PCG_MAIN_ACCOUNTS, compteStartsWith } from '@finthesis/shared';
 
 /**
@@ -20,27 +20,40 @@ export function computeBilan(aggregates: CompteAggregate[]): Bilan {
       const montantBrut = matching.reduce((sum, a) => sum + Math.abs(a.solde), 0);
       const libelle = PCG_MAIN_ACCOUNTS[racine] || `Compte ${racine}`;
 
+      const comptes: SigCompteDetail[] = matching
+        .map((a) => ({ compteNum: a.compteNum, compteLib: a.compteLib, montant: round(Math.abs(a.solde)) }))
+        .filter((c) => c.montant !== 0)
+        .sort((a, b) => Math.abs(b.montant) - Math.abs(a.montant));
+
       items.push({
         compteRacine: racine,
         label: libelle,
         montant: montantBrut,
+        comptes,
       });
       total += montantBrut;
     }
 
     // Soustraire les amortissements/dépréciations
     if (amortRacines.length > 0) {
+      const amortComptes: SigCompteDetail[] = [];
       let totalAmort = 0;
       for (const racine of amortRacines) {
         const matching = aggregates.filter((a) => a.compteRacine.startsWith(racine));
         const montant = matching.reduce((sum, a) => sum + Math.abs(a.solde), 0);
         totalAmort += montant;
+        for (const a of matching) {
+          if (Math.abs(a.solde) > 0) {
+            amortComptes.push({ compteNum: a.compteNum, compteLib: a.compteLib, montant: round(-Math.abs(a.solde)) });
+          }
+        }
       }
       if (totalAmort > 0) {
         items.push({
           compteRacine: amortRacines[0],
           label: 'Amortissements et dépréciations',
           montant: -totalAmort,
+          comptes: amortComptes.sort((a, b) => Math.abs(b.montant) - Math.abs(a.montant)),
         });
         total -= totalAmort;
       }
@@ -149,17 +162,22 @@ export function computeBilan(aggregates: CompteAggregate[]): Bilan {
 }
 
 function buildItemsFromAggregates(aggregates: CompteAggregate[]): BilanItem[] {
-  const byRacine = new Map<string, { label: string; montant: number }>();
+  const byRacine = new Map<string, { label: string; montant: number; comptes: SigCompteDetail[] }>();
 
   for (const agg of aggregates) {
     const racine = agg.compteRacine;
     const existing = byRacine.get(racine);
+    const compteMontant = round(Math.abs(agg.solde));
     if (existing) {
       existing.montant += Math.abs(agg.solde);
+      if (compteMontant !== 0) {
+        existing.comptes.push({ compteNum: agg.compteNum, compteLib: agg.compteLib, montant: compteMontant });
+      }
     } else {
       byRacine.set(racine, {
         label: PCG_MAIN_ACCOUNTS[agg.compteRacine.substring(0, 2)] || agg.compteLib,
         montant: Math.abs(agg.solde),
+        comptes: compteMontant !== 0 ? [{ compteNum: agg.compteNum, compteLib: agg.compteLib, montant: compteMontant }] : [],
       });
     }
   }
@@ -167,6 +185,11 @@ function buildItemsFromAggregates(aggregates: CompteAggregate[]): BilanItem[] {
   return Array.from(byRacine.entries()).map(([racine, data]) => ({
     compteRacine: racine,
     label: data.label,
-    montant: Math.round(data.montant * 100) / 100,
+    montant: round(data.montant),
+    comptes: data.comptes.sort((a, b) => Math.abs(b.montant) - Math.abs(a.montant)),
   }));
+}
+
+function round(value: number): number {
+  return Math.round(value * 100) / 100;
 }

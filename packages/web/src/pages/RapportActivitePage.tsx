@@ -625,12 +625,22 @@ function BilanSide({
 }) {
   const { formatCurrency } = useCurrencyFormat();
   const [openSections, setOpenSections] = useState<Set<string>>(new Set());
+  const [openItems, setOpenItems] = useState<Set<string>>(new Set());
 
   const toggleSection = (label: string) => {
     setOpenSections((prev) => {
       const next = new Set(prev);
       if (next.has(label)) next.delete(label);
       else next.add(label);
+      return next;
+    });
+  };
+
+  const toggleItem = (key: string) => {
+    setOpenItems((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
       return next;
     });
   };
@@ -687,24 +697,66 @@ function BilanSide({
                 </span>
               </button>
 
-              {/* Items détaillés */}
+              {/* Items détaillés — niveau 2 */}
               {isOpen && section.items.length > 0 && (
-                <div className="border-t border-gray-100 px-4 py-2 bg-gray-50">
-                  <table className="w-full text-sm">
-                    <tbody>
-                      {section.items.map((item, i) => (
-                        <tr key={i} className="border-t border-gray-100 first:border-t-0">
-                          <td className="py-1 text-gray-500 font-mono text-xs w-16">{item.compteRacine}</td>
-                          <td className="py-1 text-gray-700">{item.label}</td>
-                          <td className={`py-1 text-right font-medium ${
+                <div className="border-t border-gray-100 bg-gray-50">
+                  {section.items.map((item, i) => {
+                    const itemKey = `${section.label}_${i}`;
+                    const isItemOpen = openItems.has(itemKey);
+                    const hasComptes = item.comptes && item.comptes.length > 0;
+
+                    return (
+                      <div key={i} className="border-t border-gray-100 first:border-t-0">
+                        <div
+                          className={`flex items-center gap-2 px-4 py-2 ${hasComptes ? 'cursor-pointer hover:bg-gray-100 transition-colors' : ''}`}
+                          onClick={() => hasComptes && toggleItem(itemKey)}
+                        >
+                          <span className="w-4 shrink-0 print:hidden">
+                            {hasComptes ? (
+                              isItemOpen
+                                ? <ChevronDown className="w-3.5 h-3.5 text-primary-400" />
+                                : <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
+                            ) : null}
+                          </span>
+                          <span className="text-gray-500 font-mono text-xs w-12 shrink-0">{item.compteRacine}</span>
+                          <span className="flex-1 text-sm text-gray-700">
+                            {item.label}
+                            {hasComptes && (
+                              <span className="ml-1.5 text-[10px] text-gray-400 font-normal print:hidden">
+                                ({item.comptes!.length} compte{item.comptes!.length > 1 ? 's' : ''})
+                              </span>
+                            )}
+                          </span>
+                          <span className={`text-sm font-medium shrink-0 ${
                             item.montant >= 0 ? 'text-gray-900' : 'text-red-600'
                           }`}>
                             {formatCurrency(item.montant)}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                          </span>
+                        </div>
+
+                        {/* Niveau 3 : comptes individuels */}
+                        {isItemOpen && hasComptes && (
+                          <div className="mx-4 mb-2 rounded-lg border border-primary-100 bg-white overflow-hidden print:hidden">
+                            <table className="w-full text-xs">
+                              <tbody>
+                                {item.comptes!.map((c, j) => (
+                                  <tr key={j} className="border-t border-gray-100 hover:bg-gray-50">
+                                    <td className="px-3 py-1.5 font-mono text-gray-500">{c.compteNum}</td>
+                                    <td className="px-3 py-1.5 text-gray-700">{c.compteLib}</td>
+                                    <td className={`px-3 py-1.5 text-right font-medium ${
+                                      c.montant >= 0 ? 'text-gray-900' : 'text-red-600'
+                                    }`}>
+                                      {formatCurrency(c.montant)}
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
 

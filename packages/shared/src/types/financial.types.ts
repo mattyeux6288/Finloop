@@ -14,7 +14,7 @@ export interface BilanItem {
   compteRacine: string;
   label: string;
   montant: number;
-  children?: BilanItem[];
+  comptes?: SigCompteDetail[];
 }
 
 export interface Bilan {
