@@ -254,6 +254,7 @@ function EcrituresModal({
 // ════════════════════════════════════════════
 
 function DeltaBadge({ valueN, valueN1, className = '' }: { valueN: number; valueN1: number; className?: string }) {
+  const { formatCurrency } = useCurrencyFormat();
   if (valueN1 === 0 && valueN === 0) return null;
   const delta = valueN1 !== 0 ? ((valueN - valueN1) / Math.abs(valueN1)) * 100 : null;
   if (delta === null) return null;
@@ -262,11 +263,14 @@ function DeltaBadge({ valueN, valueN1, className = '' }: { valueN: number; value
   const Icon = isPositive ? ArrowUpRight : ArrowDownRight;
 
   return (
-    <span className={`inline-flex items-center gap-0.5 text-xs font-semibold px-1.5 py-0.5 rounded-full ${
-      isPositive
-        ? 'bg-green-100 text-green-700'
-        : 'bg-red-100 text-red-600'
-    } ${className}`}>
+    <span
+      className={`inline-flex items-center gap-0.5 text-xs font-semibold px-1.5 py-0.5 rounded-full cursor-help ${
+        isPositive
+          ? 'bg-green-100 text-green-700'
+          : 'bg-red-100 text-red-600'
+      } ${className}`}
+      title={`N-1 : ${formatCurrency(valueN1)}`}
+    >
       <Icon className="w-3 h-3" />
       {isPositive ? '+' : ''}{delta.toFixed(1)}%
     </span>
