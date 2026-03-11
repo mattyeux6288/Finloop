@@ -336,6 +336,11 @@ function SIGSection({
 
   return (
     <section className="print:break-before-page">
+      <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+        <TrendingUp className="w-5 h-5 text-accent-500" />
+        Soldes Intermédiaires de Gestion (SIG)
+      </h2>
+
       {/* Encart Chiffre d'Affaires */}
       <div className="rounded-xl border-2 border-primary-300 bg-primary-50 p-5 mb-6 print:bg-white">
         <div className="flex items-center justify-between">
@@ -350,11 +355,6 @@ function SIGSection({
           </span>
         </div>
       </div>
-
-      <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-        <TrendingUp className="w-5 h-5 text-accent-500" />
-        Soldes Intermédiaires de Gestion (SIG)
-      </h2>
 
       {/* Cascade SIG */}
       <div className="space-y-2 mb-8">
