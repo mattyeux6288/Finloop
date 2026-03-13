@@ -16,6 +16,7 @@ import * as m010 from './migrations/010_create_krokmou_conversations';
 import * as m011 from './migrations/011_create_krokmou_documents';
 import * as m012 from './migrations/012_add_dirigeant_to_companies';
 import * as m013 from './migrations/013_create_account_mappings';
+import * as m014 from './migrations/014_widen_ecritures_text_columns';
 
 interface MigrationModule {
   up: (knex: Knex) => Promise<void>;
@@ -36,6 +37,7 @@ const ALL_MIGRATIONS: { name: string; mod: MigrationModule }[] = [
   { name: '011_create_krokmou_documents.ts',     mod: m011 },
   { name: '012_add_dirigeant_to_companies.ts',  mod: m012 },
   { name: '013_create_account_mappings.ts',     mod: m013 },
+  { name: '014_widen_ecritures_text_columns.ts', mod: m014 },
 ];
 
 export const migrationSource: Knex.MigrationSource<{ name: string; mod: MigrationModule }> = {
