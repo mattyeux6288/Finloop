@@ -9,6 +9,7 @@ import {
   updateUser as apiUpdateUser,
   resetUserPassword,
   toggleUserActive as apiToggleUserActive,
+  deleteCompany as apiDeleteCompany,
   seedFec2024 as apiSeedFec2024,
 } from '@/api/admin.api';
 import { getCompanies, getFiscalYears } from '@/api/company.api';
@@ -36,7 +37,7 @@ export function AdminPage() {
   const { users, setUsers, addUser, removeUser, updateUserInStore, loading, setLoading } =
     useAdminStore();
   const { user: currentUser } = useAuthStore();
-  const { companies, setCompanies, selectedCompany, setFiscalYears } = useCompanyStore();
+  const { companies, setCompanies, selectedCompany, selectCompany, setFiscalYears } = useCompanyStore();
 
   // Create form
   const [email, setEmail] = useState('');
@@ -58,6 +59,9 @@ export function AdminPage() {
 
   // Toggle active confirmation
   const [togglingId, setTogglingId] = useState<string | null>(null);
+
+  // Delete company confirmation
+  const [deletingCompany, setDeletingCompany] = useState<{ id: string; name: string } | null>(null);
 
   // Messages
   const [message, setMessage] = useState('');
@@ -198,6 +202,29 @@ export function AdminPage() {
     } catch (err: any) {
       const apiError = err?.response?.data?.error;
       setMessage(apiError?.message || err?.message || 'Erreur lors du changement de statut.');
+      setMessageType('error');
+    }
+  }
+
+  async function handleDeleteCompany() {
+    if (!deletingCompany) return;
+    setMessage('');
+    try {
+      await apiDeleteCompany(deletingCompany.id);
+      setDeletingCompany(null);
+      setMessage(`Entreprise « ${deletingCompany.name} » supprimée avec succès.`);
+      setMessageType('success');
+      // Rafraîchir la liste des utilisateurs (met à jour les companies associées)
+      await loadUsers();
+      // Si l'entreprise supprimée est celle sélectionnée, désélectionner
+      if (selectedCompany?.id === deletingCompany.id) {
+        selectCompany(null);
+        const freshCompanies = await getCompanies();
+        setCompanies(freshCompanies);
+      }
+    } catch (err: any) {
+      const apiError = err?.response?.data?.error;
+      setMessage(apiError?.message || err?.message || 'Erreur lors de la suppression.');
       setMessageType('error');
     }
   }
@@ -530,9 +557,21 @@ export function AdminPage() {
                           Créé le {formatDate(u.createdAt)}
                         </span>
                         {u.companies.length > 0 && (
-                          <span className="flex items-center gap-1 text-xs text-gray-500">
-                            <Building2 className="w-3 h-3" />
-                            {u.companies.map((c) => c.name).join(', ')}
+                          <span className="flex items-center gap-1 text-xs text-gray-500 flex-wrap">
+                            <Building2 className="w-3 h-3 shrink-0" />
+                            {u.companies.map((c, idx) => (
+                              <span key={c.id} className="inline-flex items-center gap-0.5">
+                                {c.name}
+                                <button
+                                  onClick={(ev) => { ev.stopPropagation(); setDeletingCompany({ id: c.id, name: c.name }); }}
+                                  className="text-gray-300 hover:text-red-500 transition-colors"
+                                  title={`Supprimer ${c.name}`}
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </button>
+                                {idx < u.companies.length - 1 && <span className="text-gray-300 mx-0.5">·</span>}
+                              </span>
+                            ))}
                           </span>
                         )}
                       </div>
@@ -584,6 +623,37 @@ export function AdminPage() {
           </div>
         )}
       </div>
+
+      {/* Modale de confirmation suppression entreprise */}
+      {deletingCompany && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-xl">
+            <div className="flex items-start gap-3 text-red-700 mb-4">
+              <AlertCircle className="w-5 h-5 mt-0.5 shrink-0" />
+              <div>
+                <p className="font-semibold">Supprimer « {deletingCompany.name} » ?</p>
+                <p className="text-sm text-gray-600 mt-1">
+                  Toutes les données seront définitivement supprimées : exercices, FEC, écritures, rapports, conversations IA et mappings de comptes.
+                </p>
+              </div>
+            </div>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setDeletingCompany(null)}
+                className="flex items-center gap-1 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200"
+              >
+                <X className="w-3.5 h-3.5" /> Annuler
+              </button>
+              <button
+                onClick={handleDeleteCompany}
+                className="flex items-center gap-1 bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-700"
+              >
+                <Trash2 className="w-3.5 h-3.5" /> Supprimer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

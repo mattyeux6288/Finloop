@@ -528,6 +528,7 @@ function SIGSection({
   const { formatCurrency } = useCurrencyFormat();
   const [openLevels, setOpenLevels] = useState<Set<string>>(new Set());
   const [openDetails, setOpenDetails] = useState<Set<string>>(new Set());
+  const [isDragging, setIsDragging] = useState(false);
 
   const toggleLevel = (label: string) => {
     setOpenLevels((prev) => {
@@ -637,11 +638,11 @@ function SIGSection({
             >
               {/* En-tête du niveau SIG — drop target */}
               <div
-                onDragOver={(ev) => { ev.preventDefault(); ev.currentTarget.classList.add('ring-2', 'ring-accent-400'); }}
-                onDragLeave={(ev) => { ev.currentTarget.classList.remove('ring-2', 'ring-accent-400'); }}
+                onDragOver={(ev) => { ev.preventDefault(); ev.currentTarget.classList.add('ring-2', 'ring-accent-400', 'bg-accent-50/50'); }}
+                onDragLeave={(ev) => { ev.currentTarget.classList.remove('ring-2', 'ring-accent-400', 'bg-accent-50/50'); }}
                 onDrop={(ev) => {
                   ev.preventDefault();
-                  ev.currentTarget.classList.remove('ring-2', 'ring-accent-400');
+                  ev.currentTarget.classList.remove('ring-2', 'ring-accent-400', 'bg-accent-50/50');
                   try {
                     const payload = JSON.parse(ev.dataTransfer.getData('application/json'));
                     onOverride({
@@ -651,7 +652,7 @@ function SIGSection({
                     });
                   } catch {}
                 }}
-                className="transition-all rounded-xl"
+                className={`transition-all rounded-xl ${isDragging ? 'border-2 border-dashed border-accent-300 print:border-0' : ''}`}
               >
               <button
                 onClick={() => toggleLevel(key)}
@@ -732,7 +733,25 @@ function SIGSection({
                     const hasComptes = d.comptes && d.comptes.length > 0;
 
                     return (
-                      <div key={i} className="border-t border-gray-100 first:border-t-0">
+                      <div
+                        key={i}
+                        className={`border-t border-gray-100 first:border-t-0 transition-all ${isDragging ? 'border-l-2 border-l-accent-200' : ''}`}
+                        onDragOver={(ev) => { ev.preventDefault(); ev.stopPropagation(); ev.currentTarget.classList.add('ring-2', 'ring-accent-400', 'bg-accent-50/50'); }}
+                        onDragLeave={(ev) => { ev.currentTarget.classList.remove('ring-2', 'ring-accent-400', 'bg-accent-50/50'); }}
+                        onDrop={(ev) => {
+                          ev.preventDefault();
+                          ev.stopPropagation();
+                          ev.currentTarget.classList.remove('ring-2', 'ring-accent-400', 'bg-accent-50/50');
+                          try {
+                            const payload = JSON.parse(ev.dataTransfer.getData('application/json'));
+                            onOverride({
+                              compteNum: payload.compteNum,
+                              compteLib: payload.compteLib,
+                              target: { type: 'sig', sigStep: stepKey, sigItemIndex: i },
+                            });
+                          } catch {}
+                        }}
+                      >
                         {/* Ligne de détail — cliquable si comptes disponibles */}
                         <div
                           className={`flex items-center gap-2 px-5 py-2 ${isMax ? 'bg-accent-50/50' : ''} ${hasComptes ? 'cursor-pointer hover:bg-gray-100 transition-colors' : ''}`}
@@ -792,7 +811,9 @@ function SIGSection({
                                         sourceType: 'sig',
                                       }));
                                       ev.dataTransfer.effectAllowed = 'move';
+                                      setIsDragging(true);
                                     }}
+                                    onDragEnd={() => setIsDragging(false)}
                                     className="border-t border-gray-100 hover:bg-gray-50 cursor-grab active:cursor-grabbing"
                                   >
                                     <td className="px-3 py-1.5 font-mono text-gray-500">
@@ -985,6 +1006,7 @@ function BilanSide({
   const { formatCurrency } = useCurrencyFormat();
   const [openSections, setOpenSections] = useState<Set<string>>(new Set());
   const [openItems, setOpenItems] = useState<Set<string>>(new Set());
+  const [isDragging, setIsDragging] = useState(false);
 
   const toggleSection = (label: string) => {
     setOpenSections((prev) => {
@@ -1036,11 +1058,11 @@ function BilanSide({
             >
               {/* En-tête de section bilan — drop target */}
               <div
-                onDragOver={(ev) => { ev.preventDefault(); ev.currentTarget.classList.add('ring-2', 'ring-accent-400'); }}
-                onDragLeave={(ev) => { ev.currentTarget.classList.remove('ring-2', 'ring-accent-400'); }}
+                onDragOver={(ev) => { ev.preventDefault(); ev.currentTarget.classList.add('ring-2', 'ring-accent-400', 'bg-accent-50/50'); }}
+                onDragLeave={(ev) => { ev.currentTarget.classList.remove('ring-2', 'ring-accent-400', 'bg-accent-50/50'); }}
                 onDrop={(ev) => {
                   ev.preventDefault();
-                  ev.currentTarget.classList.remove('ring-2', 'ring-accent-400');
+                  ev.currentTarget.classList.remove('ring-2', 'ring-accent-400', 'bg-accent-50/50');
                   try {
                     const payload = JSON.parse(ev.dataTransfer.getData('application/json'));
                     onOverride({
@@ -1050,7 +1072,7 @@ function BilanSide({
                     });
                   } catch {}
                 }}
-                className="transition-all rounded-lg"
+                className={`transition-all rounded-lg ${isDragging ? 'border-2 border-dashed border-accent-300 print:border-0' : ''}`}
               >
               <button
                 onClick={() => toggleSection(section.label)}
@@ -1102,7 +1124,25 @@ function BilanSide({
                     const hasComptes = item.comptes && item.comptes.length > 0;
 
                     return (
-                      <div key={i} className="border-t border-gray-100 first:border-t-0">
+                      <div
+                        key={i}
+                        className={`border-t border-gray-100 first:border-t-0 transition-all ${isDragging ? 'border-l-2 border-l-accent-200' : ''}`}
+                        onDragOver={(ev) => { ev.preventDefault(); ev.stopPropagation(); ev.currentTarget.classList.add('ring-2', 'ring-accent-400', 'bg-accent-50/50'); }}
+                        onDragLeave={(ev) => { ev.currentTarget.classList.remove('ring-2', 'ring-accent-400', 'bg-accent-50/50'); }}
+                        onDrop={(ev) => {
+                          ev.preventDefault();
+                          ev.stopPropagation();
+                          ev.currentTarget.classList.remove('ring-2', 'ring-accent-400', 'bg-accent-50/50');
+                          try {
+                            const payload = JSON.parse(ev.dataTransfer.getData('application/json'));
+                            onOverride({
+                              compteNum: payload.compteNum,
+                              compteLib: payload.compteLib,
+                              target: { type: 'bilan', bilanSection: sectionKey, bilanSide },
+                            });
+                          } catch {}
+                        }}
+                      >
                         <div
                           className={`flex items-center gap-2 px-4 py-2 ${hasComptes ? 'cursor-pointer hover:bg-gray-100 transition-colors' : ''}`}
                           onClick={() => hasComptes && toggleItem(itemKey)}
@@ -1148,7 +1188,9 @@ function BilanSide({
                                         sourceType: 'bilan',
                                       }));
                                       ev.dataTransfer.effectAllowed = 'move';
+                                      setIsDragging(true);
                                     }}
+                                    onDragEnd={() => setIsDragging(false)}
                                     className="border-t border-gray-100 hover:bg-gray-50 cursor-grab active:cursor-grabbing"
                                   >
                                     <td className="px-3 py-1.5 font-mono text-gray-500">

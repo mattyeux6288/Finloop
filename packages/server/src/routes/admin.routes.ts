@@ -2,6 +2,7 @@ import { Router, Response } from 'express';
 import { authMiddleware, AuthRequest } from '../middleware/auth.middleware';
 import { adminMiddleware } from '../middleware/admin.middleware';
 import * as adminService from '../services/admin.service';
+import * as companyService from '../services/company.service';
 import { seedFec2024 } from '../services/admin.seed.service';
 
 const router = Router();
@@ -126,6 +127,19 @@ router.put('/companies/:companyId/assign/:userId', async (req: AuthRequest, res:
     res.status(400).json({
       success: false,
       error: { code: 'ASSIGN_FAILED', message: (err as Error).message },
+    });
+  }
+});
+
+/** DELETE /admin/companies/:id — Supprimer une entreprise (admin) */
+router.delete('/companies/:id', async (req: AuthRequest, res: Response) => {
+  try {
+    await companyService.deleteCompany(req.params.id as string);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(404).json({
+      success: false,
+      error: { code: 'NOT_FOUND', message: (err as Error).message },
     });
   }
 });
