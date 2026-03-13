@@ -3,7 +3,6 @@ import { supabase } from '@/config/supabase';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL ?? '/api/v1',
-  headers: { 'Content-Type': 'application/json' },
 });
 
 // Request interceptor: get token from Supabase session

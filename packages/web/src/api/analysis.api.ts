@@ -24,18 +24,16 @@ export async function getSig(fyId: string): Promise<Sig> {
 export async function uploadFile(fyId: string, file: File) {
   const formData = new FormData();
   formData.append('file', file);
-  const { data } = await api.post(`/fiscal-years/${fyId}/import`, formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  });
+  // Ne pas forcer Content-Type — axios détecte FormData et ajoute le boundary automatiquement
+  const { data } = await api.post(`/fiscal-years/${fyId}/import`, formData);
   return data;
 }
 
 export async function uploadFileAutoDetect(companyId: string, file: File) {
   const formData = new FormData();
   formData.append('file', file);
-  const { data } = await api.post(`/companies/${companyId}/import`, formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  });
+  // Ne pas forcer Content-Type — axios détecte FormData et ajoute le boundary automatiquement
+  const { data } = await api.post(`/companies/${companyId}/import`, formData);
   return data;
 }
 
